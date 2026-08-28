@@ -24,7 +24,13 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: "a-first-win", name: "First Blood", emoji: "⚔️", metric: "wins", threshold: 1 },
   { id: "a-ten-win", name: "Arena Regular", emoji: "🛡️", metric: "wins", threshold: 10 },
   { id: "a-week-streak", name: "Seven Seals", emoji: "🕯️", metric: "bestStreak", threshold: 7 },
-  { id: "a-month-streak", name: "Perpetual Flame", emoji: "🔥", metric: "bestStreak", threshold: 28 },
+  {
+    id: "a-month-streak",
+    name: "Perpetual Flame",
+    emoji: "🔥",
+    metric: "bestStreak",
+    threshold: 28,
+  },
 ];
 
 export function earnedAchievements(totals: PlayerTotals): string[] {

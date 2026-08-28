@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { hashToHex } from "../engine";
 import { MemoryBackend } from "../persist/store";
 import { LocalRegistry } from "./local";
 import { recipeHash } from "./recipe";
-import { hashToHex } from "../engine";
 
 describe("recipe registry — first-discovery credits (spec §6)", () => {
   it("first claim wins and is marked new", async () => {

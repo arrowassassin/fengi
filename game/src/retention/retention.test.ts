@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { serializeLog } from "../engine";
-import { dailyBossSquad } from "./dailyBoss";
 import { ACHIEVEMENTS, earnedAchievements } from "./achievements";
+import { dailyBossSquad } from "./dailyBoss";
 import { questsForDay, updateQuestProgress } from "./quests";
 import { buildShareGrid } from "./shareGrid";
 import { INITIAL_STREAK, recordPlay } from "./streak";
@@ -124,7 +124,9 @@ describe("weekly modifier (spec §5: deterministic per ISO week)", () => {
 
   it("adjacent weeks differ (usually across a sample)", () => {
     const ids = new Set(
-      [0, 7, 14, 21, 28].map((offset) => weeklyModifierFor(new Date(Date.UTC(2026, 5, 1 + offset))).id),
+      [0, 7, 14, 21, 28].map(
+        (offset) => weeklyModifierFor(new Date(Date.UTC(2026, 5, 1 + offset))).id,
+      ),
     );
     expect(ids.size).toBeGreaterThan(1);
   });

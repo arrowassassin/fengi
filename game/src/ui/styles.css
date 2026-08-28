@@ -1,0 +1,437 @@
+/* Alchemy Arena UI — every value below resolves through design tokens (spec §7c). */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--aa-obsidian-900);
+  color: var(--aa-ink-200);
+  font-family: var(--aa-font-ui);
+  font-size: var(--aa-text-base);
+  line-height: var(--aa-leading-body);
+}
+
+#app {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: var(--aa-space-4);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--aa-font-display);
+  color: var(--aa-ink-100);
+  line-height: var(--aa-leading-tight);
+  margin: 0 0 var(--aa-space-3);
+}
+
+h1 {
+  font-size: var(--aa-text-2xl);
+  color: var(--aa-brass-500);
+}
+
+h2 {
+  font-size: var(--aa-text-xl);
+}
+
+h3 {
+  font-size: var(--aa-text-lg);
+}
+
+button {
+  font-family: var(--aa-font-ui);
+  font-size: var(--aa-text-sm);
+  color: var(--aa-obsidian-950);
+  background: var(--aa-brass-500);
+  border: none;
+  border-radius: var(--aa-radius-md);
+  padding: var(--aa-space-2) var(--aa-space-4);
+  cursor: pointer;
+  transition: background var(--aa-dur-fast) var(--aa-ease);
+}
+
+button:hover {
+  background: var(--aa-brass-300);
+}
+
+button:active {
+  background: var(--aa-brass-600);
+}
+
+button:disabled {
+  background: var(--aa-obsidian-500);
+  color: var(--aa-ink-600);
+  cursor: not-allowed;
+}
+
+button.aa-ghost {
+  background: transparent;
+  color: var(--aa-brass-500);
+  border: var(--aa-border-brass);
+}
+
+/* ---------- Navigation ---------- */
+.aa-nav {
+  display: flex;
+  gap: var(--aa-space-2);
+  margin-bottom: var(--aa-space-5);
+  border-bottom: var(--aa-border);
+  padding-bottom: var(--aa-space-3);
+  flex-wrap: wrap;
+}
+
+.aa-nav button {
+  background: transparent;
+  color: var(--aa-ink-400);
+  border: 1px solid transparent;
+}
+
+.aa-nav button:hover {
+  color: var(--aa-brass-300);
+  background: var(--aa-obsidian-800);
+}
+
+.aa-nav button.active {
+  color: var(--aa-brass-500);
+  border: var(--aa-border-brass);
+}
+
+/* ---------- Cards & surfaces ---------- */
+.aa-card {
+  background: var(--aa-obsidian-800);
+  border: var(--aa-border);
+  border-radius: var(--aa-radius-lg);
+  padding: var(--aa-space-4);
+  box-shadow: var(--aa-shadow-card);
+}
+
+.aa-muted {
+  color: var(--aa-ink-600);
+  font-size: var(--aa-text-sm);
+}
+
+.aa-mono {
+  font-family: var(--aa-font-mono);
+}
+
+/* ---------- Specimen seal ---------- */
+.aa-seal {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--aa-space-1);
+  padding: var(--aa-space-2);
+  border-radius: var(--aa-radius-lg);
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    border-color var(--aa-dur-fast) var(--aa-ease),
+    box-shadow var(--aa-dur-fast) var(--aa-ease);
+}
+
+.aa-seal canvas {
+  background: var(--aa-obsidian-700);
+  border-radius: var(--aa-radius-lg);
+}
+
+.aa-seal.selected {
+  border: var(--aa-border-brass);
+  box-shadow: var(--aa-glow-brass);
+}
+
+.aa-seal.fainted {
+  opacity: 0.4;
+  filter: saturate(0.2);
+}
+
+.aa-seal-name {
+  font-family: var(--aa-font-display);
+  font-size: var(--aa-text-sm);
+  color: var(--aa-ink-100);
+  max-width: 9rem;
+  text-align: center;
+}
+
+/* ---------- Type chips ---------- */
+.aa-chip {
+  display: inline-block;
+  font-size: var(--aa-text-xs);
+  font-family: var(--aa-font-mono);
+  color: var(--aa-brass-300);
+  background: var(--aa-obsidian-700);
+  border: var(--aa-border);
+  border-radius: var(--aa-radius-sm);
+  padding: 0 var(--aa-space-2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ---------- Move card ---------- */
+.aa-move {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aa-space-1);
+  background: var(--aa-obsidian-700);
+  border: var(--aa-border);
+  border-radius: var(--aa-radius-md);
+  padding: var(--aa-space-2) var(--aa-space-3);
+  cursor: pointer;
+  text-align: left;
+  color: var(--aa-ink-200);
+  transition: border-color var(--aa-dur-fast) var(--aa-ease);
+}
+
+.aa-move:hover:not(:disabled) {
+  border-color: var(--aa-brass-500);
+  background: var(--aa-obsidian-700);
+}
+
+.aa-move:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: var(--aa-obsidian-700);
+  color: var(--aa-ink-600);
+}
+
+.aa-move-name {
+  font-weight: 600;
+  color: var(--aa-ink-100);
+}
+
+.aa-move-stats {
+  font-family: var(--aa-font-mono);
+  font-size: var(--aa-text-xs);
+  color: var(--aa-ink-400);
+}
+
+/* ---------- Ink-ring HP ---------- */
+.aa-hp-ring {
+  display: inline-block;
+}
+
+.aa-hp-ring .track {
+  stroke: var(--aa-obsidian-600);
+}
+
+.aa-hp-ring .fill.healthy {
+  stroke: var(--aa-victory);
+}
+
+.aa-hp-ring .fill.wounded {
+  stroke: var(--aa-warn);
+}
+
+.aa-hp-ring .fill.critical {
+  stroke: var(--aa-defeat);
+}
+
+.aa-hp-ring text {
+  fill: var(--aa-ink-200);
+  font-family: var(--aa-font-mono);
+}
+
+/* ---------- Battle ---------- */
+.aa-battle-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--aa-space-4);
+  flex-wrap: wrap;
+}
+
+.aa-battle-log {
+  font-family: var(--aa-font-mono);
+  font-size: var(--aa-text-sm);
+  background: var(--aa-obsidian-950);
+  border: var(--aa-border);
+  border-radius: var(--aa-radius-md);
+  padding: var(--aa-space-3);
+  max-height: 16rem;
+  overflow-y: auto;
+  margin-top: var(--aa-space-4);
+}
+
+.aa-log-line.effective {
+  color: var(--aa-brass-300);
+}
+
+.aa-log-line.status {
+  color: var(--aa-status);
+}
+
+.aa-log-line.faint {
+  color: var(--aa-defeat);
+}
+
+.aa-log-commentary {
+  font-family: var(--aa-font-ui);
+  font-style: italic;
+  color: var(--aa-ink-600);
+  padding-left: var(--aa-space-4);
+}
+
+.aa-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--aa-space-2);
+  margin-top: var(--aa-space-4);
+}
+
+/* ---------- Verdict card & share grid ---------- */
+.aa-verdict {
+  text-align: center;
+  border-radius: var(--aa-radius-xl);
+  padding: var(--aa-space-5);
+  box-shadow: var(--aa-shadow-modal);
+}
+
+.aa-verdict.victory h2 {
+  color: var(--aa-victory);
+}
+
+.aa-verdict.defeat h2 {
+  color: var(--aa-defeat);
+}
+
+.aa-share {
+  font-family: var(--aa-font-mono);
+  white-space: pre;
+  background: var(--aa-obsidian-950);
+  border: var(--aa-border);
+  border-radius: var(--aa-radius-md);
+  padding: var(--aa-space-3);
+  margin: var(--aa-space-3) auto;
+  display: inline-block;
+  text-align: left;
+}
+
+/* ---------- Streak wax seals & quests ---------- */
+.aa-streak-row {
+  display: flex;
+  gap: var(--aa-space-2);
+  align-items: center;
+}
+
+.aa-wax {
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--aa-radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--aa-text-xs);
+  font-family: var(--aa-font-mono);
+  border: 1px solid var(--aa-obsidian-600);
+  color: var(--aa-ink-600);
+}
+
+.aa-wax.filled {
+  background: var(--aa-brass-500);
+  color: var(--aa-obsidian-950);
+  border-color: var(--aa-brass-600);
+}
+
+.aa-wax.freeze {
+  background: var(--aa-freeze);
+  color: var(--aa-obsidian-950);
+  border-color: var(--aa-freeze);
+}
+
+.aa-wax.today {
+  box-shadow: var(--aa-glow-brass);
+  border-color: var(--aa-brass-500);
+}
+
+.aa-quest {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--aa-space-3);
+  background: var(--aa-obsidian-700);
+  border: var(--aa-border);
+  border-left: 4px solid var(--aa-brass-700);
+  border-radius: var(--aa-radius-sm);
+  padding: var(--aa-space-2) var(--aa-space-3);
+  margin-bottom: var(--aa-space-2);
+}
+
+.aa-quest.complete {
+  border-left-color: var(--aa-victory);
+  box-shadow: var(--aa-glow-brass);
+}
+
+/* ---------- Codex grid ---------- */
+.aa-codex {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--aa-space-3);
+}
+
+.aa-credit {
+  font-size: var(--aa-text-xs);
+  color: var(--aa-info);
+}
+
+/* ---------- Workbench ---------- */
+.aa-bench {
+  display: flex;
+  gap: var(--aa-space-4);
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: var(--aa-space-4);
+}
+
+.aa-bench-slot {
+  min-width: 8rem;
+  min-height: 8rem;
+  border: 1px dashed var(--aa-obsidian-500);
+  border-radius: var(--aa-radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--aa-ink-600);
+}
+
+.aa-bench-slot.filled {
+  border-style: solid;
+  border-color: var(--aa-brass-700);
+}
+
+.aa-toast {
+  background: var(--aa-obsidian-700);
+  border: var(--aa-border-brass);
+  border-radius: var(--aa-radius-md);
+  padding: var(--aa-space-3);
+  margin-top: var(--aa-space-3);
+  box-shadow: var(--aa-glow-brass);
+}
+
+.aa-banner {
+  background: var(--aa-obsidian-800);
+  border: var(--aa-border);
+  border-radius: var(--aa-radius-md);
+  padding: var(--aa-space-2) var(--aa-space-3);
+  margin-bottom: var(--aa-space-4);
+  font-size: var(--aa-text-sm);
+  color: var(--aa-ink-400);
+}
+
+.aa-banner strong {
+  color: var(--aa-brass-500);
+}
+
+.aa-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--aa-space-4);
+}
+
+@media (max-width: 40rem) {
+  .aa-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}

@@ -88,8 +88,14 @@ export function paintSigil(
       case "spoke":
         ctx.strokeStyle = palette.brass;
         ctx.beginPath();
-        ctx.moveTo(c + Math.cos(cmd.angle) * cmd.r0 * size, c + Math.sin(cmd.angle) * cmd.r0 * size);
-        ctx.lineTo(c + Math.cos(cmd.angle) * cmd.r1 * size, c + Math.sin(cmd.angle) * cmd.r1 * size);
+        ctx.moveTo(
+          c + Math.cos(cmd.angle) * cmd.r0 * size,
+          c + Math.sin(cmd.angle) * cmd.r0 * size,
+        );
+        ctx.lineTo(
+          c + Math.cos(cmd.angle) * cmd.r1 * size,
+          c + Math.sin(cmd.angle) * cmd.r1 * size,
+        );
         ctx.stroke();
         break;
       case "mark":

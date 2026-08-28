@@ -1,7 +1,7 @@
+import { STARTERS } from "../content/starters";
 import { DeterministicAdapter } from "../craft/adapters/deterministic";
 import { craftElement } from "../craft/pipeline";
-import { STARTERS } from "../content/starters";
-import { type Specimen, createRng, fnv1a64 } from "../engine";
+import { createRng, fnv1a64, type Specimen } from "../engine";
 
 /**
  * Daily boss (spec §5): one boss squad per UTC day, derived deterministically
