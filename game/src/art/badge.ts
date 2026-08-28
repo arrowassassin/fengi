@@ -117,7 +117,7 @@ export function badgeSvg(spec: BadgeSpec, recipeHash: bigint, idSuffix: string):
 export function lockedBadgeSvg(): string {
   return (
     '<svg viewBox="0 0 120 120" class="aa-badge-svg" role="img">' +
-    '<circle cx="60" cy="60" r="43" fill="none" stroke="var(--aa-paper-dim-30)" stroke-width="2.5" stroke-dasharray="8 7"/>' +
+    '<circle cx="60" cy="60" r="43" fill="none" stroke="var(--aa-paper-faint-20)" stroke-width="2.5" stroke-dasharray="8 7"/>' +
     '<text x="60" y="70" text-anchor="middle" font-family="var(--aa-font-mono)" font-size="34" font-weight="700" fill="var(--aa-paper-faint-25)">?</text>' +
     "</svg>"
   );

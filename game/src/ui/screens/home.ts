@@ -45,7 +45,7 @@ export function renderHomeScreen(game: Game, startBattle: StartBattle): HTMLElem
   }
   streakCard.append(
     row,
-    el("p", { className: "aa-muted", text: `❄️ Freezes banked: ${game.streak.freezes}/2` }),
+    el("p", { className: "aa-muted", text: `Freezes banked: ${game.streak.freezes}/2` }),
   );
 
   // ---------- Daily quests ----------
@@ -56,7 +56,10 @@ export function renderHomeScreen(game: Game, startBattle: StartBattle): HTMLElem
     const complete = isQuestComplete(quest, game.questProgress);
     const ribbon = el("div", { className: `aa-quest${complete ? " complete" : ""}` });
     ribbon.append(
-      el("span", { text: `${quest.reward} ${quest.description}` }),
+      el("span", {}, [
+        el("span", { className: "aa-glyph", text: quest.reward }),
+        ` ${quest.description}`,
+      ]),
       el("span", { className: "aa-mono", text: `${progress}/${quest.target}` }),
     );
     questCard.append(ribbon);
@@ -70,7 +73,7 @@ export function renderHomeScreen(game: Game, startBattle: StartBattle): HTMLElem
   for (const a of ACHIEVEMENTS) {
     achievementRow.append(
       el("span", {
-        className: `aa-wax${earned.has(a.id) ? " filled" : ""}`,
+        className: `aa-wax aa-glyph${earned.has(a.id) ? " filled" : ""}`,
         text: a.emoji,
         title: `${a.name} (${a.threshold} ${a.metric})`,
       }),
@@ -85,13 +88,13 @@ export function renderHomeScreen(game: Game, startBattle: StartBattle): HTMLElem
   const bossCard = el("div", { className: "aa-card" });
   bossCard.append(el("h2", { text: `Daily boss · ${date}` }));
   const defeated = game.defeatedBossDates.includes(date);
-  if (defeated) bossCard.append(el("p", { text: "👑 Defeated. The arena rests until tomorrow." }));
+  if (defeated) bossCard.append(el("p", { text: "Defeated. The arena rests until tomorrow." }));
   const bossRow = el("div", { className: "aa-streak-row" });
   bossCard.append(bossRow);
   void dailyBossSquad(date).then((squad) => {
     for (const boss of squad) bossRow.append(renderBadge(boss, { size: 96 }));
     bossCard.append(
-      button(defeated ? "Rematch" : "⚔️ Challenge the boss", () => {
+      button(defeated ? "Rematch" : "Challenge the boss", () => {
         game.questEvent({ metric: "boss-attempts", amount: 1 });
         startBattle({
           playerSquad: game.squad(),

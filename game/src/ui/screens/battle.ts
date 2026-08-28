@@ -137,15 +137,18 @@ export function renderBattleScreen(options: BattleScreenOptions): HTMLElement {
         }),
       ),
     );
+    // Bench minis (handoff 1b switch row): 56px fighters with mini rings —
+    // element art is always the procedural badge, never platform emoji.
     const strip = el("div", { className: "aa-streak-row" });
-    for (const c of s.squad) {
-      strip.append(
-        el("span", {
-          className: `aa-wax${c.currentHp > 0 ? " filled" : ""}`,
-          text: c.specimen.emoji,
-          title: c.specimen.name,
-        }),
-      );
+    for (const [i, c] of s.squad.entries()) {
+      if (i === s.activeIndex) continue;
+      const mini = renderFighter(c.specimen, {
+        size: 56,
+        side: side === 0 ? "player" : "opponent",
+        hpPct: c.currentHp / c.maxHp,
+      });
+      mini.title = c.specimen.name;
+      strip.append(mini);
     }
     box.append(strip);
     return box;

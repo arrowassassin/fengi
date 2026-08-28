@@ -42,7 +42,7 @@ export function renderCodexScreen(game: Game, onSquadChange: () => void): HTMLEl
         cell.append(
           el("div", {
             className: "aa-credit",
-            text: credit.isMine ? "🥇 your discovery" : `first: ${credit.discoverer}`,
+            text: credit.isMine ? "your discovery" : `first: ${credit.discoverer}`,
           }),
         );
       }
@@ -68,9 +68,7 @@ export function renderCodexScreen(game: Game, onSquadChange: () => void): HTMLEl
     lineageCard.append(
       el("div", {
         className: "aa-mono aa-muted",
-        text: `${parentA?.emoji ?? "?"} ${parentA?.name ?? "?"} ✕ ${parentB?.emoji ?? "?"} ${
-          parentB?.name ?? "?"
-        } → ${child.emoji} ${child.name}`,
+        text: `${parentA?.name ?? "?"} ✕ ${parentB?.name ?? "?"} → ${child.name}`,
       }),
     );
   }

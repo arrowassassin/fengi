@@ -48,9 +48,9 @@ export function mountApp(root: HTMLElement, game: Game = new GameImpl()): void {
   }
 
   for (const [name, label] of [
-    ["home", "🏰 Daily"],
-    ["workbench", "⚗️ Workbench"],
-    ["codex", "📜 Codex"],
+    ["home", "Daily"],
+    ["workbench", "Workbench"],
+    ["codex", "Codex"],
   ] as const) {
     const b = button(label, () => show(name));
     navButtons.set(name, b);

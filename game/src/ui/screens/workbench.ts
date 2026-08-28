@@ -33,7 +33,7 @@ export function renderWorkbenchScreen(game: Game): HTMLElement {
       }
       bench.append(slot);
     }
-    const fuse = button(busy ? "Fusing…" : "⚗️ Fuse", () => {
+    const fuse = button(busy ? "Fusing…" : "Fuse", () => {
       void doFuse();
     });
     fuse.disabled = busy || slotA === undefined || slotB === undefined || slotA.id === slotB.id;
@@ -66,7 +66,7 @@ export function renderWorkbenchScreen(game: Game): HTMLElement {
       el("p", {
         className: "aa-credit",
         text: outcome.discovery.isNew
-          ? `🥇 First discovered by you, ${outcome.discovery.discoverer}!`
+          ? `First discovered by you, ${outcome.discovery.discoverer}!`
           : `First discovered by ${outcome.discovery.discoverer}`,
       }),
     );

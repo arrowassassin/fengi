@@ -534,6 +534,12 @@ button.aa-ghost {
   gap: var(--aa-space-3);
 }
 
+/* Glyphs render through Noto Emoji (monochrome, colorable) — never the
+   platform's colorful emoji set (handoff rule). */
+.aa-glyph {
+  font-family: var(--aa-font-emoji);
+}
+
 .aa-credit {
   font-family: var(--aa-font-mono);
   font-size: var(--aa-text-tape);

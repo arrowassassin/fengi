@@ -5,6 +5,7 @@ import { battleSeed } from "../engine";
 import { MemoryBackend } from "../persist/store";
 import { Game } from "../state/game";
 import { mountApp } from "./app";
+import { renderFighter } from "./components/badge";
 import { renderBattleScreen } from "./screens/battle";
 import { renderWorkbenchScreen } from "./screens/workbench";
 
@@ -64,6 +65,24 @@ describe("workbench crafting flow", () => {
     expect(game.codex.length).toBe(before + 1);
     expect(screen.textContent).toContain("First discovered by");
     expect(game.totals.crafts).toBe(1);
+  });
+});
+
+describe("fighter ring states (handoff: cracked edge, shatter at 0 HP)", () => {
+  it("renders shattered debris at 0 HP and a cracked tangerine edge at low HP", () => {
+    const specimen = STARTERS[0];
+    if (specimen === undefined) throw new Error("no starters");
+
+    const fainted = renderFighter(specimen, { size: 92, side: "player", hpPct: 0 });
+    const shatteredRing = fainted.querySelector(".aa-fighter-ring svg");
+    expect(shatteredRing).not.toBeNull();
+    expect(shatteredRing?.querySelectorAll("path")).toHaveLength(0); // no arcs left
+    expect(shatteredRing?.querySelectorAll("line")).toHaveLength(12); // debris lines
+
+    const wounded = renderFighter(specimen, { size: 92, side: "opponent", hpPct: 0.25 });
+    const crackedRing = wounded.querySelector(".aa-fighter-ring svg");
+    expect(crackedRing?.innerHTML ?? "").toContain("var(--aa-tangerine)");
+    expect(crackedRing?.innerHTML ?? "").toContain('stroke-dasharray="7 5"');
   });
 });
 
