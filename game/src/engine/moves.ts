@@ -23,7 +23,10 @@ export type MoveEffect = (typeof EFFECTS)[number];
 
 export interface Move {
   name: string;
+  /** Mechanical archetype (drives the chart, STAB, weekly modifiers). */
   type: ElementType;
+  /** Display label as invented by the oracle (e.g. "ZAP", "PRESSURE"). */
+  typeLabel: string;
   category: MoveCategory;
   /** 0 for pure status moves. */
   power: number;
@@ -42,6 +45,7 @@ export interface Move {
  */
 export const STRUGGLE: Move = {
   name: "Exhausted Strike",
+  typeLabel: "EXHAUSTED",
   type: "arcane",
   category: "physical",
   power: 40,

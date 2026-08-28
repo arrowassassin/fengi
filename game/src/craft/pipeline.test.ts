@@ -27,7 +27,7 @@ describe("craft pipeline (spec §3: crafting never fails)", () => {
     const [a, b] = starterPair(0, 1);
     const result = await craftElement(a, b, new DeterministicAdapter());
     expect(result.provenance).toBe("llm"); // adapter output was accepted
-    expect(result.specimen.moves).toHaveLength(4);
+    expect(result.specimen.moves).toHaveLength(3);
     expect(result.specimen.types.length).toBeGreaterThanOrEqual(1);
     expect(result.specimen.generation).toBe(1);
     expect(result.specimen.stats.hp).toBeGreaterThan(0);
@@ -46,7 +46,7 @@ describe("craft pipeline (spec §3: crafting never fails)", () => {
     const [a, b] = starterPair(0, 2);
     const result = await craftElement(a, b, garbageAdapter);
     expect(result.provenance).toBe("fallback");
-    expect(result.specimen.moves).toHaveLength(4);
+    expect(result.specimen.moves).toHaveLength(3);
   });
 
   it("falls back and still succeeds when the adapter throws", async () => {
@@ -92,7 +92,7 @@ describe("craft pipeline (spec §3: crafting never fails)", () => {
         async (i, j, adapter) => {
           const [a, b] = starterPair(i, j);
           const result = await craftElement(a, b, adapter);
-          expect(result.specimen.moves).toHaveLength(4);
+          expect(result.specimen.moves).toHaveLength(3);
           expect(result.specimen.generation).toBe(Math.max(a.generation, b.generation) + 1);
         },
       ),

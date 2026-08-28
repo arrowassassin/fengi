@@ -48,11 +48,12 @@ export interface BadgeSpec {
 }
 
 export function badgeSpecFor(specimen: Specimen): BadgeSpec {
-  const primary = specimen.types[0];
+  const primary = specimen.types[0].archetype;
   return {
     glyph: specimen.emoji,
     ink: TYPE_INK[primary],
-    tier: Math.min(3, specimen.generation),
+    // Tier 4 is reserved for daily bosses — the most elaborate burst.
+    tier: specimen.boss === true ? 4 : Math.min(3, specimen.generation),
     // Foil rarity: deterministic 1-in-8 draw on fused specimens (tier ≥ 2).
     foil: specimen.generation >= 2 && specimen.recipeHash % 8n === 0n,
   };

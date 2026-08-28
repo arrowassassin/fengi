@@ -131,10 +131,9 @@ export function renderBattleScreen(options: BattleScreenOptions): HTMLElement {
       el(
         "div",
         { className: "aa-chip-row" },
-        active.specimen.types.map((t) => {
-          const chip = el("span", { className: `aa-chip aa-chip-${t}`, text: t });
-          return chip;
-        }),
+        active.specimen.types.map((t) =>
+          el("span", { className: `aa-chip aa-chip-${t.archetype}`, text: t.label }),
+        ),
       ),
     );
     // Bench minis (handoff 1b switch row): 56px fighters with mini rings —

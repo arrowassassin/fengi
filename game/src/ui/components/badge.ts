@@ -21,7 +21,10 @@ export function renderBadge(specimen: Specimen, options: BadgeOptions = {}): HTM
     }`,
   });
   root.setAttribute("role", "img");
-  root.setAttribute("aria-label", `${specimen.name}, ${specimen.types.join(" and ")} element`);
+  root.setAttribute(
+    "aria-label",
+    `${specimen.name}, ${specimen.types.map((t) => t.label).join(" and ")} element`,
+  );
 
   const art = el("div", { className: "aa-badge-art" });
   art.style.width = `${size}px`;
@@ -37,8 +40,8 @@ export function renderBadge(specimen: Specimen, options: BadgeOptions = {}): HTM
         "div",
         { className: "aa-chip-row" },
         specimen.types.map((t) => {
-          const chip = el("span", { className: "aa-chip", text: t });
-          chip.classList.add(`aa-chip-${t}`);
+          const chip = el("span", { className: "aa-chip", text: t.label });
+          chip.classList.add(`aa-chip-${t.archetype}`);
           return chip;
         }),
       ),

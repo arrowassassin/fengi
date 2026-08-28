@@ -26,6 +26,7 @@ const stats = (o: Partial<Stats> = {}): Stats => ({
 const move = (o: Partial<Move> = {}): Move => ({
   name: "Test Move",
   type: "light",
+  typeLabel: "GLOW",
   category: "physical",
   power: 60,
   accuracy: 100,
@@ -39,12 +40,12 @@ const move = (o: Partial<Move> = {}): Move => ({
 const idleMove = (): Move =>
   move({ name: "Idle", category: "status", power: 0, effect: "heal", effectChance: 100 });
 
-function specimen(name: string, s: Stats, moves: [Move, Move, Move, Move]): Specimen {
+function specimen(name: string, s: Stats, moves: [Move, Move, Move]): Specimen {
   return {
     id: `fixed-${name}`,
     name,
     emoji: "🧪",
-    types: ["fire"], // move type "light" vs defender "arcane" below: no STAB, neutral
+    types: [{ label: "FIRE", archetype: "fire" }], // "light" vs "arcane": no STAB, neutral
     generation: 0,
     recipeHash: 1n,
     stats: s,
@@ -54,8 +55,8 @@ function specimen(name: string, s: Stats, moves: [Move, Move, Move, Move]): Spec
 
 function defender(name: string, s: Stats): Specimen {
   return {
-    ...specimen(name, s, [idleMove(), idleMove(), idleMove(), idleMove()]),
-    types: ["arcane"],
+    ...specimen(name, s, [idleMove(), idleMove(), idleMove()]),
+    types: [{ label: "IDEA", archetype: "arcane" }],
   };
 }
 
@@ -95,12 +96,7 @@ describe("fixed-scenario regressions", () => {
 
   it("burn halves physical attack in the damage formula, ticks 1/16, and PP is spent", () => {
     const attacker = () =>
-      specimen("Burner", stats({ attack: 100, speed: 200 }), [
-        move({ power: 60 }),
-        move(),
-        move(),
-        move(),
-      ]);
+      specimen("Burner", stats({ attack: 100, speed: 200 }), [move({ power: 60 }), move(), move()]);
     const foe = () => defender("Wall", stats({ defense: 100, speed: 5 }));
 
     const clean = createBattle([[attacker()], [foe()]], seed);
@@ -130,17 +126,12 @@ describe("fixed-scenario regressions", () => {
     expect(tick.amount).toBe(Math.max(1, Math.floor(burnedAttacker.maxHp / 16)));
 
     // Exactly one PP spent on the used move; the others untouched.
-    expect(clean.sides[0].squad[0]?.movePp).toEqual([9, 10, 10, 10]);
+    expect(clean.sides[0].squad[0]?.movePp).toEqual([9, 10, 10]);
   });
 
   it("shield halves incoming damage and expires after its turns tick down", () => {
     const attacker = () =>
-      specimen("Lancer", stats({ attack: 100, speed: 200 }), [
-        move({ power: 60 }),
-        move(),
-        move(),
-        move(),
-      ]);
+      specimen("Lancer", stats({ attack: 100, speed: 200 }), [move({ power: 60 }), move(), move()]);
     const foe = () => defender("Turtle", stats({ defense: 100, speed: 5 }));
 
     const control = createBattle([[attacker()], [foe()]], seed);
@@ -168,8 +159,7 @@ describe("fixed-scenario regressions", () => {
   });
 
   it("poison ticks 1/8 maxHp at end of turn", () => {
-    const a = () =>
-      specimen("Idler", stats({ speed: 200 }), [idleMove(), idleMove(), idleMove(), idleMove()]);
+    const a = () => specimen("Idler", stats({ speed: 200 }), [idleMove(), idleMove(), idleMove()]);
     const b = () => defender("Sickly", stats({ speed: 5 }));
 
     const state = createBattle([[a()], [b()]], seed);
@@ -194,7 +184,6 @@ describe("fixed-scenario regressions", () => {
         move({ pp: 8 }),
         move({ pp: 8 }),
         move({ pp: 8 }),
-        move({ pp: 8 }),
       ]);
     const foe = () => defender("Patient", stats({ defense: 50, speed: 5 }));
 
@@ -202,7 +191,7 @@ describe("fixed-scenario regressions", () => {
     const husk = state.sides[0].squad[0];
     const patient = state.sides[1].squad[0];
     if (husk === undefined || patient === undefined) throw new Error("missing combatant");
-    husk.movePp = [0, 0, 0, 0];
+    husk.movePp = [0, 0, 0];
     patient.stunTurns = 1;
     const hpBefore = husk.currentHp;
 
@@ -221,7 +210,7 @@ describe("fixed-scenario regressions", () => {
 
     // The stunned defender skipped its action: no PP spent, stun consumed.
     expect(firstEvent(state.log, "stun-skip")).toMatchObject({ side: 1, name: "Patient" });
-    expect(patient.movePp).toEqual([10, 10, 10, 10]);
+    expect(patient.movePp).toEqual([10, 10, 10]);
     expect(patient.stunTurns).toBe(0);
   });
 });

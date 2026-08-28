@@ -2,13 +2,13 @@ import { describe, expect, it } from "vitest";
 import { parseCrafted } from "./schema";
 
 const validPayload = {
-  name: "Molten Fern",
-  emoji: "🌋",
-  types: ["fire", "wood"],
+  name: "BANNED WEATHER BOOKS",
+  emoji: "📕",
+  types: ["PAPER", "IDEA"],
   moves: [
     {
-      name: "Cinder Lash",
-      type: "fire",
+      name: "CITATION STORM",
+      type: "PAPER",
       category: "physical",
       power: 70,
       accuracy: 95,
@@ -17,8 +17,8 @@ const validPayload = {
       effectChance: 20,
     },
     {
-      name: "Verdant Coil",
-      type: "wood",
+      name: "PLOT TWIST",
+      type: "IDEA",
       category: "special",
       power: 60,
       accuracy: 100,
@@ -27,8 +27,8 @@ const validPayload = {
       effectChance: 100,
     },
     {
-      name: "Ashen Veil",
-      type: "fire",
+      name: "REDACT",
+      type: "PAPER",
       category: "status",
       power: 0,
       accuracy: 100,
@@ -36,29 +36,29 @@ const validPayload = {
       effect: "debuff-attack",
       effectChance: 100,
     },
-    {
-      name: "Root Slam",
-      type: "earth",
-      category: "physical",
-      power: 80,
-      accuracy: 90,
-      pp: 10,
-      effect: "none",
-      effectChance: 0,
-    },
   ],
-  flavor: "Born where the forest kissed the caldera.",
+  flavor: "The forecast is whatever it says it is.",
 };
 
-describe("parseCrafted (strict fusion JSON schema, spec §3)", () => {
-  it("accepts a fully valid payload", () => {
+describe("parseCrafted (fusion JSON: freeform invented types, exactly 3 moves)", () => {
+  it("accepts a fully valid payload and derives mechanical archetypes", () => {
     const r = parseCrafted(JSON.stringify(validPayload));
     expect(r.ok).toBe(true);
     if (r.ok) {
-      expect(r.value.name).toBe("Molten Fern");
-      expect(r.value.types).toEqual(["fire", "wood"]);
-      expect(r.value.moves).toHaveLength(4);
+      expect(r.value.name).toBe("BANNED WEATHER BOOKS");
+      expect(r.value.types.map((t) => t.label)).toEqual(["PAPER", "IDEA"]);
+      // Keyword families: PAPER → wood, IDEA → arcane. Deterministic mapping.
+      expect(r.value.types.map((t) => t.archetype)).toEqual(["wood", "arcane"]);
+      expect(r.value.moves).toHaveLength(3);
+      expect(r.value.moves[0].typeLabel).toBe("PAPER");
+      expect(r.value.moves[0].type).toBe("wood");
     }
+  });
+
+  it("uppercases lowercase invented labels", () => {
+    const r = parseCrafted(JSON.stringify({ ...validPayload, types: ["vapor"] }));
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.value.types[0]?.label).toBe("VAPOR");
   });
 
   it("accepts JSON wrapped in markdown fences or prose", () => {
@@ -69,14 +69,16 @@ describe("parseCrafted (strict fusion JSON schema, spec §3)", () => {
   it.each([
     ["not JSON at all", "the answer is fire"],
     ["missing moves", JSON.stringify({ ...validPayload, moves: undefined })],
-    ["three moves", JSON.stringify({ ...validPayload, moves: validPayload.moves.slice(0, 3) })],
+    ["two moves", JSON.stringify({ ...validPayload, moves: validPayload.moves.slice(0, 2) })],
     [
-      "five moves",
+      "four moves",
       JSON.stringify({ ...validPayload, moves: [...validPayload.moves, validPayload.moves[0]] }),
     ],
-    ["unknown type", JSON.stringify({ ...validPayload, types: ["dragon"] })],
+    ["type label too long", JSON.stringify({ ...validPayload, types: ["A".repeat(17)] })],
+    ["type label with junk chars", JSON.stringify({ ...validPayload, types: ["<SCRIPT>"] })],
+    ["single-char type label", JSON.stringify({ ...validPayload, types: ["X"] })],
     ["zero types", JSON.stringify({ ...validPayload, types: [] })],
-    ["three types", JSON.stringify({ ...validPayload, types: ["fire", "wood", "water"] })],
+    ["three types", JSON.stringify({ ...validPayload, types: ["PAPER", "IDEA", "LAW"] })],
     ["empty name", JSON.stringify({ ...validPayload, name: "" })],
     ["plain text in the emoji field", JSON.stringify({ ...validPayload, emoji: "abc" })],
     ["family-ZWJ emoji over 3 code points", JSON.stringify({ ...validPayload, emoji: "👨‍👩‍👧‍👦" })],
@@ -106,7 +108,10 @@ describe("parseCrafted (strict fusion JSON schema, spec §3)", () => {
         { ...validPayload.moves[0], __proto__: { polluted: true } },
         ...validPayload.moves.slice(1),
       ],
-    }).replace('{"name":"Molten Fern"', '{"__proto__":{"polluted":true},"name":"Molten Fern"');
+    }).replace(
+      '{"name":"BANNED WEATHER BOOKS"',
+      '{"__proto__":{"polluted":true},"name":"BANNED WEATHER BOOKS"',
+    );
     const r = parseCrafted(hostile);
     expect(r.ok).toBe(true);
     // biome-ignore lint/suspicious/noExplicitAny: probing for pollution
@@ -118,8 +123,16 @@ describe("parseCrafted (strict fusion JSON schema, spec §3)", () => {
   });
 
   it("clamps/normalizes whitespace in names and trims flavor", () => {
-    const r = parseCrafted(JSON.stringify({ ...validPayload, name: "  Molten   Fern  " }));
+    const r = parseCrafted(JSON.stringify({ ...validPayload, name: "  BANNED   BOOKS  " }));
     expect(r.ok).toBe(true);
-    if (r.ok) expect(r.value.name).toBe("Molten Fern");
+    if (r.ok) expect(r.value.name).toBe("BANNED BOOKS");
+  });
+
+  it("same label always maps to the same archetype (device-independent)", () => {
+    for (const label of ["VAPOR", "GOSSIP", "XYZZY", "MOONBEAM"]) {
+      const a = parseCrafted(JSON.stringify({ ...validPayload, types: [label] }));
+      const b = parseCrafted(JSON.stringify({ ...validPayload, types: [label] }));
+      expect(a.ok && b.ok && a.value.types[0]?.archetype).toBe(b.ok && b.value.types[0]?.archetype);
+    }
   });
 });

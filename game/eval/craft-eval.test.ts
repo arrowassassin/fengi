@@ -67,10 +67,12 @@ describe("craft eval harness (W1-2 gate)", () => {
       const okName =
         s.name.toLowerCase() !== pa.name.toLowerCase() &&
         s.name.toLowerCase() !== pb.name.toLowerCase();
-      const parentTypes = new Set([...pa.types, ...pb.types]);
-      const newTypes = s.types.filter((t) => !parentTypes.has(t));
-      const okTypes = newTypes.length <= 1;
-      const okMoves = new Set(s.moves.map((m) => m.name.toLowerCase())).size === 4;
+      // Freeform labels are the point (approved design); plausibility is
+      // judged on the mechanical archetypes backing them.
+      const parentArchetypes = new Set([...pa.types, ...pb.types].map((t) => t.archetype));
+      const newArchetypes = s.types.filter((t) => !parentArchetypes.has(t.archetype));
+      const okTypes = newArchetypes.length <= 1;
+      const okMoves = new Set(s.moves.map((m) => m.name.toLowerCase())).size === 3;
       if (okSchema) schemaValid++;
       if (okName) nameNovel++;
       if (okTypes) typesPlausible++;

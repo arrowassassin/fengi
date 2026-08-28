@@ -28,8 +28,11 @@ export const aiPolicy: Policy = (state: BattleState, side: Side): Action => {
           (move.effect === "burn" || move.effect === "poison") && target.status !== "none";
         score = redundant ? 5 : 45;
       } else {
-        const eff = effectiveness(move.type, target.specimen.types);
-        const stab = mine.specimen.types.includes(move.type) ? 1.5 : 1;
+        const eff = effectiveness(
+          move.type,
+          target.specimen.types.map((t) => t.archetype),
+        );
+        const stab = mine.specimen.types.some((t) => t.archetype === move.type) ? 1.5 : 1;
         score = move.power * eff * stab * (move.accuracy / 100);
       }
     } else if (action.kind === "struggle") {

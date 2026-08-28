@@ -25,6 +25,12 @@ export {
   STRUGGLE,
 } from "./moves";
 export { createRng, type Rng, type RngState, restoreRng } from "./rng";
-export type { Specimen, TypePair } from "./specimen";
+export { archetypesOf, type InventedType, type Specimen, type TypePair } from "./specimen";
 export { deriveStats, STAT_KEYS, type StatKey, type Stats, statTotal } from "./stats";
-export { type ElementType, effectiveness, isElementType, TYPES } from "./types";
+export {
+  archetypeForLabel,
+  type ElementType,
+  effectiveness,
+  isElementType,
+  TYPES,
+} from "./types";

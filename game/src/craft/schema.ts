@@ -1,7 +1,8 @@
 import {
+  archetypeForLabel,
   CATEGORIES,
   EFFECTS,
-  isElementType,
+  type InventedType,
   type Move,
   type MoveCategory,
   type MoveEffect,
@@ -13,7 +14,7 @@ export interface CraftedElement {
   name: string;
   emoji: string;
   types: TypePair;
-  moves: [Move, Move, Move, Move];
+  moves: [Move, Move, Move];
   flavor: string;
 }
 
@@ -21,6 +22,18 @@ export type ParseResult = { ok: true; value: CraftedElement } | { ok: false; err
 
 const MAX_FLAVOR = 140;
 const MAX_NAME = 40;
+
+/**
+ * Freeform invented type label (approved design): 2-16 chars of letters,
+ * digits, spaces, or hyphens. Normalized to uppercase; the mechanical
+ * archetype derives deterministically from the label.
+ */
+function parseTypeLabel(v: unknown): InventedType | undefined {
+  const label = normalizeText(v)?.toUpperCase();
+  if (label === undefined || label.length < 2 || label.length > 16) return undefined;
+  if (!/^[A-Z0-9][A-Z0-9 -]*$/u.test(label)) return undefined;
+  return { label, archetype: archetypeForLabel(label) };
+}
 
 function fail(error: string): ParseResult {
   return { ok: false, error };
@@ -79,8 +92,8 @@ function parseMove(v: unknown, index: number): Move | string {
   if (!isRecord(v)) return `move ${index} is not an object`;
   const name = normalizeText(v.name);
   if (name === undefined || name.length > MAX_NAME) return `move ${index} has a bad name`;
-  const type = typeof v.type === "string" ? v.type.toLowerCase() : "";
-  if (!isElementType(type)) return `move ${index} has unknown type "${String(v.type)}"`;
+  const invented = parseTypeLabel(v.type);
+  if (invented === undefined) return `move ${index} has a bad type label`;
   const category =
     typeof v.category === "string" ? (v.category.toLowerCase() as MoveCategory) : "physical";
   if (!(CATEGORIES as readonly string[]).includes(category)) {
@@ -99,7 +112,17 @@ function parseMove(v: unknown, index: number): Move | string {
   }
   const effectChance =
     effect === "none" ? 0 : (parseIntIn(v.effectChance, 0, 100) ?? (isStatus ? 100 : 20));
-  return { name, type, category, power, accuracy, pp, effect, effectChance };
+  return {
+    name,
+    type: invented.archetype,
+    typeLabel: invented.label,
+    category,
+    power,
+    accuracy,
+    pp,
+    effect,
+    effectChance,
+  };
 }
 
 export function parseCrafted(raw: string): ParseResult {
@@ -124,18 +147,19 @@ export function parseCrafted(raw: string): ParseResult {
   if (!Array.isArray(data.types) || data.types.length < 1 || data.types.length > 2) {
     return fail("types must have 1-2 entries");
   }
-  const types: string[] = [];
+  const types: InventedType[] = [];
   for (const t of data.types) {
-    const low = typeof t === "string" ? t.toLowerCase() : "";
-    if (!isElementType(low)) return fail(`unknown element type "${String(t)}"`);
-    if (!types.includes(low)) types.push(low);
+    const invented = parseTypeLabel(t);
+    if (invented === undefined) return fail(`bad invented type "${String(t)}"`);
+    if (!types.some((x) => x.label === invented.label)) types.push(invented);
   }
+  if (types.length === 0) return fail("types must have 1-2 entries");
 
-  if (!Array.isArray(data.moves) || data.moves.length !== 4) {
-    return fail("moves must have exactly 4 entries");
+  if (!Array.isArray(data.moves) || data.moves.length !== 3) {
+    return fail("moves must have exactly 3 entries");
   }
   const moves: Move[] = [];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 3; i++) {
     const parsed = parseMove(data.moves[i], i);
     if (typeof parsed === "string") return fail(parsed);
     moves.push(parsed);
@@ -150,7 +174,7 @@ export function parseCrafted(raw: string): ParseResult {
       name,
       emoji,
       types: types as TypePair,
-      moves: moves as [Move, Move, Move, Move],
+      moves: moves as [Move, Move, Move],
       flavor,
     },
   };

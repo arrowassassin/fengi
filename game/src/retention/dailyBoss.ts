@@ -1,7 +1,7 @@
 import { STARTERS } from "../content/starters";
 import { DeterministicAdapter } from "../craft/adapters/deterministic";
 import { craftElement } from "../craft/pipeline";
-import { createRng, fnv1a64, type Specimen } from "../engine";
+import { createRng, deriveStats, fnv1a64, type Specimen } from "../engine";
 
 /**
  * Daily boss (spec §5): one boss squad per UTC day, derived deterministically
@@ -16,8 +16,15 @@ export async function dailyBossSquad(date: string): Promise<Specimen[]> {
     const b = STARTERS[rng.int(STARTERS.length)];
     if (a === undefined || b === undefined) throw new Error("starter pool empty");
     const child = (await craftElement(a, b, adapter)).specimen;
-    // Distinct battle identity per slot even if two slots fuse the same pair.
-    squad.push({ ...child, id: `${child.id}-boss-${date}-${slot}` });
+    // Bosses are tier-4 (handoff 1f: "most elaborate burst") with the
+    // matching generation stat bonus; distinct id per slot and date.
+    squad.push({
+      ...child,
+      id: `${child.id}-boss-${date}-${slot}`,
+      boss: true,
+      generation: 4,
+      stats: deriveStats(child.recipeHash, 4),
+    });
   }
   return squad;
 }

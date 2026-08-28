@@ -2,16 +2,30 @@ import fc from "fast-check";
 import type { Action, BattleState } from "./battle";
 import { legalActions } from "./battle";
 import { EFFECTS, type Move, type MoveCategory } from "./moves";
-import type { Specimen } from "./specimen";
+import type { InventedType, Specimen } from "./specimen";
 import { deriveStats } from "./stats";
 import { TYPES } from "./types";
 
 const arbCategory: fc.Arbitrary<MoveCategory> = fc.constantFrom("physical", "special", "status");
 
+const arbLabel: fc.Arbitrary<string> = fc.constantFrom(
+  "VAPOR",
+  "PRESSURE",
+  "GRIT",
+  "GOSSIP",
+  "ZAP",
+  "GOO",
+  "SIGN",
+  "WRATH",
+  "SEASON",
+  "SMUG",
+);
+
 export const arbMove: fc.Arbitrary<Move> = fc
   .record({
     name: fc.stringMatching(/^[A-Za-z][A-Za-z ]{2,15}$/),
     type: fc.constantFrom(...TYPES),
+    typeLabel: arbLabel,
     category: arbCategory,
     power: fc.integer({ min: 20, max: 120 }),
     accuracy: fc.integer({ min: 50, max: 100 }),
@@ -21,14 +35,23 @@ export const arbMove: fc.Arbitrary<Move> = fc
   })
   .map((m) => (m.category === "status" ? { ...m, power: 0, effectChance: 100 } : m));
 
+const arbInventedType: fc.Arbitrary<InventedType> = fc.record({
+  label: arbLabel,
+  archetype: fc.constantFrom(...TYPES),
+});
+
 export const arbSpecimen: fc.Arbitrary<Specimen> = fc
   .record({
     name: fc.stringMatching(/^[A-Za-z][A-Za-z ]{2,20}$/),
     emoji: fc.constantFrom("🔥", "💧", "🌿", "🪨", "⚡", "🌪️", "🧪", "✨"),
-    types: fc.uniqueArray(fc.constantFrom(...TYPES), { minLength: 1, maxLength: 2 }),
+    types: fc.uniqueArray(arbInventedType, {
+      minLength: 1,
+      maxLength: 2,
+      selector: (t) => t.archetype,
+    }),
     hash: fc.bigInt({ min: 0n, max: (1n << 64n) - 1n }),
     generation: fc.integer({ min: 0, max: 6 }),
-    moves: fc.tuple(arbMove, arbMove, arbMove, arbMove),
+    moves: fc.tuple(arbMove, arbMove, arbMove),
   })
   .map(({ name, emoji, types, hash, generation, moves }) => ({
     id: `spec-${hash.toString(16)}`,

@@ -16,7 +16,7 @@ export interface CombatantState {
   specimen: Specimen;
   maxHp: number;
   currentHp: number;
-  movePp: [number, number, number, number];
+  movePp: [number, number, number];
   status: PersistentStatus;
   /** Set once when the combatant faints, so the event logs exactly once. */
   fainted: boolean;
@@ -50,7 +50,7 @@ export interface BattleState {
 }
 
 export type Action =
-  | { kind: "move"; moveIndex: 0 | 1 | 2 | 3 }
+  | { kind: "move"; moveIndex: 0 | 1 | 2 }
   | { kind: "switch"; squadIndex: number }
   | { kind: "struggle" };
 
@@ -71,12 +71,7 @@ function makeCombatant(specimen: Specimen): CombatantState {
     specimen,
     maxHp,
     currentHp: maxHp,
-    movePp: [
-      specimen.moves[0].pp,
-      specimen.moves[1].pp,
-      specimen.moves[2].pp,
-      specimen.moves[3].pp,
-    ],
+    movePp: [specimen.moves[0].pp, specimen.moves[1].pp, specimen.moves[2].pp],
     status: "none",
     fainted: false,
     stunTurns: 0,
@@ -129,7 +124,7 @@ export function legalActions(state: BattleState, side: Side): Action[] {
   const combatant = active(state, side);
   const actions: Action[] = [];
   combatant.movePp.forEach((pp, i) => {
-    if (pp > 0) actions.push({ kind: "move", moveIndex: i as 0 | 1 | 2 | 3 });
+    if (pp > 0) actions.push({ kind: "move", moveIndex: i as 0 | 1 | 2 });
   });
   if (actions.length === 0) actions.push({ kind: "struggle" });
   me.squad.forEach((c, i) => {
@@ -162,10 +157,16 @@ function computeDamage(
   const defStage = stageMultiplier(special ? defender.stages.spDefense : defender.stages.defense);
   const burnPenalty = !special && attacker.status === "burn" ? 0.5 : 1;
 
-  const eff = isStruggle ? 1 : effectiveness(move.type, defender.specimen.types);
+  const eff = isStruggle
+    ? 1
+    : effectiveness(
+        move.type,
+        defender.specimen.types.map((t) => t.archetype),
+      );
   if (eff === 0 || move.power <= 0) return { damage: 0, crit: false, effectiveness: eff };
 
-  const stab = !isStruggle && attacker.specimen.types.includes(move.type) ? 1.5 : 1;
+  const stab =
+    !isStruggle && attacker.specimen.types.some((t) => t.archetype === move.type) ? 1.5 : 1;
   const crit = state.rng.int(16) === 0;
   const variance = (85 + state.rng.int(16)) / 100;
   const modTable = state.config.typeDamageMultipliers ?? {};
