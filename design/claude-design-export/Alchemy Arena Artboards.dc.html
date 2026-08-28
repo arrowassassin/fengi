@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=Archivo:wght@500;600;700;800&amp;family=JetBrains+Mono:wght@500;700;800&amp;family=Noto+Emoji:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#141417;font-family:Archivo,system-ui,sans-serif}
+a{color:#D8FF3E}a:hover{color:#35E0FF}
+.dv-turn{padding:44px 48px 36px;scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 24px}
+.dv-tid{font:700 10px 'JetBrains Mono',monospace;padding:3px 8px;background:#D8FF3E;color:#0D0D0F;text-decoration:none}
+.dv-tname{font:600 13px/1.2 Archivo,sans-serif;color:#F5F2EA}
+.dv-opts{display:flex;flex-wrap:wrap;gap:38px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:10px;scroll-margin-top:16px}
+.dv-oid{font:700 10.5px 'JetBrains Mono',monospace;padding:3px 7px;background:rgba(245,242,234,.12);color:#F5F2EA;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:500 11px/1.3 Archivo,sans-serif;color:rgba(245,242,234,.6)}
+.dv-card{max-width:100%;background:#0D0D0F;border:1px solid rgba(245,242,234,.14);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.55)}
+.dv-opt:target .dv-oid{background:#D8FF3E;color:#0D0D0F}
+.dv-note{max-width:390px;font:500 9.5px/1.65 'JetBrains Mono',monospace;color:rgba(245,242,234,.42);letter-spacing:.3px}
+.dv-next{margin:28px 0 0;font:12px/1.5 Archivo,sans-serif;color:rgba(245,242,234,.5)}
+@keyframes idlebounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes foilshift{to{filter:hue-rotate(360deg)}}
+@keyframes glitchjump{0%,91%,100%{transform:translate(0,0) skewX(0)}92%{transform:translate(-5px,2px) skewX(-5deg)}94%{transform:translate(4px,-2px)}96%{transform:translate(-2px,1px) skewX(3deg)}98%{transform:translate(1px,-1px)}}
+@keyframes neonflick{0%,86%,92%,96%,100%{opacity:1}89%{opacity:.15}94%{opacity:.4}}
+</style>
+</helmet>
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">ALCHEMY ARENA — 6 artboards (390) + 2 desktop variants</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" style="max-width:300px">
+  <div class="dv-olabel"><span class="dv-oid" style="background:#D8FF3E;color:#0D0D0F">SYS</span>system decisions</div>
+  <div class="dv-card" style="width:300px;padding:16px 18px;font:500 10px/1.7 'JetBrains Mono',monospace;color:rgba(245,242,234,.65);letter-spacing:.3px">
+    <div style="font-family:'Archivo Black',sans-serif;font-style:italic;font-size:15px;color:#F5F2EA;letter-spacing:.5px;margin-bottom:10px">PIRATE-RADIO ALCHEMY</div>
+    BADGES — every element = monochrome Noto Emoji glyph die-cut in a seeded burst sticker (spike count grows with tier; foils get the holo gradient + hue-shimmer). Same seed = same badge everywhere.<br><br>
+    HP — segmented energy ring (12 segs) around the badge. Damage edge cracks tangerine; zero = shattered debris.<br><br>
+    COLOR — lime is selection/energy only; tangerine is damage/hype only; cyan is info/status; off-white does the talking.<br><br>
+    TYPE — Archivo Black italic (verdicts, bursts) · Archivo (UI) · JetBrains Mono (counters, tape strips).<br><br>
+    MOTION — 150–250ms snaps · 90ms hit-stop + shake · panel wipes · ring shatter · idle micro-bounce (live in <a class="dv-oid" href="#1b">1b</a>).
+  </div>
+</div>
+
+<div class="dv-opt" id="1a">
+  <div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>WORKBENCH — moment after a fusion</div>
+  <div class="dv-card" style="width:390px">
+  <div data-screen-label="Workbench" style="width:390px;height:844px;background:#0D0D0F;color:#F5F2EA;position:relative;overflow:hidden;font-family:Archivo,sans-serif;display:flex;flex-direction:column">
+    <div style="position:relative;display:flex;align-items:center;gap:9px;background:#17171C;border-bottom:2px solid #26262E;padding:9px 12px 9px 18px;flex:none">
+      <div style="position:absolute;left:0;top:0;bottom:0;width:7px;background:repeating-linear-gradient(-45deg,#D8FF3E 0 7px,#0D0D0F 7px 14px)"></div>
+      <span style="background:#D8FF3E;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.5px;padding:3px 6px;transform:rotate(-1deg)">TODAY</span>
+      <span style="font-size:10.5px;font-weight:600;color:rgba(245,242,234,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">craft something that beats <span style="font-family:'Archivo Black',sans-serif;font-style:italic;color:#F5F2EA">THE LANDLORD</span></span>
+      <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(245,242,234,.4)">▾</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px 6px;flex:none">
+      <div style="font-family:'Archivo Black',sans-serif;font-style:italic;font-size:20px;letter-spacing:.5px">THE LAB</div>
+      <div style="background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:2px;padding:3px 8px;transform:rotate(1deg)">CH.9 · PIRATE SIGNAL</div>
+    </div>
+    <div style="position:relative;height:328px;margin:6px 12px 0;border:2px solid #26262E;background:#101014;overflow:hidden;flex:none">
+      <div style="position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 58%,rgba(245,242,234,.07) 0deg 1.6deg,transparent 1.6deg 15deg)"></div>
+      <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(245,242,234,.05) 1.1px,transparent 1.6px);background-size:11px 11px"></div>
+      <div style="position:absolute;top:12px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:10px">
+        {{ bStorm }}
+        <span style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:800;color:rgba(245,242,234,.5)">+</span>
+        {{ bLibrary }}
+        <span style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:800;color:#D8FF3E">=</span>
+      </div>
+      <div style="position:absolute;top:96px;left:0;right:0;display:flex;justify-content:center">{{ heroBWB }}</div>
+      <div style="position:absolute;top:60px;left:16px;transform:rotate(-8deg);font-family:'Archivo Black',sans-serif;font-style:italic;font-size:26px;line-height:.95;color:#D8FF3E;text-shadow:-2px -2px 0 #0D0D0F,2px -2px 0 #0D0D0F,-2px 2px 0 #0D0D0F,2px 2px 0 #0D0D0F,5px 6px 0 rgba(0,0,0,.9)">NEW<br>DISCOVERY!</div>
+      <div style="position:absolute;bottom:10px;right:12px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;color:rgba(245,242,234,.35)">FUSION 00:00:02 · FIRST IN THE WORLD ▲</div>
+    </div>
+    <div style="margin:12px 12px 0;background:#17171C;border:2px solid #F5F2EA;box-shadow:6px 6px 0 #000;padding:12px 14px;position:relative;flex:none">
+      <div style="position:absolute;top:-9px;left:12px;background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:800;letter-spacing:1.5px;padding:2px 6px;transform:rotate(-1deg)">SPEC PLAQUE</div>
+      <div style="font-family:'Archivo Black',sans-serif;font-style:italic;font-size:19px;line-height:1;letter-spacing:.3px">BANNED WEATHER BOOKS</div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <span style="padding:2px 7px;border:2px solid #F5F2EA;color:#F5F2EA;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.2px;transform:rotate(-1deg)">PAPER</span>
+        <span style="padding:2px 7px;border:2px solid #D8FF3E;color:#D8FF3E;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.2px;transform:rotate(1deg)">IDEA</span>
+        <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;color:#35E0FF">TIER 3 · FOIL</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:4px 10px;margin-top:10px;font-size:12px;font-weight:600">
+        <div>ILLEGAL FORECAST</div><div style="font-family:'JetBrains Mono',monospace;font-weight:800;color:#D8FF3E">65</div>
+        <div>PAPER CUT FRONT</div><div style="font-family:'JetBrains Mono',monospace;font-weight:800;color:#D8FF3E">50</div>
+        <div>CITE THE STORM</div><div style="font-family:'JetBrains Mono',monospace;font-weight:800;color:#D8FF3E">80</div>
+      </div>
+    </div>
+    <div style="margin:12px 12px 12px;flex:1;display:flex;flex-direction:column;min-height:0">
+      <div style="display:flex;align-items:center;gap:8px;flex:none">
+        <div style="flex:1;display:flex;align-items:center;gap:7px;background:#17171C;border:2px solid #26262E;padding:7px 10px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(245,242,234,.35)">⌕</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:rgba(245,242,234,.35)">SEARCH THE SHELF…</span>
+        </div>
+        <div style="background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.5px;padding:4px 8px;transform:rotate(-1.5deg)">247 DISCOVERED</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:11px;justify-content:center;align-content:flex-start;overflow:hidden;position:relative;flex:1">
+        <sc-for list="{{ trayEls }}" as="t" hint-placeholder-count="12">
+          <div style="width:52px;height:52px;flex:none">{{ t.b }}</div>
+        </sc-for>
+        <div style="position:absolute;left:0;right:0;bottom:0;height:26px;background:linear-gradient(transparent,#0D0D0F)"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+    <div class="dv-note">MOTION — fused badge slams in at 180ms w/ overshoot + one smear frame; parents knock apart; plaque stamps down 60ms later. Tray badges pop-scale on press (150ms). Quest ribbon unrolls on tap.</div>
+  </sc-if>
+</div>
+
+<div class="dv-opt" id="1b">
+  <div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>ARENA — mid-fight, super effective hit</div>
+  <div class="dv-card" style="width:390px">
+  <div data-screen-label="Arena" style="width:390px;height:844px;background:#0D0D0F;color:#F5F2EA;position:relative;overflow:hidden;font-family:Archivo,sans-serif;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:2px solid #26262E;flex:none">
+      <span style="width:8px;height:8px;background:#FF5C2A;border-radius:50%;flex:none"></span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1px;white-space:nowrap">LIVE · CH.9 STREET FIGHT</span>
+      <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.5px;color:rgba(245,242,234,.45);white-space:nowrap">TURN 07 · 12,431 WATCHING</span>
+    </div>
+    <div style="padding:10px 16px 0;font-size:13px;font-style:italic;font-weight:500;color:#35E0FF;flex:none">“The umbrella opens contemptuously. Bottled Lightning did not see a forecast like this…<span style="color:rgba(53,224,255,.4)">▌</span>”</div>
+    <div style="position:relative;flex:1;min-height:0">
+      <sc-if value="{{ scan }}" hint-placeholder-val="{{ true }}">
+        <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 2px,transparent 2px 4px);pointer-events:none;z-index:9"></div>
+      </sc-if>
+      <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(245,242,234,.045) 1.1px,transparent 1.6px);background-size:12px 12px"></div>
+      <div style="position:absolute;top:-40px;right:-60px;width:340px;height:340px;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,92,42,.14) 0deg 2deg,transparent 2deg 13deg)"></div>
+      <div style="position:absolute;top:34px;right:22px">{{ foe }}</div>
+      <div style="position:absolute;top:12px;right:18px;display:flex;gap:6px;align-items:center">
+        <span style="padding:2px 6px;border:2px solid #FF5C2A;color:#FF5C2A;font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:800;letter-spacing:1px">ZAP</span>
+        <span style="background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.5px;padding:3px 7px;transform:rotate(1.5deg)">BOTTLED LIGHTNING</span>
+      </div>
+      <div style="position:absolute;top:196px;left:14px;transform:rotate(-7deg);font-family:'Archivo Black',sans-serif;font-style:italic;font-size:34px;line-height:.9;color:#FF5C2A;text-shadow:-2px -2px 0 #0D0D0F,2px -2px 0 #0D0D0F,-2px 2px 0 #0D0D0F,2px 2px 0 #0D0D0F,6px 7px 0 rgba(0,0,0,.9)">SUPER<br><span style="font-size:26px">EFFECTIVE!</span></div>
+      <div style="position:absolute;bottom:26px;left:22px">{{ ply }}</div>
+      <div style="position:absolute;bottom:8px;left:26px;display:flex;gap:6px;align-items:center">
+        <span style="background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.5px;padding:3px 7px;transform:rotate(-1.5deg)">PASSIVE-AGGRESSIVE UMBRELLA</span>
+        <span style="padding:2px 6px;border:2px solid #35E0FF;color:#35E0FF;font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:800;letter-spacing:1px">WATER</span>
+      </div>
+      <div style="position:absolute;bottom:120px;right:16px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;color:rgba(245,242,234,.35);text-align:right">YOUR MOVE<br>00:12</div>
+    </div>
+    <div style="flex:none;border-top:7px solid transparent;border-image:repeating-linear-gradient(-45deg,#D8FF3E 0 7px,#0D0D0F 7px 14px) 7;background:#121216;padding:12px 12px 10px">
+      <div style="display:flex;gap:8px">
+        <sc-for list="{{ moves }}" as="m" hint-placeholder-count="3">
+          <div style="flex:1;position:relative;background:#17171C;border:2px solid #2C2C34;box-shadow:4px 4px 0 #000;padding:10px 9px 8px;min-width:0">
+            <sc-if value="{{ m.sel }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;inset:-2px;border:2px solid #D8FF3E;pointer-events:none"></div>
+              <div style="position:absolute;top:-8px;left:7px;background:#D8FF3E;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:800;letter-spacing:1px;padding:2px 5px">READY</div>
+            </sc-if>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:4px">
+              <div style="font-family:'Archivo Black',sans-serif;font-style:italic;font-size:11px;line-height:1.1;text-transform:uppercase">{{ m.name }}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-weight:800;font-size:16px;color:#D8FF3E;flex:none">{{ m.pw }}</div>
+            </div>
+            <div style="margin-top:6px">{{ m.chip }}</div>
+            <div style="margin-top:5px;font-size:8.5px;line-height:1.35;color:rgba(245,242,234,.55);font-weight:500">{{ m.eff }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:2px;color:rgba(245,242,234,.5);white-space:nowrap">SWITCH →</span>
+        <div style="width:56px;height:56px">{{ benchA }}</div>
+        <div style="width:56px;height:56px">{{ benchB }}</div>
+        <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:1px;color:rgba(245,242,234,.35);white-space:nowrap">BENCH 2/2 · SWAP COSTS THE TURN</span>
+      </div>
+    </div>
+  </div>
+  </div>
+  <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+    <div class="dv-note">MOTION — 90ms hit-stop + screenshake on the crit; smear frame along the attack vector; cracked segments flake off as debris; comic-panel wipe (diagonal, ink) between turns; idle micro-bounce on active fighter is live above. Ring SHATTERS outward at zero.</div>
+  </sc-if>
+</div>
+
+<div class="dv-opt" id="1c">
+  <div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>RESULT CARD + spoiler-free share</div>
+  <div class="dv-card" style="width:390px">
+  <div data-screen-label="Result + Share" style="box-sizing:border-box;width:390px;height:844px;background:#0D0D0F;color:#F5F2EA;position:relative;overflow:hidden;font-family:Archivo,sans-serif;padding:14px 14px 12px;display:flex;flex-direction:column;gap:12px">
+    <div style="flex:none;background:repeating-linear-gradient(-45deg,#D8FF3E 0 9px,#0D0D0F 9px 18px);padding:8px">
+      <div style="background:#101014;position:relative;padding:20px 18px 16px;background-image:radial-gradient(rgba(245,242,234,.05) 1.1px,transparent 1.6px);background-size:11px 11px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.5px;padding:3px 7px;transform:rotate(-1deg)">MATCH #142 · RANKED STREET</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;color:rgba(245,242,234,.4)">4 TURNS</span>
+        </div>
+        <div style="font-family:'Archivo Black',sans-serif;font-style:italic;font-size:52px;line-height:.95;margin-top:16px;color:#D8FF3E;text-shadow:5px 5px 0 rgba(0,0,0,.9)">VICTORY</div>
+        <div style="position:relative;margin-top:14px;height:166px">
+          <div style="position:absolute;right:0;top:0;transform:rotate(5deg);font-family:'Archivo Black',sans-serif;font-style:italic;font-size:38px;color:#FF5C2A;text-shadow:-2px -2px 0 #0D0D0F,2px -2px 0 #0D0D0F,-2px 2px 0 #0D0D0F,2px 2px 0 #0D0D0F,5px 6px 0 rgba(0,0,0,.9)">KRA-KOW!!</div>
+          <div style="position:absolute;right:0;top:48px;background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:7.5px;font-weight:800;letter-spacing:1.5px;padding:2px 6px;transform:rotate(2deg);white-space:nowrap">FINISHER: SNAP SHUT · 90</div>
+          <div style="position:absolute;left:0;bottom:0;display:flex;gap:8px;align-items:flex-end">
+            <div style="width:96px;height:96px">{{ sq1 }}</div>
+            <div style="width:96px;height:96px">{{ sq2 }}</div>
+            <div style="width:96px;height:96px">{{ sq3 }}</div>
+          </div>
+        </div>
+        <div style="margin-top:18px;font-size:12px;font-style:italic;color:rgba(245,242,234,.75)">“It never even closed. Brutal.” <span style="font-family:'JetBrains Mono',monospace;font-style:normal;font-size:8px;letter-spacing:1.5px;color:#35E0FF">— JUDGE K-OS</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;border-top:2px solid #26262E;padding-top:9px">
+          <div style="font-family:'Archivo Black',sans-serif;font-style:italic;font-size:13px"><span style="color:#D8FF3E">ALCHEMY</span> ARENA</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:.8px;color:rgba(245,242,234,.35);white-space:nowrap">BROADCAST CH.9 · NO ACCOUNTS · IN-BROWSER</div>
+        </div>
+      </div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;min-height:0">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="background:#35E0FF;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.5px;padding:3px 7px;transform:rotate(-1deg)">SPOILER-FREE SHARE</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;color:rgba(245,242,234,.35)">pastes anywhere as plain text</span>
+      </div>
+      <div style="margin:auto 0;background:#17171C;border:2px solid #26262E;box-shadow:5px 5px 0 #000;padding:16px 18px;font-family:'JetBrains Mono',monospace;font-size:14px;line-height:2.1;font-weight:700;letter-spacing:.5px">
+        <div style="color:rgba(245,242,234,.85)">ALCHEMY ARENA · DAILY #142</div>
+        <div>🟩🟩🟧🟩 <span style="font-size:10px;color:rgba(245,242,234,.5)">4 TURNS</span></div>
+        <div>☂️ 👻 🌵 <span style="font-size:10px;color:rgba(245,242,234,.5)">SQUAD · 2/3 STOOD</span></div>
+        <div>🔥6 🧊1 <span style="font-size:10px;color:rgba(245,242,234,.5)">STREAK · FREEZE HELD</span></div>
+        <div style="font-size:10px;color:#35E0FF">alchemy.arena/d/142</div>
+      </div>
+      <div style="display:flex;gap:9px">
+        <div style="flex:1;background:#D8FF3E;color:#0D0D0F;font-family:'Archivo Black',sans-serif;font-style:italic;font-size:16px;text-align:center;padding:13px 0;box-shadow:5px 5px 0 #000">COPY TEXT</div>
+        <div style="flex:1;background:#17171C;border:2px solid #F5F2EA;font-family:'Archivo Black',sans-serif;font-style:italic;font-size:16px;text-align:center;padding:11px 0;box-shadow:5px 5px 0 #000">SAVE CARD ↓</div>
+      </div>
+      <div style="margin-top:12px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:1.5px;color:rgba(245,242,234,.3)">CARD EXPORTS 1080×1350 · SHARE TEXT NEVER SPOILS MOVES</div>
+    </div>
+  </div>
+  </div>
+  <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+    <div class="dv-note">MOTION — card deals in with a flick + settle (250ms); KRA-KOW stamps last with hit-stop. Emoji grid rows type on one-by-one. COPY flashes lime → “COPIED” tape. Card exports 1080×1350.</div>
+  </sc-if>
+</div>
+
+<div class="dv-opt" id="1d">
+  <div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>CODEX — sticker-book trophy wall</div>
+  <div class="dv-card" style="width:390px">
+  <div data-screen-label="Codex" style="box-sizing:border-box;width:390px;height:844px;background:#0D0D0F;color:#F5F2EA;position:relative;overflow:hidden;font-family:Archivo,sans-serif;display:flex;flex-direction:column;padding:14px 14px 12px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;flex:none">
+      <div style="font-family:'Archivo Black',sans-serif;font-style:italic;font-size:26px">CODEX</div>
+      <div style="background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.5px;padding:3px 8px;transform:rotate(1deg)">ADEPT — 247/∞ · 12 FIRSTS</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:9px;flex:none">
+      {{ meterEl }}
+      <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;color:rgba(245,242,234,.4)">NEXT RANK: SEER @ 300</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:7px;margin-top:12px;flex:none">
+      <div style="flex:1;display:flex;align-items:center;gap:7px;background:#17171C;border:2px solid #26262E;padding:6px 10px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(245,242,234,.35)">⌕</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:rgba(245,242,234,.35)">FIND A STICKER…</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:9px;flex:none;flex-wrap:wrap">
+      <span style="padding:3px 9px;background:#D8FF3E;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.2px">ALL</span>
+      <span style="padding:3px 9px;border:2px solid #2C2C34;color:rgba(245,242,234,.6);font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.2px">FIRE</span>
+      <span style="padding:3px 9px;border:2px solid #2C2C34;color:rgba(245,242,234,.6);font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.2px">WATER</span>
+      <span style="padding:3px 9px;border:2px solid #2C2C34;color:rgba(245,242,234,.6);font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.2px">PAPER</span>
+      <span style="padding:3px 9px;border:2px solid #2C2C34;color:rgba(245,242,234,.6);font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.2px">IDEA</span>
+      <span style="padding:3px 9px;border:2px solid #35E0FF;color:#35E0FF;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.2px">FOIL ◆</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px 8px;margin-top:14px;flex:1;align-content:flex-start;overflow:hidden;position:relative">
+      <sc-for list="{{ codexEls }}" as="c" hint-placeholder-count="20">
+        <div style="width:82px;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative">
+          {{ c.b }}
+          <div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;font-weight:700;letter-spacing:.2px;color:rgba(245,242,234,.5);text-transform:uppercase;max-width:82px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.n }}</div>
+          <sc-if value="{{ c.foil }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;top:-2px;right:4px;background:linear-gradient(120deg,#35E0FF,#FF3EF0,#D8FF3E);color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:6.5px;font-weight:800;letter-spacing:1px;padding:1px 4px;transform:rotate(6deg)">FOIL</div>
+          </sc-if>
+        </div>
+      </sc-for>
+      <div style="position:absolute;left:0;right:0;bottom:0;height:22px;background:linear-gradient(transparent,#0D0D0F)"></div>
+    </div>
+    <div style="flex:none;border-top:2px solid #26262E;padding-top:10px;margin-top:8px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:7.5px;font-weight:800;letter-spacing:1.5px;padding:2px 6px;transform:rotate(-1deg)">ADVANCEMENTS</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;color:rgba(245,242,234,.35)">5/9 · NEXT: “CROWN ANYTHING”</span>
+        <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9px;color:#D8FF3E">LINEAGE ⌥ → <a href="#1e" style="color:#35E0FF;text-decoration:none">1e</a></span>
+      </div>
+      <div style="margin-top:9px">{{ achRow }}</div>
+    </div>
+  </div>
+  </div>
+  <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+    <div class="dv-note">MOTION — stickers peel-press in on scroll (staggered 40ms); foils hue-shimmer continuously (live above); long-press a badge lifts it + opens LINEAGE (<a class="dv-oid" href="#1e">1e</a>) with a comic-panel wipe.</div>
+  </sc-if>
+</div>
+
+<div class="dv-opt" id="1e">
+  <div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>CODEX › LINEAGE overlay — back to the 4 primitives</div>
+  <div class="dv-card" style="width:390px">
+  <div data-screen-label="Lineage overlay" style="box-sizing:border-box;width:390px;height:844px;background:#0A0A0C;color:#F5F2EA;position:relative;overflow:hidden;font-family:Archivo,sans-serif;display:flex;flex-direction:column;padding:14px 12px 12px">
+    <div style="display:flex;align-items:center;gap:9px;flex:none">
+      <span style="background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.5px;padding:3px 7px;transform:rotate(-1deg)">LINEAGE</span>
+      <span style="font-family:'Archivo Black',sans-serif;font-style:italic;font-size:15px">BANNED WEATHER BOOKS</span>
+      <span style="margin-left:auto;width:26px;height:26px;border:2px solid #2C2C34;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(245,242,234,.6)">✕</span>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;color:rgba(245,242,234,.4);margin-top:6px;flex:none">3 GENERATIONS · 6 FUSIONS · YOU FOUND IT FIRST ▲</div>
+    <div style="position:relative;flex:1;margin-top:8px;min-height:0">
+      <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(245,242,234,.04) 1.1px,transparent 1.6px);background-size:12px 12px"></div>
+      <div style="position:absolute;top:6px;left:0;width:80px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:6.5px;font-weight:800;letter-spacing:1.5px;color:rgba(53,224,255,.7)">PRIMITIVES</div>
+      <div style="position:absolute;top:6px;left:93px;width:80px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:6.5px;font-weight:800;letter-spacing:1.5px;color:rgba(245,242,234,.35)">GEN 1</div>
+      <div style="position:absolute;top:6px;left:192px;width:80px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:6.5px;font-weight:800;letter-spacing:1.5px;color:rgba(245,242,234,.35)">GEN 2</div>
+      <div style="position:absolute;top:6px;left:281px;width:80px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:6.5px;font-weight:800;letter-spacing:1.5px;color:#D8FF3E">RESULT</div>
+      <svg viewBox="0 0 366 560" width="366" height="560" style="position:absolute;left:0;top:0">
+        <path d="M61 90 H84 M61 170 H84 M84 90 V170 M84 130 H107" stroke="#F5F2EA" stroke-width="4" fill="none" opacity="0.5"></path>
+        <path d="M61 250 H84 M61 330 H84 M84 250 V330 M84 290 H107" stroke="#F5F2EA" stroke-width="4" fill="none" opacity="0.5"></path>
+        <path d="M61 410 H84 M61 490 H84 M84 410 V490 M84 450 H107" stroke="#F5F2EA" stroke-width="4" fill="none" opacity="0.5"></path>
+        <path d="M159 290 H190 M159 450 H190 M190 290 V450 M190 370 H206" stroke="#F5F2EA" stroke-width="4" fill="none" opacity="0.7"></path>
+        <path d="M159 130 H264 M258 370 H264 M264 130 V370 M264 250 H281" stroke="#F5F2EA" stroke-width="4" fill="none" opacity="0.9"></path>
+      </svg>
+      <div style="position:absolute;left:19px;top:69px;width:42px;display:flex;flex-direction:column;align-items:center;gap:2px">{{ ln_air }}<div style="font-family:'JetBrains Mono',monospace;font-size:6px;font-weight:700;color:#35E0FF">AIR ◦</div></div>
+      <div style="position:absolute;left:19px;top:149px;width:42px;display:flex;flex-direction:column;align-items:center;gap:2px">{{ ln_water }}<div style="font-family:'JetBrains Mono',monospace;font-size:6px;font-weight:700;color:#35E0FF">WATER ◦</div></div>
+      <div style="position:absolute;left:19px;top:229px;width:42px;display:flex;flex-direction:column;align-items:center;gap:2px">{{ ln_earth }}<div style="font-family:'JetBrains Mono',monospace;font-size:6px;font-weight:700;color:#35E0FF">EARTH ◦</div></div>
+      <div style="position:absolute;left:19px;top:309px;width:42px;display:flex;flex-direction:column;align-items:center;gap:2px">{{ ln_water2 }}<div style="font-family:'JetBrains Mono',monospace;font-size:6px;font-weight:700;color:#35E0FF">WATER ◦</div></div>
+      <div style="position:absolute;left:19px;top:389px;width:42px;display:flex;flex-direction:column;align-items:center;gap:2px">{{ ln_fire }}<div style="font-family:'JetBrains Mono',monospace;font-size:6px;font-weight:700;color:#35E0FF">FIRE ◦</div></div>
+      <div style="position:absolute;left:19px;top:469px;width:42px;display:flex;flex-direction:column;align-items:center;gap:2px">{{ ln_air2 }}<div style="font-family:'JetBrains Mono',monospace;font-size:6px;font-weight:700;color:#35E0FF">AIR ◦</div></div>
+      <div style="position:absolute;left:107px;top:104px;width:52px;display:flex;flex-direction:column;align-items:center;gap:2px">{{ ln_storm }}<div style="font-family:'JetBrains Mono',monospace;font-size:6.5px;font-weight:700;color:rgba(245,242,234,.7)">STORM</div></div>
+      <div style="position:absolute;left:107px;top:264px;width:52px;display:flex;flex-direction:column;align-items:center;gap:2px">{{ ln_paper }}<div style="font-family:'JetBrains Mono',monospace;font-size:6.5px;font-weight:700;color:rgba(245,242,234,.7)">PAPER</div></div>
+      <div style="position:absolute;left:107px;top:424px;width:52px;display:flex;flex-direction:column;align-items:center;gap:2px">{{ ln_idea }}<div style="font-family:'JetBrains Mono',monospace;font-size:6.5px;font-weight:700;color:rgba(245,242,234,.7)">IDEA</div></div>
+      <div style="position:absolute;left:206px;top:344px;width:52px;display:flex;flex-direction:column;align-items:center;gap:2px">{{ ln_library }}<div style="font-family:'JetBrains Mono',monospace;font-size:6.5px;font-weight:700;color:rgba(245,242,234,.7)">LIBRARY</div></div>
+      <div style="position:absolute;left:271px;top:215px;width:90px;display:flex;flex-direction:column;align-items:center;gap:2px">{{ ln_bwb }}<div style="font-family:'JetBrains Mono',monospace;font-size:6.5px;font-weight:800;letter-spacing:.5px;color:#D8FF3E;text-align:center">BANNED WEATHER BOOKS</div></div>
+    </div>
+    <div style="flex:none;display:flex;align-items:center;gap:8px;margin-top:6px">
+      <span style="background:#35E0FF;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:7.5px;font-weight:800;letter-spacing:1.5px;padding:3px 7px;transform:rotate(-1deg);white-space:nowrap">◦ = PRIMITIVE</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:.8px;color:rgba(245,242,234,.4);white-space:nowrap">ALL ROOTS: FIRE · WATER · EARTH · AIR</span>
+    </div>
+  </div>
+  </div>
+  <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+    <div class="dv-note">MOTION — gutter lines draw root-down (stroke-dash, 220ms/gen); badges stamp at each junction; tapping any ancestor re-roots the tree with a panel wipe.</div>
+  </sc-if>
+</div>
+
+<div class="dv-opt" id="1f">
+  <div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>DAILY BOSS — hijacked broadcast poster</div>
+  <div class="dv-card" style="width:390px">
+  <div data-screen-label="Daily Boss" style="box-sizing:border-box;width:390px;height:844px;background:#0D0D0F;color:#F5F2EA;position:relative;overflow:hidden;font-family:Archivo,sans-serif;display:flex;flex-direction:column;padding:0 0 12px">
+    <sc-if value="{{ scan }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.25) 0 2px,transparent 2px 4px);pointer-events:none;z-index:9"></div>
+    </sc-if>
+    <div style="flex:none;background:#FF5C2A;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:3px;padding:7px 14px;display:flex;justify-content:space-between"><span>▓▓░ SIGNAL HIJACK</span><span>EVERYONE FIGHTS</span></div>
+    <div style="flex:none;padding:18px 16px 0;position:relative">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:3px;color:#35E0FF">TODAY'S WORLDWIDE BOSS</div>
+      <div style="font-family:'Archivo Black',sans-serif;font-style:italic;font-size:40px;line-height:.92;margin-top:6px;text-shadow:-3px 0 rgba(53,224,255,.55),3px 0 rgba(255,62,240,.5),6px 6px 0 rgba(0,0,0,.9)">THE TAX<br>AUDIT</div>
+    </div>
+    <div style="position:relative;flex:none;height:248px;display:flex;align-items:center;justify-content:center">
+      <div style="position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,92,42,.1) 0deg 1.8deg,transparent 1.8deg 14deg)"></div>
+      {{ bossBadge }}
+    </div>
+    <div style="flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px">
+      <span style="background:#17171C;border:2px solid #26262E;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:800;letter-spacing:2px;padding:6px 12px;color:#D8FF3E">NEXT AUDIT 07:41:12</span>
+      <span style="background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.5px;padding:4px 8px;transform:rotate(1deg)">BEATEN BY 12,431 ALCHEMISTS</span>
+    </div>
+    <div style="flex:none;padding:12px 16px 0">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:2px;color:rgba(245,242,234,.5)">STREAK 6 · ONE FREEZE BANKED</span>
+        {{ streakRow }}
+      </div>
+    </div>
+    <div style="flex:1;margin:16px 16px 0;background:#17171C;border:2px solid #26262E;box-shadow:5px 5px 0 #000;padding:12px 14px;display:flex;flex-direction:column;min-height:0">
+      <div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px">
+        <span style="background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:7.5px;font-weight:800;letter-spacing:1.5px;padding:2px 6px;transform:rotate(-1deg)">PICK YOUR SQUAD</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.8px;color:#FF5C2A">AUDIT IS PAPER · LAW — WEAK TO FIRE + CHAOS</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;margin-top:12px">
+        <div style="width:50px;height:50px">{{ bUmb }}</div>
+        <div style="width:50px;height:50px">{{ bGhost }}</div>
+        <div style="width:50px;height:50px;border:2px dashed rgba(245,242,234,.3);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:18px;color:rgba(245,242,234,.35)">+</div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;color:rgba(245,242,234,.4);line-height:1.6">SLOT 3 OPEN<br>TIP: ANYTHING BURNING</span>
+      </div>
+      <div style="margin-top:auto;padding-top:10px;border-top:2px solid #26262E;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;color:rgba(245,242,234,.35);display:flex;justify-content:space-between"><span>YESTERDAY: THE LANDLORD · 41% CLEARED</span><span style="color:#D8FF3E">YOUR RUN 6-0</span></div>
+    </div>
+    <div style="flex:none;margin:12px 16px 0;background:#D8FF3E;color:#0D0D0F;font-family:'Archivo Black',sans-serif;font-style:italic;font-size:18px;text-align:center;padding:14px 0;box-shadow:5px 5px 0 #000">ENTER THE BROADCAST →</div>
+  </div>
+  </div>
+  <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+    <div class="dv-note">MOTION — boss badge reveals via glitch flicker (live above: RGB-split jumps, steps() timing); title chromatic-splits on entry; countdown ticks with a 1-frame slot-machine snap; frozen streak sticker sweats a slow cyan shimmer.</div>
+  </sc-if>
+</div>
+
+<div class="dv-opt" id="1g">
+  <div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>FIRST-RUN — warming up the lab (600MB download)</div>
+  <div class="dv-card" style="width:390px">
+  <div data-screen-label="First-run tutorial" style="box-sizing:border-box;width:390px;height:844px;background:#0D0D0F;color:#F5F2EA;position:relative;overflow:hidden;font-family:Archivo,sans-serif;display:flex;flex-direction:column;padding:14px 14px 12px">
+    <div style="flex:none;display:flex;justify-content:center">
+      <span style="background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:7.5px;font-weight:800;letter-spacing:2px;padding:3px 8px;transform:rotate(-1deg)">FIRST BOOT · NO ACCOUNT · RUNS IN YOUR BROWSER</span>
+    </div>
+    <div style="flex:none;margin-top:22px;text-align:center">
+      {{ neonSign }}
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px">
+        {{ secMeter }}
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.2px;color:rgba(245,242,234,.5);margin-top:9px;white-space:nowrap">WARMING UP THE LAB — 412/600 MB · SECTION 4/6</div>
+      <div style="font-size:11px;font-weight:500;font-style:italic;color:#35E0FF;margin-top:4px">you can start crafting before the sign is fully lit</div>
+    </div>
+    <div style="flex:none;margin-top:22px;background:#17171C;border:2px solid #26262E;box-shadow:5px 5px 0 #000;padding:13px 14px;position:relative">
+      <div style="position:absolute;top:-9px;left:12px;background:#D8FF3E;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:7.5px;font-weight:800;letter-spacing:1.5px;padding:2px 6px">STEP 2 — YOUR FIRST FUSION</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px">
+        <div style="width:52px;height:52px">{{ bFire }}</div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:800;color:rgba(245,242,234,.5)">+</span>
+        <div style="width:52px;height:52px">{{ bWater }}</div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:800;color:#D8FF3E">=</span>
+        <div style="width:72px;height:72px;position:relative;flex:none">{{ bSteam }}
+          <div style="position:absolute;top:0;right:-4px;transform:rotate(8deg);font-family:'Archivo Black',sans-serif;font-style:italic;font-size:13px;color:#D8FF3E;text-shadow:-1.5px -1.5px 0 #0D0D0F,1.5px -1.5px 0 #0D0D0F,-1.5px 1.5px 0 #0D0D0F,1.5px 1.5px 0 #0D0D0F,3px 4px 0 rgba(0,0,0,.9)">FSSSH!</div>
+        </div>
+      </div>
+      <div style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;color:rgba(245,242,234,.4);margin-top:10px">DRAG ONE ONTO THE OTHER — THIS ONE'S PRE-BREWED</div>
+    </div>
+    <div style="flex:1;margin-top:18px;min-height:0;display:flex;flex-direction:column">
+      <div style="flex:none;display:flex;align-items:center;gap:8px">
+        <span style="background:#35E0FF;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:7.5px;font-weight:800;letter-spacing:1.5px;padding:2px 6px;transform:rotate(-1deg)">LESSON</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;color:rgba(245,242,234,.4)">TYPE MATCHUPS DECIDE FIGHTS</span>
+      </div>
+      <div style="flex:1;margin-top:9px;border:3px solid #F5F2EA;background:#101014;position:relative;overflow:hidden;box-shadow:6px 6px 0 #000">
+        <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(245,242,234,.05) 1.1px,transparent 1.6px);background-size:11px 11px"></div>
+        <div style="position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 68% 42%,rgba(53,224,255,.1) 0deg 2deg,transparent 2deg 15deg)"></div>
+        <div style="position:absolute;left:34px;top:96px;width:78px;height:78px">{{ bWaterC }}</div>
+        <div style="position:absolute;right:44px;top:176px;width:78px;height:78px;transform:rotate(9deg);opacity:.9">{{ bFireC }}</div>
+        <div style="position:absolute;left:96px;top:142px;width:168px;height:5px;background:#35E0FF;transform:rotate(22deg);transform-origin:0 50%;box-shadow:0 0 12px rgba(53,224,255,.6)"></div>
+        <div style="position:absolute;right:22px;top:148px;transform:rotate(-6deg);font-family:'Archivo Black',sans-serif;font-style:italic;font-size:19px;color:#35E0FF;text-shadow:-1.5px -1.5px 0 #0D0D0F,1.5px -1.5px 0 #0D0D0F,-1.5px 1.5px 0 #0D0D0F,1.5px 1.5px 0 #0D0D0F,3px 4px 0 rgba(0,0,0,.9)">SPLOOSH!</div>
+        <div style="position:absolute;left:0;right:0;bottom:0;background:#F5F2EA;color:#0D0D0F;padding:8px 12px;display:flex;align-items:baseline;gap:10px">
+          <span style="font-family:'Archivo Black',sans-serif;font-style:italic;font-size:16px">WATER QUENCHES FIRE</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.5px">2× DAMAGE. REMEMBER IT.</span>
+        </div>
+      </div>
+    </div>
+    <div style="flex:none;margin-top:12px;background:#D8FF3E;color:#0D0D0F;font-family:'Archivo Black',sans-serif;font-style:italic;font-size:16px;text-align:center;padding:12px 0;box-shadow:5px 5px 0 #000">NEXT: WIN YOUR FIRST FIGHT →</div>
+  </div>
+  </div>
+  <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+    <div class="dv-note">MOTION — the wordmark charges like a neon sign: letters buzz-flicker on one by one as model shards cache (boundary letter flickers live above). Never a bare progress bar. Fusion step uses pre-cached results so it feels instant even mid-download.</div>
+  </sc-if>
+</div>
+
+<div class="dv-opt" id="1h">
+  <div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a>WORKBENCH — desktop</div>
+  <div class="dv-card" style="width:1160px">
+  <div data-screen-label="Workbench desktop" style="width:1160px;height:720px;background:#0D0D0F;color:#F5F2EA;position:relative;overflow:hidden;font-family:Archivo,sans-serif;display:flex;flex-direction:column">
+    <div style="position:relative;display:flex;align-items:center;gap:10px;background:#17171C;border-bottom:2px solid #26262E;padding:9px 16px 9px 22px;flex:none">
+      <div style="position:absolute;left:0;top:0;bottom:0;width:7px;background:repeating-linear-gradient(-45deg,#D8FF3E 0 7px,#0D0D0F 7px 14px)"></div>
+      <span style="background:#D8FF3E;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.5px;padding:3px 6px;transform:rotate(-1deg)">TODAY</span>
+      <span style="font-size:12px;font-weight:600;color:rgba(245,242,234,.8)">craft something that beats <span style="font-family:'Archivo Black',sans-serif;font-style:italic">THE LANDLORD</span></span>
+      <span style="margin-left:auto;font-family:'Archivo Black',sans-serif;font-style:italic;font-size:15px"><span style="color:#D8FF3E">ALCHEMY</span> ARENA</span>
+      <span style="background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:2px;padding:3px 8px;transform:rotate(1deg)">CH.9 · PIRATE SIGNAL</span>
+    </div>
+    <div style="flex:1;display:flex;min-height:0">
+      <div style="width:330px;flex:none;border-right:2px solid #26262E;padding:16px 16px 0;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="font-family:'Archivo Black',sans-serif;font-style:italic;font-size:17px">THE SHELF</div>
+          <div style="background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.5px;padding:3px 8px;transform:rotate(-1.5deg)">247 DISCOVERED</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;background:#17171C;border:2px solid #26262E;padding:7px 10px;margin-top:12px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(245,242,234,.35)">⌕</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:rgba(245,242,234,.35)">SEARCH THE SHELF…</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:11px;margin-top:14px;justify-content:center;overflow:hidden;position:relative;flex:1;align-content:flex-start">
+          <sc-for list="{{ trayEls }}" as="t" hint-placeholder-count="12">
+            <div style="width:58px;height:58px;flex:none">{{ t.b }}</div>
+          </sc-for>
+          <div style="position:absolute;left:0;right:0;bottom:0;height:30px;background:linear-gradient(transparent,#0D0D0F)"></div>
+        </div>
+      </div>
+      <div style="flex:1;position:relative;overflow:hidden;background:#101014">
+        <div style="position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 55%,rgba(245,242,234,.06) 0deg 1.6deg,transparent 1.6deg 15deg)"></div>
+        <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(245,242,234,.05) 1.1px,transparent 1.6px);background-size:11px 11px"></div>
+        <div style="position:absolute;top:36px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:14px">
+          {{ bStorm }}
+          <span style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:800;color:rgba(245,242,234,.5)">+</span>
+          {{ bLibrary }}
+          <span style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:800;color:#D8FF3E">=</span>
+        </div>
+        <div style="position:absolute;top:130px;left:0;right:0;display:flex;justify-content:center">{{ heroXL }}</div>
+        <div style="position:absolute;top:88px;left:60px;transform:rotate(-8deg);font-family:'Archivo Black',sans-serif;font-style:italic;font-size:34px;line-height:.95;color:#D8FF3E;text-shadow:-2px -2px 0 #0D0D0F,2px -2px 0 #0D0D0F,-2px 2px 0 #0D0D0F,2px 2px 0 #0D0D0F,6px 7px 0 rgba(0,0,0,.9)">NEW<br>DISCOVERY!</div>
+        <div style="position:absolute;bottom:14px;left:0;right:0;text-align:center;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(245,242,234,.35)">DRAG ANY TWO STICKERS TO THE BENCH · FUSION 00:00:02 · FIRST IN THE WORLD ▲</div>
+      </div>
+      <div style="width:330px;flex:none;border-left:2px solid #26262E;padding:16px;display:flex;flex-direction:column;gap:14px">
+        <div style="background:#17171C;border:2px solid #F5F2EA;box-shadow:6px 6px 0 #000;padding:14px 16px;position:relative">
+          <div style="position:absolute;top:-9px;left:12px;background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:800;letter-spacing:1.5px;padding:2px 6px;transform:rotate(-1deg)">SPEC PLAQUE</div>
+          <div style="font-family:'Archivo Black',sans-serif;font-style:italic;font-size:21px;line-height:1.05">BANNED WEATHER BOOKS</div>
+          <div style="display:flex;gap:6px;margin-top:9px">
+            <span style="padding:2px 7px;border:2px solid #F5F2EA;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.2px;transform:rotate(-1deg)">PAPER</span>
+            <span style="padding:2px 7px;border:2px solid #D8FF3E;color:#D8FF3E;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.2px;transform:rotate(1deg)">IDEA</span>
+            <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;color:#35E0FF">TIER 3 · FOIL</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:5px 10px;margin-top:12px;font-size:13px;font-weight:600">
+            <div>ILLEGAL FORECAST</div><div style="font-family:'JetBrains Mono',monospace;font-weight:800;color:#D8FF3E">65</div>
+            <div>PAPER CUT FRONT</div><div style="font-family:'JetBrains Mono',monospace;font-weight:800;color:#D8FF3E">50</div>
+            <div>CITE THE STORM</div><div style="font-family:'JetBrains Mono',monospace;font-weight:800;color:#D8FF3E">80</div>
+          </div>
+        </div>
+        <div style="background:#17171C;border:2px solid #26262E;box-shadow:5px 5px 0 #000;padding:12px 14px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:2px;color:rgba(245,242,234,.5)">RECENT FUSIONS</div>
+          <div style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:9.5px;line-height:2;color:rgba(245,242,234,.65)">STORM + LIBRARY → <span style="color:#D8FF3E">BANNED WEATHER BOOKS ▲</span><br>GHOST + TEA → SÉANCE BREW<br>MAGNET + MOON → TIDE THIEF</div>
+        </div>
+        <div style="margin-top:auto;background:#D8FF3E;color:#0D0D0F;font-family:'Archivo Black',sans-serif;font-style:italic;font-size:16px;text-align:center;padding:13px 0;box-shadow:5px 5px 0 #000">SEND TO SQUAD →</div>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<div class="dv-opt" id="1i">
+  <div class="dv-olabel"><a class="dv-oid" href="#1i">1i</a>ARENA — desktop</div>
+  <div class="dv-card" style="width:1160px">
+  <div data-screen-label="Arena desktop" style="width:1160px;height:720px;background:#0D0D0F;color:#F5F2EA;position:relative;overflow:hidden;font-family:Archivo,sans-serif;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 18px;border-bottom:2px solid #26262E;flex:none">
+      <span style="width:8px;height:8px;background:#FF5C2A;border-radius:50%"></span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:2px">LIVE · CH.9 STREET FIGHT</span>
+      <span style="margin-left:16px;font-family:'Archivo Black',sans-serif;font-style:italic;font-size:14px"><span style="color:#D8FF3E">ALCHEMY</span> ARENA</span>
+      <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:rgba(245,242,234,.45)">TURN 07 · 12,431 WATCHING · BEST OF 1</span>
+    </div>
+    <div style="position:relative;flex:1;min-height:0">
+      <sc-if value="{{ scan }}" hint-placeholder-val="{{ true }}">
+        <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.2) 0 2px,transparent 2px 4px);pointer-events:none;z-index:9"></div>
+      </sc-if>
+      <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(245,242,234,.045) 1.1px,transparent 1.6px);background-size:12px 12px"></div>
+      <div style="position:absolute;top:-60px;right:60px;width:460px;height:460px;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,92,42,.13) 0deg 2deg,transparent 2deg 13deg)"></div>
+      <div style="position:absolute;top:16px;left:0;right:0;text-align:center;font-size:14px;font-style:italic;font-weight:500;color:#35E0FF">“The umbrella opens contemptuously. Bottled Lightning did not see a forecast like this…<span style="color:rgba(53,224,255,.4)">▌</span>”</div>
+      <div style="position:absolute;bottom:60px;left:120px">{{ plyXL }}</div>
+      <div style="position:absolute;bottom:34px;left:130px;display:flex;gap:6px;align-items:center">
+        <span style="background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.5px;padding:3px 7px;transform:rotate(-1.5deg)">PASSIVE-AGGRESSIVE UMBRELLA</span>
+        <span style="padding:2px 6px;border:2px solid #35E0FF;color:#35E0FF;font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:800;letter-spacing:1px">WATER</span>
+      </div>
+      <div style="position:absolute;top:64px;right:150px">{{ foeXL }}</div>
+      <div style="position:absolute;top:44px;right:160px;display:flex;gap:6px;align-items:center">
+        <span style="padding:2px 6px;border:2px solid #FF5C2A;color:#FF5C2A;font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:800;letter-spacing:1px">ZAP</span>
+        <span style="background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.5px;padding:3px 7px;transform:rotate(1.5deg)">BOTTLED LIGHTNING</span>
+      </div>
+      <div style="position:absolute;top:250px;left:470px;transform:rotate(-7deg);font-family:'Archivo Black',sans-serif;font-style:italic;font-size:46px;line-height:.9;color:#FF5C2A;text-shadow:-2px -2px 0 #0D0D0F,2px -2px 0 #0D0D0F,-2px 2px 0 #0D0D0F,2px 2px 0 #0D0D0F,7px 8px 0 rgba(0,0,0,.9)">SUPER<br><span style="font-size:34px">EFFECTIVE!</span></div>
+      <div style="position:absolute;bottom:40px;right:40px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;color:rgba(245,242,234,.35);text-align:right">YOUR MOVE · 00:12</div>
+    </div>
+    <div style="flex:none;border-top:7px solid transparent;border-image:repeating-linear-gradient(-45deg,#D8FF3E 0 7px,#0D0D0F 7px 14px) 7;background:#121216;padding:14px 18px 12px;display:flex;gap:16px;align-items:stretch">
+      <div style="flex:1;display:flex;gap:10px;max-width:720px">
+        <sc-for list="{{ moves }}" as="m" hint-placeholder-count="3">
+          <div style="flex:1;position:relative;background:#17171C;border:2px solid #2C2C34;box-shadow:4px 4px 0 #000;padding:11px 11px 9px;min-width:0">
+            <sc-if value="{{ m.sel }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;inset:-2px;border:2px solid #D8FF3E;pointer-events:none"></div>
+              <div style="position:absolute;top:-8px;left:7px;background:#D8FF3E;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:800;letter-spacing:1px;padding:2px 5px">READY</div>
+            </sc-if>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:4px">
+              <div style="font-family:'Archivo Black',sans-serif;font-style:italic;font-size:14px;line-height:1.05;text-transform:uppercase">{{ m.name }}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-weight:800;font-size:17px;color:#D8FF3E">{{ m.pw }}</div>
+            </div>
+            <div style="margin-top:6px">{{ m.chip }}</div>
+            <div style="margin-top:5px;font-size:9.5px;line-height:1.35;color:rgba(245,242,234,.55);font-weight:500">{{ m.eff }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="flex:none;display:flex;align-items:center;gap:12px;border-left:2px solid #26262E;padding-left:16px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:2px;color:rgba(245,242,234,.5)">SWITCH →</span>
+        <div style="width:60px;height:60px">{{ benchA }}</div>
+        <div style="width:60px;height:60px">{{ benchB }}</div>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "riff 3 variations on the <a class="dv-oid" href="#1b">1b</a> arena stage" · "make the result card in <a class="dv-oid" href="#1c">1c</a> more poster-like" · "prototype the fusion interaction live"</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;motionNotes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Presentation&quot;},&quot;animations&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Presentation&quot;},&quot;scanlines&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;FX&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const E = React.createElement;
+    const INK='#0D0D0F',PANEL='#17171C',LIME='#D8FF3E',TAN='#FF5C2A',CYAN='#35E0FF',PAP='#F5F2EA',MAG='#FF3EF0';
+    const anim = this.props.animations ?? true;
+    const showNotes = this.props.motionNotes ?? true;
+    const scan = this.props.scanlines ?? true;
+    const ELS = {
+      fire:['FIRE','\u{1F525}',TAN,0], water:['WATER','\u{1F4A7}',CYAN,0], earth:['EARTH','\u{1FAA8}',PAP,0], air:['AIR','\u{1F4A8}',PAP,0],
+      steam:['STEAM','\u2668',CYAN,1], storm:['STORM','\u26C8',CYAN,1], paper:['PAPER','\u{1F4C4}',PAP,1], idea:['IDEA','\u{1F4A1}',LIME,1],
+      library:['LIBRARY','\u{1F4DA}',PAP,2], bwb:['BANNED WEATHER BOOKS','\u{1F4D5}',PAP,3,1],
+      umbrella:['PASSIVE-AGGRESSIVE UMBRELLA','\u2602',CYAN,2], bolt:['BOTTLED LIGHTNING','\u26A1',TAN,2],
+      tax:['THE TAX AUDIT','\u{1F9FE}',TAN,4],
+      ghost:['SALTY GHOST','\u{1F47B}',PAP,1], magnet:['MAGNET','\u{1F9F2}',TAN,1], cactus:['CACTUS','\u{1F335}',LIME,1],
+      moon:['MOON','\u{1F319}',PAP,1], robot:['INTERN ROBOT','\u{1F916}',CYAN,2], bomb:['GLITTER BOMB','\u{1F4A3}',CYAN,2,1]
+    };
+    const hash = s => { let h=9; for (let i=0;i<s.length;i++) h=Math.imul(h^s.charCodeAt(i),387420489)>>>0; return h||7; };
+    const rng = seed => { let s=seed>>>0||1; return () => ((s=(Math.imul(s,1664525)+1013904223)>>>0)/4294967296); };
+    const pts = (r,n,ro,ri,j) => { let a=r()*Math.PI*2, o=[]; for (let i=0;i<2*n;i++){ const rad=(i%2?ri:ro)*(1-j/2+r()*j); o.push((60+rad*Math.cos(a)).toFixed(1)+','+(60+rad*Math.sin(a)).toFixed(1)); a+=Math.PI/n; } return o.join(' '); };
+    const badge = (k,size) => {
+      const [nm,g,c,t,foil]=ELS[k]; const r=rng(hash(nm)); const n=6+t*3;
+      const P1=pts(r,n,55,37,.2), P2=pts(r,Math.max(5,n-2),51,30,.3);
+      const gid='fg-'+k, hid='ht-'+k;
+      return E('svg',{width:size,height:size,viewBox:'0 0 120 120',style:{display:'block',flex:'none',width:'100%',height:'100%',animation:foil&&anim?'foilshift 5s linear infinite':undefined}},
+        E('defs',null,
+          E('linearGradient',{id:gid,x1:'0',y1:'0',x2:'1',y2:'1'},E('stop',{offset:'0%',stopColor:CYAN}),E('stop',{offset:'50%',stopColor:MAG}),E('stop',{offset:'100%',stopColor:LIME})),
+          E('pattern',{id:hid,width:7,height:7,patternUnits:'userSpaceOnUse'},E('circle',{cx:2,cy:2,r:1.3,fill:foil?INK:c,opacity:foil?.25:.38}))),
+        E('polygon',{points:P1,fill:'#000',opacity:.9,transform:'translate(5,6)'}),
+        t>1?E('polygon',{points:P2,fill:'none',stroke:foil?PAP:c,strokeWidth:2,opacity:.45,transform:'rotate(9 60 60)'}):null,
+        E('polygon',{points:P1,fill:foil?('url(#'+gid+')'):PANEL,stroke:foil?PAP:c,strokeWidth:3}),
+        E('circle',{cx:60,cy:60,r:31,fill:'url(#'+hid+')'}),
+        E('text',{x:60,y:63,textAnchor:'middle',dominantBaseline:'middle',fontFamily:"'Noto Emoji','JetBrains Mono',monospace",fontSize:40,fontWeight:600,fill:foil?INK:c},g));
+    };
+    const locked = size => E('svg',{width:size,height:size,viewBox:'0 0 120 120',style:{display:'block',width:'100%',height:'100%'}},
+      E('circle',{cx:60,cy:60,r:43,fill:'none',stroke:'rgba(245,242,234,.2)',strokeWidth:2.5,strokeDasharray:'8 7'}),
+      E('text',{x:60,y:70,textAnchor:'middle',fontFamily:"'JetBrains Mono',monospace",fontSize:34,fontWeight:700,fill:'rgba(245,242,234,.25)'},'?'));
+    const ring = (size,pct,color,o={}) => {
+      const SEG=12,R=87,W=11,gap=9,span=(360-SEG*gap)/SEG;
+      const filled=Math.round(pct*SEG); const kids=[];
+      const P=(r,a)=>[100+r*Math.cos(a),100+r*Math.sin(a)];
+      const arc=(r,a0,a1)=>{const[x0,y0]=P(r,a0),[x1,y1]=P(r,a1);return 'M'+x0.toFixed(1)+' '+y0.toFixed(1)+'A'+r+' '+r+' 0 0 1 '+x1.toFixed(1)+' '+y1.toFixed(1)};
+      const rr=rng(hash((o.seed||'ring')+pct));
+      for (let i=0;i<SEG;i++){
+        const a0=(-90+i*(span+gap))*Math.PI/180, a1=a0+span*Math.PI/180;
+        if (o.shattered){ const am=(a0+a1)/2, j=(rr()-.5)*16; const[x0,y0]=P(R+j,am-.09),[x1,y1]=P(R+j+9+rr()*15,am+.14);
+          kids.push(E('line',{key:i,x1:x0.toFixed(1),y1:y0.toFixed(1),x2:x1.toFixed(1),y2:y1.toFixed(1),stroke:'rgba(245,242,234,.3)',strokeWidth:3})); continue; }
+        const on=i<filled, crack=o.cracked&&on&&i>=filled-2;
+        kids.push(E('path',{key:i,d:arc(R,a0,a1),stroke:on?(crack?TAN:color):'rgba(245,242,234,.13)',strokeWidth:on?W:5,fill:'none',strokeDasharray:crack?'7 5':undefined}));
+        if (crack&&i===filled-1){ for (let s=0;s<3;s++){ const aa=a1+(rr()-.5)*.6; const[x0,y0]=P(R+7,aa),[x1,y1]=P(R+16+rr()*12,aa);
+          kids.push(E('line',{key:i+'s'+s,x1:x0.toFixed(1),y1:y0.toFixed(1),x2:x1.toFixed(1),y2:y1.toFixed(1),stroke:TAN,strokeWidth:3})); } }
+      }
+      return E('svg',{width:size,height:size,viewBox:'0 0 200 200',style:{position:'absolute',inset:0,width:'100%',height:'100%'}},kids);
+    };
+    const parts = (seed,c,n,d0,d1) => { const r=rng(hash(seed)); const kids=[];
+      for (let i=0;i<n;i++){ const a=r()*6.283, d=d0+r()*(d1-d0), sz=3+r()*6;
+        kids.push(E('div',{key:i,style:{position:'absolute',left:'calc(50% + '+(Math.cos(a)*d).toFixed(0)+'px)',top:'calc(50% + '+(Math.sin(a)*d).toFixed(0)+'px)',width:sz,height:sz,background:r()>.35?c:PAP,transform:'rotate('+((r()*90)|0)+'deg)',clipPath:r()>.5?'polygon(50% 0,100% 100%,0 100%)':undefined}})); }
+      return E('div',{style:{position:'absolute',inset:0,pointerEvents:'none'}},kids); };
+    const fighter = (k,size,pct,o={}) => E('div',{style:{position:'relative',width:size,height:size,flex:'none',animation:o.bounce&&anim?'idlebounce 1.8s ease-in-out infinite':undefined}},
+      ring(size,pct,o.color||LIME,{cracked:o.cracked,shattered:o.shattered,seed:k}),
+      o.parts?parts(k+'hit',o.pc||TAN,o.parts,size*.36,size*.55):null,
+      E('div',{style:{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center'}},E('div',{style:{width:Math.round(size*.6),height:Math.round(size*.6)}},badge(k,Math.round(size*.6)))));
+    const chip = (txt,c) => E('span',{style:{display:'inline-block',padding:'2px 6px',border:'2px solid '+c,color:c,fontFamily:"'JetBrains Mono',monospace",fontSize:8,fontWeight:800,letterSpacing:'1.2px'}},txt);
+    const moves = [
+      {name:'OPEN WITH SPITE',pw:70,eff:'Douses the field. 2\u00D7 vs FIRE.',sel:true,chip:chip('WATER',CYAN)},
+      {name:'DRIP CAMPAIGN',pw:40,eff:'Chip damage, 3 turns.',sel:false,chip:chip('WATER',CYAN)},
+      {name:'SNAP SHUT',pw:90,eff:'Crits a charged foe. Recoil 1 seg.',sel:false,chip:chip('STEEL',PAP)}];
+    const trayKeys=['fire','water','earth','air','steam','storm','paper','idea','library','ghost','magnet','cactus'];
+    const trayEls=trayKeys.map(k=>({b:badge(k,52),n:ELS[k][0]}));
+    const codexKeys=['fire','water','earth','air','steam','storm','paper','idea','library','bwb','umbrella','bolt','ghost','magnet','cactus','moon','robot','bomb'];
+    const codexEls=codexKeys.map(k=>({b:E('div',{style:{width:58,height:58}},badge(k,58)),n:ELS[k][0],foil:!!ELS[k][4]}))
+      .concat([{b:E('div',{style:{width:58,height:58}},locked(58)),n:'???',foil:false},{b:E('div',{style:{width:58,height:58}},locked(58)),n:'???',foil:false}]);
+    const meterEl=E('div',{style:{display:'flex',gap:3}},Array.from({length:12},(_,i)=>E('div',{key:i,style:{width:16,height:8,background:i<7?LIME:'rgba(245,242,234,.12)',transform:'skewX(-14deg)'}})));
+    const ach=[['\u2697',1],['\u{1F525}',1],['\u{1F4DA}',1],['\u26A1',1],['\u{1F319}',1],['\u{1F451}',0],['\u{1F4A3}',0],['\u{1F9FF}',0],['\u231B',0]];
+    const achRow=E('div',{style:{display:'flex',alignItems:'center'}},ach.map(([g,u],i)=>E('div',{key:i,style:{display:'flex',alignItems:'center'}},
+      i?E('div',{style:{width:8,height:3,background:u?'rgba(216,255,62,.5)':'rgba(245,242,234,.12)'}}):null,
+      E('div',{style:{width:29,height:29,flex:'none',display:'flex',alignItems:'center',justifyContent:'center',border:u?('2px solid '+LIME):'2px dashed rgba(245,242,234,.25)',background:u?'rgba(216,255,62,.08)':'transparent',fontFamily:"'Noto Emoji',monospace",fontSize:13,color:u?LIME:'rgba(245,242,234,.3)',transform:'rotate('+(((i%2)?2:-2))+'deg)'}},g))));
+    const bossBadge=E('div',{style:{position:'relative',width:230,height:230,animation:anim?'glitchjump 2.6s steps(1,end) infinite':undefined}},
+      E('div',{style:{position:'absolute',inset:0,opacity:.6,transform:'translate(5px,-2px)',mixBlendMode:'screen',filter:'drop-shadow(-3px 0 '+CYAN+') saturate(0)'}},badge('tax',230)),
+      E('div',{style:{position:'absolute',inset:0,opacity:.6,transform:'translate(-5px,2px)',mixBlendMode:'screen',filter:'drop-shadow(3px 0 '+MAG+') saturate(0)'}},badge('tax',230)),
+      badge('tax',230));
+    const streak=[['TH','w'],['FR','w'],['SA','f'],['SU','w'],['MO','w'],['TU','w'],['WE','t']];
+    const streakRow=E('div',{style:{display:'flex',gap:6}},streak.map(([d,s],i)=>E('div',{key:i,style:{width:34,height:42,flex:'none',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:2,background:s==='f'?'rgba(53,224,255,.12)':PANEL,border:s==='w'?('2px solid '+LIME):(s==='f'?('2px solid '+CYAN):'2px dashed rgba(245,242,234,.3)'),transform:'rotate('+(((i%3)-1)*2)+'deg)',boxShadow:'3px 3px 0 #000'}},
+      E('div',{style:{fontFamily:"'JetBrains Mono',monospace",fontSize:7,fontWeight:800,letterSpacing:'1px',color:'rgba(245,242,234,.5)'}},d),
+      E('div',{style:{fontFamily:"'Noto Emoji','JetBrains Mono',monospace",fontSize:13,color:s==='w'?LIME:(s==='f'?CYAN:'rgba(245,242,234,.35)')}},s==='w'?'\u2714':(s==='f'?'\u2744':'\u25B6')))));
+    const neonLine=(word,off)=>E('div',{style:{display:'flex',gap:3,justifyContent:'center'}},word.split('').map((ch,i)=>{const gi=off+i,lit=gi<8;return E('span',{key:i,style:{fontFamily:"'Archivo Black',sans-serif",fontStyle:'italic',fontSize:34,lineHeight:1,color:lit?LIME:'rgba(245,242,234,.07)',WebkitTextStroke:lit?undefined:'1.5px rgba(245,242,234,.45)',textShadow:lit?'0 0 14px rgba(216,255,62,.55)':undefined,animation:gi===7&&anim?'neonflick 3s linear infinite':undefined}},ch);}));
+    const neonSign=E('div',{style:{display:'flex',flexDirection:'column',gap:5}},neonLine('ALCHEMY',0),neonLine('ARENA',7));
+    const secMeter=E('div',{style:{display:'flex',gap:4}},Array.from({length:6},(_,i)=>E('div',{key:i,style:{width:34,height:9,background:i<4?LIME:'rgba(245,242,234,.12)',transform:'skewX(-14deg)',boxShadow:i<4?'0 0 8px rgba(216,255,62,.4)':undefined}})));
+    const heroBWB=E('div',{style:{position:'relative',width:170,height:170}},parts('discover',LIME,16,66,100),E('div',{style:{transform:'rotate(-5deg)',width:170,height:170}},badge('bwb',170)));
+    const heroXL=E('div',{style:{position:'relative',width:210,height:210}},parts('discoverXL',LIME,18,84,125),E('div',{style:{transform:'rotate(-5deg)',width:210,height:210}},badge('bwb',210)));
+    const wrap=(el,s)=>E('div',{style:{width:s,height:s}},el);
+    return {
+      showNotes, scan, trayEls, moves, codexEls, meterEl, achRow, bossBadge, streakRow, neonSign, secMeter, heroBWB, heroXL,
+      bStorm:wrap(badge('storm',50),50), bLibrary:wrap(badge('library',50),50),
+      foe:fighter('bolt',185,.4,{color:CYAN,cracked:true,parts:13}),
+      ply:fighter('umbrella',205,.85,{bounce:true}),
+      benchA:fighter('ghost',56,.66,{}), benchB:fighter('cactus',56,1,{}),
+      sq1:fighter('umbrella',96,.85,{}), sq2:fighter('ghost',96,.25,{cracked:true}), sq3:fighter('cactus',96,0,{shattered:true}),
+      ln_bwb:wrap(badge('bwb',70),70), ln_storm:wrap(badge('storm',52),52), ln_library:wrap(badge('library',52),52),
+      ln_paper:wrap(badge('paper',52),52), ln_idea:wrap(badge('idea',52),52),
+      ln_air:wrap(badge('air',42),42), ln_water:wrap(badge('water',42),42),
+      ln_earth:wrap(badge('earth',42),42), ln_water2:wrap(badge('water',42),42), ln_fire:wrap(badge('fire',42),42), ln_air2:wrap(badge('air',42),42),
+      bUmb:wrap(badge('umbrella',50),50), bGhost:wrap(badge('ghost',50),50),
+      bFire:wrap(badge('fire',52),52), bWater:wrap(badge('water',52),52), bSteam:wrap(badge('steam',72),72),
+      bWaterC:wrap(badge('water',78),78), bFireC:wrap(badge('fire',78),78),
+      foeXL:fighter('bolt',240,.4,{color:CYAN,cracked:true,parts:15}),
+      plyXL:fighter('umbrella',260,.85,{bounce:true})
+    };
+  }
+}
+</script>
+</body>
+</html>
