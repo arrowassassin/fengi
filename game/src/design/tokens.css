@@ -1,90 +1,88 @@
 /**
- * Alchemy Arena — design tokens (Step 1 extraction).
+ * Alchemy Arena — design tokens (Step 1), extracted from the approved
+ * Claude Design handoff (design/claude-design-export/, branch
+ * feature/design-handoff): "underground lab / televised street fight"
+ * identity. Hard-edged, die-cut, no border radius anywhere.
  *
- * SOURCE NOTE: the approved Claude Design project ("Fusion Prototype") is the
- * source of truth, but it was unreachable from this environment (auth-gated
- * design MCP; /design-login needs an interactive session). These values carry
- * the spec §7 defaults (brass on obsidian, Fraunces / Spline Sans / Spline
- * Sans Mono). Reconcile against the design exports before visual sign-off —
- * every screen styles ONLY through these custom properties, so a reconcile is
- * a one-file change.
+ * Contradictions between the handoff and spec v2 are logged in
+ * src/design/COMPONENTS.md — none were resolved silently.
  */
 
 :root {
-  /* ---------- Palette: obsidian ground ---------- */
-  --aa-obsidian-950: #0a0d10;
-  --aa-obsidian-900: #101418; /* app background */
-  --aa-obsidian-800: #161b21; /* raised surface */
-  --aa-obsidian-700: #1e242c; /* card surface */
-  --aa-obsidian-600: #2a313a; /* borders, dividers */
-  --aa-obsidian-500: #3a434e; /* disabled fills */
+  /* ---------- Palette (handoff: STRICT roles) ---------- */
+  --aa-ink: #0d0d0f; /* ground / page background */
+  --aa-panel: #17171c; /* all panels, cards, chips */
+  --aa-panel-deep: #121216; /* control panel bg */
+  --aa-overlay: #0a0a0c; /* full-screen overlays (lineage) */
+  --aa-outline: #26262e; /* default panel borders */
+  --aa-outline-strong: #2c2c34;
+  --aa-lime: #d8ff3e; /* selection, energy, CTAs, player HP — never decorative */
+  --aa-tangerine: #ff5c2a; /* damage, crits, hype moments ONLY */
+  --aa-cyan: #35e0ff; /* info/status, commentary, primitives */
+  --aa-paper: #f5f2ea; /* off-white: text, tape strips, emphasis borders */
+  --aa-magenta: #ff3ef0; /* only inside the holo gradient */
+  --aa-holo: linear-gradient(135deg, #35e0ff, #ff3ef0, #d8ff3e);
 
-  /* ---------- Palette: brass accent ---------- */
-  --aa-brass-300: #ecc87e; /* highlight, hover */
-  --aa-brass-400: #e2b45c;
-  --aa-brass-500: #d9a441; /* primary brass */
-  --aa-brass-600: #b5872f; /* pressed */
-  --aa-brass-700: #8a6722; /* subdued rings */
-  --aa-brass-faint: rgb(217 164 65 / 35%); /* sigil faint rings */
+  /* Dim text = off-white at alpha .3–.6; never pure white or gray hues. */
+  --aa-paper-dim-30: rgb(245 242 234 / 30%);
+  --aa-paper-dim-45: rgb(245 242 234 / 45%);
+  --aa-paper-dim-60: rgb(245 242 234 / 60%);
+  --aa-paper-faint-13: rgb(245 242 234 / 13%);
+  --aa-paper-faint-25: rgb(245 242 234 / 25%);
 
-  /* ---------- Palette: ink & parchment text ---------- */
-  --aa-ink-100: #f4efe3; /* brightest text */
-  --aa-ink-200: #e8e2d4; /* body text */
-  --aa-ink-400: #b9b2a2; /* secondary text */
-  --aa-ink-600: #9aa3ad; /* muted / captions */
+  /* ---------- Typography (handoff) ---------- */
+  /* Display is ALWAYS italic + uppercase (synthesized slant). */
+  --aa-font-display: "Archivo Black", "Archivo", sans-serif;
+  --aa-font-ui: "Archivo", system-ui, sans-serif;
+  --aa-font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --aa-font-emoji: "Noto Emoji", "JetBrains Mono", monospace; /* monochrome glyphs */
 
-  /* ---------- Palette: semantic ---------- */
-  --aa-victory: #7fb069; /* verdict win, HP healthy */
-  --aa-defeat: #c1554d; /* verdict loss, HP critical */
-  --aa-warn: #d9a441; /* HP wounded (shares brass) */
-  --aa-info: #6f9ceb; /* links, special category */
-  --aa-status: #a06feb; /* status-move category */
-  --aa-freeze: #8fd3e8; /* streak freeze */
+  /* ---------- Type scale (from artboards) ---------- */
+  --aa-text-tape: 8px; /* tape strips / chips (mono 800, tracked) */
+  --aa-text-fine: 8.5px; /* move effect lines */
+  --aa-text-mono: 10px; /* counters, meta lines */
+  --aa-text-body: 13px; /* body, commentary */
+  --aa-text-plaque: 19px; /* plaque names */
+  --aa-text-h2: 26px; /* section headers (display italic) */
+  --aa-text-lockup: 34px; /* SUPER EFFECTIVE! */
+  --aa-text-boss: 44px; /* boss titles */
+  --aa-text-verdict: 52px; /* VICTORY */
+  --aa-track-1: 1px;
+  --aa-track-2: 2px;
+  --aa-track-3: 3px;
 
-  /* ---------- Type family, per spec §7a ---------- */
-  --aa-font-display: "Fraunces", georgia, serif;
-  --aa-font-ui: "Spline Sans", system-ui, sans-serif;
-  --aa-font-mono: "Spline Sans Mono", ui-monospace, monospace;
-  --aa-font-emoji: "Noto Emoji", sans-serif; /* monochrome glyphs, §7e */
+  /* ---------- Spacing (4px base) ---------- */
+  --aa-space-1: 4px;
+  --aa-space-2: 8px;
+  --aa-space-3: 12px;
+  --aa-space-4: 16px;
+  --aa-space-5: 24px;
+  --aa-space-6: 32px;
+  --aa-space-7: 48px;
 
-  /* ---------- Type scale (1.250 major third) ---------- */
-  --aa-text-xs: 0.75rem;
-  --aa-text-sm: 0.875rem;
-  --aa-text-base: 1rem;
-  --aa-text-lg: 1.25rem;
-  --aa-text-xl: 1.5625rem;
-  --aa-text-2xl: 1.9375rem;
-  --aa-text-3xl: 2.4375rem;
-  --aa-leading-tight: 1.2;
-  --aa-leading-body: 1.5;
+  /* ---------- Shape language: NO border radius anywhere ---------- */
+  --aa-radius-none: 0;
+  --aa-border-2: 2px solid var(--aa-outline);
+  --aa-border-strong: 2px solid var(--aa-outline-strong);
+  --aa-border-paper: 2px solid var(--aa-paper);
 
-  /* ---------- Spacing scale (4px base) ---------- */
-  --aa-space-1: 0.25rem;
-  --aa-space-2: 0.5rem;
-  --aa-space-3: 0.75rem;
-  --aa-space-4: 1rem;
-  --aa-space-5: 1.5rem;
-  --aa-space-6: 2rem;
-  --aa-space-7: 3rem;
-  --aa-space-8: 4rem;
+  /* Hard drop shadows — never soft. */
+  --aa-shadow-hard-4: 4px 4px 0 #000;
+  --aa-shadow-hard-5: 5px 5px 0 #000;
+  --aa-shadow-hard-6: 6px 6px 0 #000;
 
-  /* ---------- Radii ---------- */
-  --aa-radius-sm: 6px; /* chips, tags */
-  --aa-radius-md: 10px; /* buttons, inputs */
-  --aa-radius-lg: 16px; /* cards, seals */
-  --aa-radius-xl: 24px; /* modal, verdict card */
-  --aa-radius-full: 999px; /* wax seals, ink-ring HP */
+  /* Hazard stripes: panel edges, ribbon spines, card borders. */
+  --aa-hazard: repeating-linear-gradient(-45deg, #d8ff3e 0 8px, #0d0d0f 8px 16px);
 
-  /* ---------- Elevation & effects ---------- */
-  --aa-shadow-card: 0 2px 8px rgb(0 0 0 / 45%);
-  --aa-shadow-modal: 0 12px 40px rgb(0 0 0 / 60%);
-  --aa-glow-brass: 0 0 12px rgb(217 164 65 / 40%);
-  --aa-border: 1px solid var(--aa-obsidian-600);
-  --aa-border-brass: 1px solid var(--aa-brass-700);
+  /* Halftone dot field. */
+  --aa-halftone: radial-gradient(rgb(245 242 234 / 5%) 1.1px, transparent 1.6px);
+  --aa-halftone-size: 11px;
 
-  /* ---------- Motion ---------- */
-  --aa-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --aa-dur-fast: 120ms;
-  --aa-dur-base: 240ms;
-  --aa-dur-slow: 480ms;
+  /* ---------- Motion (global: 150–250ms snaps, ease-out w/ overshoot) ---------- */
+  --aa-ease-snap: cubic-bezier(0.2, 1.4, 0.4, 1);
+  --aa-dur-snap: 200ms;
+  --aa-dur-slam: 450ms;
+  --aa-dur-pop: 400ms;
+  --aa-dur-idle: 1.8s;
+  --aa-dur-shimmer: 5s;
 }

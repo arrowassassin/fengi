@@ -1,5 +1,5 @@
 import type { Game } from "../../state/game";
-import { renderSeal } from "../components/seal";
+import { renderBadge } from "../components/badge";
 import { button, el } from "../dom";
 
 /** Codex: discovered specimens grid, credits, squad picker, lineage. */
@@ -22,7 +22,7 @@ export function renderCodexScreen(game: Game, onSquadChange: () => void): HTMLEl
     for (const specimen of game.codex) {
       const cell = el("div", {});
       cell.append(
-        renderSeal(specimen, {
+        renderBadge(specimen, {
           size: 96,
           selected: pending.includes(specimen.id),
           onClick: () => {

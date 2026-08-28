@@ -13,9 +13,8 @@ import {
 import { buildShareGrid } from "../../retention/shareGrid";
 import type { Game } from "../../state/game";
 import { todayUtc } from "../../state/game";
-import { renderHpRing } from "../components/hpRing";
+import { renderFighter } from "../components/badge";
 import { renderMoveCard } from "../components/moveCard";
-import { renderSeal } from "../components/seal";
 import { button, clear, el } from "../dom";
 
 export interface BattleScreenOptions {
@@ -87,7 +86,11 @@ export function renderBattleScreen(options: BattleScreenOptions): HTMLElement {
   let logCursor = 0;
   let resultRecorded = false;
 
-  const header = el("h2", { text: `Battle · ${options.opponentLabel}` });
+  const header = el("div", { className: "aa-broadcast" });
+  header.append(
+    el("span", {}, [el("span", { className: "aa-live-dot" }), `LIVE · ${options.opponentLabel}`]),
+    el("span", { className: "aa-turn-counter", text: "TURN 01" }),
+  );
   const field = el("div", { className: "aa-battle-field" });
   const actions = el("div", { className: "aa-actions" });
   const logPane = el("div", { className: "aa-battle-log" });
@@ -114,11 +117,25 @@ export function renderBattleScreen(options: BattleScreenOptions): HTMLElement {
   function sideView(side: 0 | 1): HTMLElement {
     const s = state.sides[side];
     const active = s.squad[s.activeIndex];
-    const box = el("div", { className: "aa-card" });
+    const box = el("div", {});
     if (active === undefined) return box;
+    // Fighter: badge inside the segmented HP ring; player = lime, foe = cyan.
     box.append(
-      renderSeal(active.specimen, { fainted: active.currentHp <= 0, size: side === 0 ? 128 : 112 }),
-      renderHpRing(active.currentHp, active.maxHp),
+      renderFighter(active.specimen, {
+        size: side === 0 ? 205 : 185,
+        side: side === 0 ? "player" : "opponent",
+        hpPct: active.currentHp / active.maxHp,
+        idle: side === 0 && active.currentHp > 0 && state.outcome === undefined,
+      }),
+      el("div", { className: "aa-tape", text: active.specimen.name }),
+      el(
+        "div",
+        { className: "aa-chip-row" },
+        active.specimen.types.map((t) => {
+          const chip = el("span", { className: `aa-chip aa-chip-${t}`, text: t });
+          return chip;
+        }),
+      ),
     );
     const strip = el("div", { className: "aa-streak-row" });
     for (const c of s.squad) {
@@ -146,10 +163,23 @@ export function renderBattleScreen(options: BattleScreenOptions): HTMLElement {
     verdict.append(
       el("h2", { text: won ? "Victory" : state.outcome === "draw" ? "Draw" : "Defeat" }),
       el("p", {
-        className: "aa-muted",
+        className: "aa-mono aa-muted",
         text: `${options.opponentLabel} · ${state.turn} turns`,
       }),
     );
+    // Squad row with final ring states (handoff 1c).
+    const squadRow = el("div", { className: "aa-streak-row" }, []);
+    squadRow.style.justifyContent = "center";
+    for (const c of state.sides[0].squad) {
+      squadRow.append(
+        renderFighter(c.specimen, {
+          size: 92,
+          side: "player",
+          hpPct: c.currentHp / c.maxHp,
+        }),
+      );
+    }
+    verdict.append(squadRow);
     const grid = buildShareGrid({
       outcome: state.outcome,
       turns: state.turn,
@@ -157,6 +187,10 @@ export function renderBattleScreen(options: BattleScreenOptions): HTMLElement {
       playerSquadEmoji: options.playerSquad.map((s) => s.emoji),
       opponentSquadEmoji: options.opponentSquad.map((s) => s.emoji),
       playerRemaining: state.sides[0].squad.filter((c) => c.currentHp > 0).length,
+      maskOpponent: options.wasBoss,
+      daily: options.wasBoss,
+      streakDays: options.game.streak.streak,
+      freezesBanked: options.game.streak.freezes,
     });
     const shareBlock = el("div", { className: "aa-share", text: grid });
     const copyButton = button("Copy share grid", () => {
@@ -230,6 +264,8 @@ export function renderBattleScreen(options: BattleScreenOptions): HTMLElement {
   }
 
   function rerender(): void {
+    const counter = header.querySelector(".aa-turn-counter");
+    if (counter !== null) counter.textContent = `TURN ${String(state.turn + 1).padStart(2, "0")}`;
     clear(field);
     field.append(sideView(0), sideView(1));
     appendNewLogLines();

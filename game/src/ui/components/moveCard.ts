@@ -1,7 +1,8 @@
 import type { Move } from "../../engine";
 import { el } from "../dom";
 
-/** Move card: name, type chip, category, power/accuracy/PP in mono. */
+/** Move card (handoff 1b): display-italic name, lime mono power top-right,
+    type sticker chip, dim effect line. */
 export function renderMoveCard(
   move: Move,
   ppLeft: number,
@@ -10,16 +11,19 @@ export function renderMoveCard(
   const card = el("button", { className: "aa-move" });
   card.type = "button";
   card.disabled = ppLeft <= 0 || onPick === undefined;
-  card.append(
+
+  const head = el("div", { className: "aa-move-head" });
+  head.append(
     el("span", { className: "aa-move-name", text: move.name }),
-    el("span", {}, [
-      el("span", { className: "aa-chip", text: move.type }),
-      " ",
-      el("span", { className: "aa-chip", text: move.category }),
-    ]),
+    el("span", { className: "aa-move-power", text: move.power > 0 ? String(move.power) : "—" }),
+  );
+  const chip = el("span", { className: `aa-chip aa-chip-${move.type}`, text: move.type });
+  card.append(
+    head,
+    el("div", {}, [chip, " ", el("span", { className: "aa-chip", text: move.category })]),
     el("span", {
       className: "aa-move-stats",
-      text: `pow ${move.power} · acc ${move.accuracy} · pp ${ppLeft}/${move.pp}${
+      text: `acc ${move.accuracy} · pp ${ppLeft}/${move.pp}${
         move.effect === "none" ? "" : ` · ${move.effect} ${move.effectChance}%`
       }`,
     }),

@@ -1,11 +1,13 @@
 import { STARTERS } from "../content/starters";
 import { DeterministicAdapter } from "../craft/adapters/deterministic";
 import type { CraftAdapter } from "../craft/adapters/types";
+import { WebLlmAdapter, type WebLlmProgress } from "../craft/adapters/webllm";
 import { craftElement } from "../craft/pipeline";
 import { hashToHex, type Specimen } from "../engine";
 import { deserializeSpecimen, type SerializedSpecimen, serializeSpecimen } from "../persist/codec";
 import { defaultBackend, type StorageBackend, VersionedStore } from "../persist/store";
 import type { DiscoveryRecord, RegistryClient } from "../registry/client";
+import { EdgeRegistry, withFallback } from "../registry/edge";
 import { LocalRegistry } from "../registry/local";
 import type { PlayerTotals } from "../retention/achievements";
 import {
@@ -51,6 +53,29 @@ export function todayUtc(now: Date = new Date()): string {
 
 const STATE_KEY = "state";
 
+/** Build-time registry endpoint (set VITE_REGISTRY_URL at deploy). */
+function readRegistryUrl(): string | undefined {
+  const url = import.meta.env?.VITE_REGISTRY_URL as string | undefined;
+  return typeof url === "string" && url !== "" ? url : undefined;
+}
+
+/**
+ * Corrupt persisted codex entries read as absent (store contract): a bad
+ * record is dropped, and the primordials are re-seeded if everything is lost.
+ */
+function loadCodex(saved: SerializedSpecimen[] | undefined): Specimen[] {
+  if (saved === undefined) return [...STARTERS];
+  const restored: Specimen[] = [];
+  for (const record of saved) {
+    try {
+      restored.push(deserializeSpecimen(record));
+    } catch {
+      // skip the corrupt entry
+    }
+  }
+  return restored.length > 0 ? restored : [...STARTERS];
+}
+
 export class Game {
   readonly store: VersionedStore;
   registry: RegistryClient;
@@ -69,15 +94,23 @@ export class Game {
   claimedQuests: string[];
   defeatedBossDates: string[];
 
-  constructor(backend: StorageBackend = defaultBackend()) {
+  /** Whether crafting runs on the in-browser LLM (WebLLM) or the fallback. */
+  onDeviceOracle: boolean;
+
+  constructor(backend: StorageBackend = defaultBackend(), registryUrl?: string) {
     this.store = new VersionedStore(backend, "alchemy-arena", 1);
-    this.registry = new LocalRegistry(backend);
+    const local = new LocalRegistry(backend);
+    const edgeUrl = registryUrl ?? readRegistryUrl();
+    // Edge registry when configured (spec §6), always degrading to local.
+    this.registry = edgeUrl === undefined ? local : withFallback(new EdgeRegistry(edgeUrl), local);
     this.craftAdapter = new DeterministicAdapter();
+    this.onDeviceOracle = this.store.get<boolean>("on-device-oracle") ?? false;
+    if (this.onDeviceOracle) this.craftAdapter = new WebLlmAdapter();
 
     const saved = this.store.get<PersistedState>(STATE_KEY);
     this.playerId = saved?.playerId ?? `alchemist-${Math.random().toString(36).slice(2, 10)}`;
     this.playerName = saved?.playerName ?? "Alchemist";
-    this.codex = saved?.codex.map(deserializeSpecimen) ?? [...STARTERS];
+    this.codex = loadCodex(saved?.codex);
     this.flavors = saved?.flavors ?? {};
     this.credits = saved?.credits ?? {};
     this.lineage = saved?.lineage ?? [];
@@ -183,6 +216,19 @@ export class Game {
       }
     }
     this.save();
+  }
+
+  /**
+   * Opt-in in-browser crafting LLM (spec §1). The model streams into the
+   * browser cache on first fuse; any failure degrades to the deterministic
+   * generator inside the craft pipeline, so crafting still never fails.
+   */
+  setOnDeviceOracle(enabled: boolean, onProgress?: WebLlmProgress): void {
+    this.onDeviceOracle = enabled;
+    this.craftAdapter = enabled
+      ? new WebLlmAdapter(undefined, onProgress)
+      : new DeterministicAdapter();
+    this.store.set("on-device-oracle", enabled);
   }
 
   setSquad(ids: string[]): void {

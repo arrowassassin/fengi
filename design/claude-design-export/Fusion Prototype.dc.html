@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700;800&family=Noto+Emoji:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#141417;font-family:Archivo,system-ui,sans-serif;display:flex;justify-content:center;padding:28px 0}
+a{color:#D8FF3E}a:hover{color:#35E0FF}
+@keyframes foilshift{to{filter:hue-rotate(360deg)}}
+@keyframes slamin{0%{transform:scale(2.4) rotate(14deg);opacity:0}55%{transform:scale(.88) rotate(-8deg);opacity:1}75%{transform:scale(1.08) rotate(-4deg)}100%{transform:scale(1) rotate(-5deg)}}
+@keyframes burstpop{0%{transform:rotate(-8deg) scale(0);opacity:0}60%{transform:rotate(-8deg) scale(1.25)}100%{transform:rotate(-8deg) scale(1);opacity:1}}
+@keyframes partfly{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(160deg);opacity:0}}
+@keyframes shakeit{0%,100%{transform:translate(0,0)}20%{transform:translate(-5px,3px)}40%{transform:translate(4px,-3px)}60%{transform:translate(-3px,-2px)}80%{transform:translate(2px,3px)}}
+@keyframes brewpulse{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes slotglow{0%,100%{box-shadow:0 0 0 rgba(216,255,62,0)}50%{box-shadow:0 0 22px rgba(216,255,62,.35)}}
+</style>
+</helmet>
+<div data-screen-label="Fusion prototype" style="width:390px;height:844px;background:#0D0D0F;color:#F5F2EA;position:relative;overflow:hidden;font-family:Archivo,sans-serif;display:flex;flex-direction:column;border:1px solid rgba(245,242,234,.14)">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px 6px;flex:none">
+    <div style="font-family:'Archivo Black',sans-serif;font-style:italic;font-size:20px;letter-spacing:.5px">THE LAB</div>
+    <div style="background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:2px;padding:3px 8px;transform:rotate(1deg)">LIVE PROTOTYPE · TAP TWO STICKERS</div>
+  </div>
+  <div style="position:relative;height:352px;margin:6px 12px 0;border:2px solid #26262E;background:#101014;overflow:hidden;flex:none">
+    <div style="position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 58%,rgba(245,242,234,.07) 0deg 1.6deg,transparent 1.6deg 15deg)"></div>
+    <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(245,242,234,.05) 1.1px,transparent 1.6px);background-size:11px 11px"></div>
+    <div style="position:absolute;top:14px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:12px">
+      <div onClick="{{ clearA }}" style="width:58px;height:58px;cursor:pointer;animation:slotglow 1.8s ease-in-out infinite">{{ slotA }}</div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:800;color:rgba(245,242,234,.5)">+</span>
+      <div onClick="{{ clearB }}" style="width:58px;height:58px;cursor:pointer;animation:slotglow 1.8s ease-in-out infinite">{{ slotB }}</div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:800;color:#D8FF3E">=</span>
+    </div>
+    <div style="position:absolute;top:96px;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center">{{ stage }}</div>
+    <div style="position:absolute;bottom:8px;left:12px;right:12px;display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;color:rgba(245,242,234,.35)"><span>{{ statusLine }}</span><span>CH.9 · PIRATE SIGNAL</span></div>
+  </div>
+  <div style="margin:12px 12px 0;flex:none;min-height:118px">{{ plaque }}</div>
+  <div style="margin:auto 12px 12px;flex:1;display:flex;flex-direction:column;min-height:0">
+    <div style="display:flex;align-items:center;gap:8px;flex:none">
+      <div style="flex:1;display:flex;align-items:center;gap:7px;background:#17171C;border:2px solid #26262E;padding:7px 10px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(245,242,234,.35)">⌕</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:rgba(245,242,234,.35)">SEARCH THE SHELF…</span>
+      </div>
+      <div style="background:#F5F2EA;color:#0D0D0F;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1.5px;padding:4px 8px;transform:rotate(-1.5deg)">{{ discovered }} DISCOVERED</div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:11px;justify-content:center;align-content:flex-start;overflow:auto;flex:1">
+      <sc-for list="{{ tray }}" as="t" hint-placeholder-count="12">
+        <div onClick="{{ t.pick }}" style="width:56px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;flex:none">
+          <div style="width:52px;height:52px">{{ t.b }}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:6.5px;font-weight:700;letter-spacing:.5px;color:rgba(245,242,234,.45);max-width:56px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.n }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:446,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { a: null, b: null, result: null, brewing: false, discovered: ['fire','water','earth','air'], slamKey: 0 };
+  renderVals() {
+    const E = React.createElement;
+    const INK='#0D0D0F',PANEL='#17171C',LIME='#D8FF3E',TAN='#FF5C2A',CYAN='#35E0FF',PAP='#F5F2EA',MAG='#FF3EF0';
+    const ELS = {
+      fire:['FIRE','\u{1F525}',TAN,0], water:['WATER','\u{1F4A7}',CYAN,0], earth:['EARTH','\u{1FAA8}',PAP,0], air:['AIR','\u{1F4A8}',PAP,0],
+      steam:['STEAM','♨',CYAN,1], storm:['STORM','⛈',CYAN,1], mud:['MUD','\u{1F963}',PAP,1], lava:['LAVA','\u{1F30B}',TAN,1],
+      dust:['DUST DEVIL','\u{1F32A}',PAP,1], smoke:['SMOKE SIGNAL','\u{1F6A9}',TAN,1], mist:['MIST','\u{1F32B}',CYAN,1], quake:['QUAKE','\u{1F4A5}',TAN,1],
+      geyser:['GEYSER','⛲',CYAN,2], wildfire:['WILDFIRE','\u{1F702}',TAN,2], sauna:['SAUNA GOSSIP','\u{1F9D6}',PAP,2,1], monsoon:['MONSOON','☔',CYAN,2],
+      brick:['ARTISANAL BRICK','\u{1F9F1}',TAN,2], glass:['SMUG GLASS','\u{1F942}',CYAN,2,1], thunder:['GRUDGE THUNDER','\u{1F329}',LIME,2], swamp:['HOA SWAMP','\u{1F438}',LIME,2]
+    };
+    // fusion table: sorted pair -> result key, plus invented types & moves
+    const FUSE = {
+      'fire+water':['steam','VAPOR','PRESSURE',['FOG THE MIRROR 45','SCALD 60','WHISTLE 30']],
+      'air+water':['storm','WATER','VOLT',['FORECAST 40','DOWNPOUR 55','STATIC HAIR 35']],
+      'earth+water':['mud','EARTH','GOO',['SLING 40','SINK IN 50','STAIN 25']],
+      'earth+fire':['lava','FIRE','STONE',['ERUPT 80','SLOW ROLL 45','FLOOR IS LAVA 60']],
+      'air+earth':['dust','AIR','GRIT',['SANDBLAST 50','EYE IRRITANT 35','SPIN OUT 55']],
+      'air+fire':['smoke','FIRE','SIGN',['MIXED MESSAGE 40','CHOKE 50','VANISH 30']],
+      'air+steam':['mist','WATER','SNEAK',['CREEP IN 35','DAMP MOOD 40','OBSCURE 45']],
+      'earth+quake':['brick','STONE','CRAFT',['MASONRY 65','OVERPRICED 50','WALL OFF 55']],
+      'earth+earth':['quake','STONE','WRATH',['TREMBLE 60','AFTERSHOCK 45','FAULT LINE 70']],
+      'fire+fire':['wildfire','FIRE','CHAOS',['SPREAD 75','EMBER STORM 60','NO CONTAIN 80']],
+      'water+water':['monsoon','WATER','SEASON',['RUIN PLANS 55','FLOOD 70','HUMIDITY 40']],
+      'steam+steam':['sauna','VAPOR','GOSSIP',['OVERHEAR 45','STEAM PRESS 55','TOWEL SNAP 65']],
+      'fire+storm':['thunder','VOLT','GRUDGE',['HOLD IT IN 50','KRA-KOW 85','RUMBLE 40']],
+      'mud+water':['swamp','GOO','LAW',['BYLAW 55','DRAG UNDER 65','FINE PRINT 45']],
+      'fire+lava':['glass','STONE','SMUG',['REFLECT 60','SHARP REMARK 70','SHATTER CHIC 50']],
+      'steam+water':['geyser','WATER','PRESSURE',['BLOW TOP 70','SCHEDULE 40','SPLASH ZONE 55']]
+    };
+    const hash = s => { let h=9; for (let i=0;i<s.length;i++) h=Math.imul(h^s.charCodeAt(i),387420489)>>>0; return h||7; };
+    const rng = seed => { let s=seed>>>0||1; return () => ((s=(Math.imul(s,1664525)+1013904223)>>>0)/4294967296); };
+    const pts = (r,n,ro,ri,j) => { let a=r()*Math.PI*2, o=[]; for (let i=0;i<2*n;i++){ const rad=(i%2?ri:ro)*(1-j/2+r()*j); o.push((60+rad*Math.cos(a)).toFixed(1)+','+(60+rad*Math.sin(a)).toFixed(1)); a+=Math.PI/n; } return o.join(' '); };
+    const badge = (k) => {
+      const [nm,g,c,t,foil]=ELS[k]; const r=rng(hash(nm)); const n=6+t*3;
+      const P1=pts(r,n,55,37,.2), P2=pts(r,Math.max(5,n-2),51,30,.3);
+      const gid='fg-'+k, hid='ht-'+k;
+      return E('svg',{width:'100%',height:'100%',viewBox:'0 0 120 120',style:{display:'block',animation:foil?'foilshift 5s linear infinite':undefined}},
+        E('defs',null,
+          E('linearGradient',{id:gid,x1:'0',y1:'0',x2:'1',y2:'1'},E('stop',{offset:'0%',stopColor:CYAN}),E('stop',{offset:'50%',stopColor:MAG}),E('stop',{offset:'100%',stopColor:LIME})),
+          E('pattern',{id:hid,width:7,height:7,patternUnits:'userSpaceOnUse'},E('circle',{cx:2,cy:2,r:1.3,fill:foil?INK:c,opacity:foil?.25:.38}))),
+        E('polygon',{points:P1,fill:'#000',opacity:.9,transform:'translate(5,6)'}),
+        t>1?E('polygon',{points:P2,fill:'none',stroke:foil?PAP:c,strokeWidth:2,opacity:.45,transform:'rotate(9 60 60)'}):null,
+        E('polygon',{points:P1,fill:foil?('url(#'+gid+')'):PANEL,stroke:foil?PAP:c,strokeWidth:3}),
+        E('circle',{cx:60,cy:60,r:31,fill:'url(#'+hid+')'}),
+        E('text',{x:60,y:63,textAnchor:'middle',dominantBaseline:'middle',fontFamily:"'Noto Emoji','JetBrains Mono',monospace",fontSize:40,fontWeight:600,fill:foil?INK:c},g));
+    };
+    const emptySlot = label => E('div',{style:{width:'100%',height:'100%',border:'2px dashed rgba(245,242,234,.3)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'JetBrains Mono',monospace",fontSize:8,fontWeight:800,letterSpacing:'1px',color:'rgba(245,242,234,.35)'}},label);
+    const {a,b,result,brewing,discovered,slamKey}=this.state;
+    const fuse=(x,y)=>{const k=[x,y].sort().join('+');return FUSE[k]||null;};
+    const tryFuse=(na,nb)=>{
+      if(!na||!nb)return;
+      this.setState({brewing:true,result:null});
+      setTimeout(()=>{
+        const f=fuse(na,nb);
+        this.setState(s=>({brewing:false,result:f?{k:f[0],t1:f[1],t2:f[2],mv:f[3],isNew:!s.discovered.includes(f[0])}:{dud:true},
+          discovered:f&&!s.discovered.includes(f[0])?s.discovered.concat(f[0]):s.discovered,
+          slamKey:s.slamKey+1,a:null,b:null}));
+      },900);
+    };
+    const pickEl=k=>()=>{ if(brewing)return;
+      if(!a){this.setState({a:k,result:null});if(b)tryFuse(k,b);}
+      else if(!b){this.setState({b:k});tryFuse(a,k);}
+      else{this.setState({a:k,b:null,result:null});}
+    };
+    // stage content
+    let stage;
+    if(brewing){
+      stage=E('div',{style:{textAlign:'center'}},
+        E('div',{style:{fontFamily:"'Archivo Black',sans-serif",fontStyle:'italic',fontSize:24,color:CYAN,animation:'brewpulse .5s linear infinite',textShadow:'3px 3px 0 rgba(0,0,0,.9)'}},'BREWING…'),
+        E('div',{style:{fontFamily:"'JetBrains Mono',monospace",fontSize:8,letterSpacing:'2px',color:'rgba(245,242,234,.4)',marginTop:6}},'THE AI IS INVENTING SOMETHING'));
+    } else if(result&&result.dud){
+      stage=E('div',{style:{textAlign:'center',animation:'shakeit .3s linear'}},
+        E('div',{style:{fontFamily:"'Archivo Black',sans-serif",fontStyle:'italic',fontSize:30,color:'rgba(245,242,234,.45)',textShadow:'3px 3px 0 rgba(0,0,0,.9)',transform:'rotate(-4deg)'}},'FIZZLE.'),
+        E('div',{style:{fontFamily:"'JetBrains Mono',monospace",fontSize:8,letterSpacing:'2px',color:'rgba(245,242,234,.4)',marginTop:6}},'NOTHING BREWED — TRY ANOTHER PAIR'));
+    } else if(result){
+      const r=rng(hash('slam'+slamKey));const kids=[];
+      for(let i=0;i<14;i++){const ang=r()*6.283,d0=40+r()*20;kids.push(E('div',{key:i,style:{position:'absolute',left:'calc(50% + '+(Math.cos(ang)*d0).toFixed(0)+'px)',top:'calc(50% + '+(Math.sin(ang)*d0).toFixed(0)+'px)','--dx':(Math.cos(ang)*70).toFixed(0)+'px','--dy':(Math.sin(ang)*70).toFixed(0)+'px',width:4+r()*6,height:4+r()*6,background:r()>.35?LIME:PAP,clipPath:r()>.5?'polygon(50% 0,100% 100%,0 100%)':undefined,animation:'partfly .7s ease-out forwards'}}));}
+      stage=E('div',{key:slamKey,style:{position:'relative',width:200,height:200,animation:'shakeit .28s linear'}},
+        E('div',{style:{position:'absolute',inset:0,pointerEvents:'none'}},kids),
+        E('div',{style:{position:'absolute',inset:15,animation:'slamin .45s cubic-bezier(.2,1.4,.4,1) forwards'}},badge(result.k)),
+        result.isNew?E('div',{style:{position:'absolute',top:-6,left:-44,transform:'rotate(-8deg)',fontFamily:"'Archivo Black',sans-serif",fontStyle:'italic',fontSize:22,lineHeight:.95,color:LIME,textShadow:'-2px -2px 0 #0D0D0F,2px -2px 0 #0D0D0F,-2px 2px 0 #0D0D0F,2px 2px 0 #0D0D0F,5px 6px 0 rgba(0,0,0,.9)',animation:'burstpop .4s ease-out .25s both'}},'NEW',' ','DISCOVERY!'):null);
+    } else {
+      stage=E('div',{style:{fontFamily:"'JetBrains Mono',monospace",fontSize:9,letterSpacing:'2px',color:'rgba(245,242,234,.3)',textAlign:'center',lineHeight:2}},'PICK TWO STICKERS',' ','FROM THE SHELF ↓');
+    }
+    // plaque
+    let plaque;
+    if(result&&!result.dud){
+      const nm=ELS[result.k][0];
+      plaque=E('div',{style:{background:PANEL,border:'2px solid '+PAP,boxShadow:'6px 6px 0 #000',padding:'12px 14px',position:'relative'}},
+        E('div',{style:{position:'absolute',top:-9,left:12,background:PAP,color:INK,fontFamily:"'JetBrains Mono',monospace",fontSize:7,fontWeight:800,letterSpacing:'1.5px',padding:'2px 6px',transform:'rotate(-1deg)'}},'SPEC PLAQUE'),
+        E('div',{style:{fontFamily:"'Archivo Black',sans-serif",fontStyle:'italic',fontSize:19,lineHeight:1}},nm),
+        E('div',{style:{display:'flex',gap:6,marginTop:8}},
+          E('span',{style:{padding:'2px 7px',border:'2px solid '+PAP,fontFamily:"'JetBrains Mono',monospace",fontSize:8,fontWeight:800,letterSpacing:'1.2px',transform:'rotate(-1deg)'}},result.t1),
+          E('span',{style:{padding:'2px 7px',border:'2px solid '+LIME,color:LIME,fontFamily:"'JetBrains Mono',monospace",fontSize:8,fontWeight:800,letterSpacing:'1.2px',transform:'rotate(1deg)'}},result.t2),
+          result.isNew?E('span',{style:{marginLeft:'auto',fontFamily:"'JetBrains Mono',monospace",fontSize:8,letterSpacing:'1px',color:CYAN}},'FIRST BREW ▲'):null),
+        E('div',{style:{display:'grid',gridTemplateColumns:'1fr auto',gap:'4px 10px',marginTop:10,fontSize:12,fontWeight:600}},
+          ...result.mv.flatMap((m,i)=>{const sp=m.split(' ');const pw=sp.pop();return [E('div',{key:'n'+i},sp.join(' ')),E('div',{key:'p'+i,style:{fontFamily:"'JetBrains Mono',monospace",fontWeight:800,color:LIME}},pw)];})));
+    } else {
+      plaque=E('div',{style:{border:'2px dashed rgba(245,242,234,.18)',padding:'12px 14px',minHeight:92,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'JetBrains Mono',monospace",fontSize:8,letterSpacing:'2px',color:'rgba(245,242,234,.3)'}},'SPEC PLAQUE PRINTS HERE AFTER A FUSION');
+    }
+    const trayKeys=discovered;
+    return {
+      stage, plaque,
+      slotA: a?badge(a):emptySlot('SLOT A'),
+      slotB: b?badge(b):emptySlot('SLOT B'),
+      clearA:()=>{if(!brewing)this.setState({a:null});},
+      clearB:()=>{if(!brewing)this.setState({b:null});},
+      discovered: String(discovered.length),
+      statusLine: brewing?'FUSION IN PROGRESS':(a&&!b?ELS[a][0]+' LOADED — PICK A PARTNER':'FUSION 00:00:02'),
+      tray: trayKeys.map(k=>({b:badge(k),n:ELS[k][0],pick:pickEl(k)}))
+    };
+  }
+}
+</script>
+</body>
+</html>

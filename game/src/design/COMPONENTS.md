@@ -1,29 +1,43 @@
 # Alchemy Arena — component inventory (Step 1)
 
-> **Source note:** the approved "Fusion Prototype" design project could not be
-> fetched from this environment (auth-gated design MCP). This inventory lists the
-> recurring components named in spec v2 and the implementation brief, with states
-> inferred from the spec. **Reconcile against the design exports before visual
-> sign-off**; contradictions found then must be flagged, not silently resolved.
-> No contradiction between brief and spec has been observed so far — the open
-> risk is only *unverified visuals*, tracked here.
+**Source:** approved Claude Design handoff at `design/claude-design-export/`
+(pulled from `feature/design-handoff`): 6 mobile artboards (390px), 2 desktop
+variants, working fusion prototype, and `README.md` with the full token +
+motion spec. High-fidelity — colors, type, spacing, copy, motion are final.
 
 All components style exclusively via `tokens.css` custom properties (spec §7c).
 
-| Component | What it is | States | Appears on |
+## ⚠️ Design ↔ spec contradiction log (nothing resolved silently)
+
+| # | Handoff says | Spec v2 says | Status |
 |---|---|---|---|
-| **Specimen seal** | Seeded canvas sigil (rings/spokes/glyph marks) with centered monochrome Noto Emoji; brass on obsidian (§7e, 64-bit hash) | default · selected (brass glow) · fainted (desaturated, 40% opacity) · undiscovered (silhouette "?") · first-discovery (ribbon corner) | Workbench, squad picker, battle field, codex grid, share/verdict card |
-| **Move card** | Move name, type chip, category icon (physical/special/status), power/accuracy/PP in mono | default · hover/focus · selected · disabled (0 PP) · super-effective hint (brass edge) | Battle action bar, specimen detail, craft result |
-| **Ink-ring HP** | Circular HP indicator drawn as an ink ring around the active seal; drains counter-clockwise | healthy (victory green) · wounded (warn brass, ≤50%) · critical (defeat red, ≤20%) · statused (status-purple tick) | Battle field (both actives), squad strip |
-| **Verdict card** | Post-battle summary: result banner, both squads as mini seals, turn count, commentator quote | victory · defeat · draw/boss-repelled | End of battle, daily boss result |
-| **Share grid** | Emoji grid (result row + squad rows + turn count) rendered as copyable text block, mono font | preview · copied (confirmation flash) | Verdict card, daily boss result |
-| **Streak wax seal** | Round wax-seal stamp per day; brass = played, freeze-blue = freeze spent, empty ring = missed | filled · freeze · missed · today (pulsing ring) | Daily screen header, profile |
-| **Quest ribbon** | Horizontal ribbon listing a quest, progress fraction in mono, reward stamp | active · progress-updated · complete (claimable, brass glow) · claimed | Daily screen, home |
-| **Codex grid cell** | Compact seal + name + type chips; grid of all discovered specimens | discovered · undiscovered (silhouette) · new (dot badge) · first-discovery (credit line) | Codex screen |
-| **Lineage branch** | Tree edge showing parent-pair → child fusion, small seals as nodes | default · highlighted path · collapsed | Specimen detail (lineage tab), codex |
-| **Type chip** | Small rounded tag with type name | per-type tint over obsidian · muted (in lists) | Move card, codex cell, craft result, battle log |
-| **Battle log line** | Mono-font event line; commentator lines in italic UI font under it | normal · effective/critical (brass) · status (purple) · faint (red) | Battle screen log pane |
-| **Weekly-modifier banner** | Slim banner naming the week's arena rule | default · new-this-week (glow) | Home, battle setup |
-| **Boss poster** | Daily boss presentation: oversized seal, name in Fraunces, defeated stamp | fresh · attempted · defeated (stamp) | Daily screen |
-| **Craft bench slots** | Two input slots + fuse button; result reveal animation into a seal | empty · filled · fusing (spinner sigil) · reveal · error-fallback (subtle note) | Workbench |
-| **First-discovery toast** | Toast crediting the discoverer ("First discovered by …") | own-discovery (celebratory) · known-recipe (credit line) | Workbench after fuse |
+| 1 | Badge seed = 32-bit FNV-style hash of the element **name** | §7e **[locked]**: artwork seeded by the **64-bit recipe hash** | Resolved: design's badge *visuals* ported verbatim, seeded from the 64-bit recipe hash (same determinism guarantee, stronger hash — the §7 upgrade applied to the badge system) |
+| 2 | 3 moves per element (plaque, arena, prototype recipe table) | §3 **[locked]**: exactly **4** moves | **Kept spec (4)**, rendered in the design's move-card style. Needs product sign-off to change |
+| 3 | Freeform invented types (`PAPER`, `IDEA`, `GOSSIP`, `LAW`) | §3/§4 **[locked]**: 1–2 types from the fixed 12-type chart | **Kept spec** (chart types) for engine determinism; chips render in design style. Needs product sign-off to change |
+| 4 | ink/lime/tangerine/cyan palette, Archivo Black/Archivo/JetBrains Mono, zero border radius | spec default was brass/obsidian + Fraunces/Spline Sans | Designs win (brief pre-authorized: designs are source of truth on visuals) |
+| 5 | HP = integer 0–12 ring segments | engine HP is continuous | UI maps `currentHp/maxHp` → 12 segments; engine untouched (§7d) |
+
+## Components
+
+| Component | What it is (handoff ref) | States | Appears on |
+|---|---|---|---|
+| **Holo-decal badge** (was "specimen seal") | Procedural SVG burst polygon (n = 6 + tier×3 spikes, jittered), hard black offset shadow, halftone dot core, centered monochrome Noto Emoji glyph in the element's single ink color. Deterministic from the 64-bit recipe hash | default · **foil** (holo-gradient fill, off-white stroke, 5s hue-rotate shimmer) · tier 0–4 (spike count) · undiscovered (dashed circle + mono `?`) | Workbench stage/tray, arena fighters, codex sticker-book, result card, lineage nodes, boss (tier 4 + glitch flicker) |
+| **Segmented HP ring** (no health bars) | 12 SVG arc segments, r≈87/200, 9° gaps, from 12 o'clock. Filled 11px lime (player) / cyan (foe); empty 5px off-white 13% | full · damaged (last 1–2 filled segments tangerine, dashed `7 5`, 3 shard lines) · **shattered at 0** (debris lines) | Arena fighters, bench minis, result-card squad |
+| **Move card** | Display-italic name, lime mono power top-right, type sticker chip, 8.5px effect line at 55% off-white | default · selected (lime 2px border + lime `READY` tab) · disabled (0 PP) | Arena control panel, spec plaque |
+| **Spec plaque** | Panel, off-white 2px border, 6px hard shadow, `SPEC PLAQUE` tape overlapping the top edge, name display-italic 19px, type chips, tier/foil line in cyan mono, moves with lime powers | fresh reveal · codex detail | Workbench, codex |
+| **Tape strip** | Off-white bg, ink text, mono 7–9px tracked 1.5–2px, padding 3px 8px, rotated ±1–2° | label · counter · `TODAY` (lime) | Everywhere (labels, counters, attributions) |
+| **Sticker chip** (type badge) | 2px solid border in type color, mono 8px 800, rotated ±1° | per-type color · active filter (lime fill) | Plaque, arena, codex filters |
+| **Verdict lockup** | Display italic, uppercase, ink outline + hard black shadow, rotated −8…+6° (`NEW DISCOVERY!` lime · `SUPER EFFECTIVE!` tangerine · `VICTORY` 52px lime · `KRA-KOW!!` tangerine) | per-moment color | Workbench reveal, arena, result card |
+| **Result card** | 8px hazard-stripe border frame, halftone, match tape, verdict, finisher lockup + tape, squad with final ring states, judge quip (italic + cyan mono attribution), wordmark footer; exports 1080×1350 | victory · defeat | Post-battle |
+| **Spoiler-free share** | Mono Wordle-style clipboard text (platform emoji correct here): title, 🟩🟧 turn row, squad row, 🔥/🧊 streak row, url | copy → `COPIED` tape flash | Result card |
+| **Streak sticker chips** | 36×44 chips rotated ±2°, 3px hard shadows: won = lime border + ✔ · frozen = cyan border, cyan 12% fill, ❄ · today = dashed + ▶ | won/frozen/today/missed | Daily boss screen |
+| **Quest ribbon** | Collapsed panel bar, 7px hazard-stripe left spine, lime `TODAY` tape, boss name in display italic, chevron | collapsed · complete | Workbench top, daily |
+| **Codex sticker-book cell** | 58px badge + 7px mono name; foil cells carry rotated holo `FOIL` tab + shimmer | discovered · foil · undiscovered (`???` dashed) | Codex grid |
+| **Rank meter** | 12 skewed (−14°) segment cells, lime fill for progress | per-rank | Codex header |
+| **Advancements strip** | 32px Noto-Emoji nodes joined by 12px connectors; unlocked = lime border/glyph + lime 8% fill; locked = dashed off-white 25% | locked/unlocked | Codex bottom |
+| **Lineage overlay** | Full-screen `#0A0A0C`, root-down tree with 4px off-white comic-gutter elbows (opacity 85→55%/gen), primitives labeled cyan `◦` | open/close | Codex |
+| **Boss poster** | Tier-4 badge 230px, glitch flicker (RGB-split ghost copies, steps() loop), chromatic-split title, tangerine hijack banner, countdown in lime mono | fresh · beaten | Daily boss |
+| **Broadcast bar** | Tangerine live-dot, `LIVE · CH.9` mono left, turn + watching right | live | Arena |
+| **Commentary line** | Streaming italic cyan 13px + dim caret `▌` | streaming/idle | Arena |
+| **Neon download sign** | Wordmark letters light lime as model shards cache; boundary letter buzz-flickers; 6 skewed section cells | progress states | First-run |
+| **Fusion stage** | Bordered panel with speed-lines + halftone; parent badges + `=`; result slams in (450ms overshoot, 14 particles, shake) or `FIZZLE.` + shake | idle → A → B → brewing (900ms pulse) → result/fizzle | Workbench |

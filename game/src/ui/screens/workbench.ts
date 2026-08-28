@@ -1,6 +1,6 @@
 import type { Specimen } from "../../engine";
 import type { Game } from "../../state/game";
-import { renderSeal } from "../components/seal";
+import { renderBadge } from "../components/badge";
 import { button, clear, el } from "../dom";
 
 /** Workbench: two bench slots, fuse, reveal, first-discovery toast. */
@@ -29,7 +29,7 @@ export function renderWorkbenchScreen(game: Game): HTMLElement {
       if (specimen === undefined) {
         slot.textContent = label;
       } else {
-        slot.append(renderSeal(specimen, { size: 96 }));
+        slot.append(renderBadge(specimen, { size: 96 }));
       }
       bench.append(slot);
     }
@@ -61,7 +61,7 @@ export function renderWorkbenchScreen(game: Game): HTMLElement {
     clear(result);
     const card = el("div", { className: "aa-toast" });
     card.append(
-      renderSeal(outcome.specimen, { size: 128 }),
+      renderBadge(outcome.specimen, { size: 128 }),
       el("p", { text: outcome.flavor }),
       el("p", {
         className: "aa-credit",
@@ -90,7 +90,7 @@ export function renderWorkbenchScreen(game: Game): HTMLElement {
     for (const specimen of game.codex) {
       const selected = specimen.id === slotA?.id || specimen.id === slotB?.id;
       codexGrid.append(
-        renderSeal(specimen, {
+        renderBadge(specimen, {
           size: 88,
           selected,
           onClick: () => {

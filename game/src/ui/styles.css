@@ -1,4 +1,5 @@
-/* Alchemy Arena UI — every value below resolves through design tokens (spec §7c). */
+/* Alchemy Arena UI — approved handoff language: hard-edged, die-cut, no radius.
+   Every value resolves through design tokens (spec §7c). */
 
 * {
   box-sizing: border-box;
@@ -6,249 +7,330 @@
 
 body {
   margin: 0;
-  background: var(--aa-obsidian-900);
-  color: var(--aa-ink-200);
+  background: var(--aa-ink);
+  color: var(--aa-paper);
   font-family: var(--aa-font-ui);
-  font-size: var(--aa-text-base);
-  line-height: var(--aa-leading-body);
+  font-size: var(--aa-text-body);
+  font-weight: 500;
+  line-height: 1.45;
 }
 
 #app {
-  max-width: 60rem;
+  max-width: 64rem;
   margin: 0 auto;
   padding: var(--aa-space-4);
+  background-image: var(--aa-halftone);
+  background-size: var(--aa-halftone-size) var(--aa-halftone-size);
 }
 
+/* ---------- Display type: ALWAYS italic + uppercase ---------- */
 h1,
 h2,
-h3 {
+h3,
+.aa-display {
   font-family: var(--aa-font-display);
-  color: var(--aa-ink-100);
-  line-height: var(--aa-leading-tight);
+  font-style: italic;
+  text-transform: uppercase;
+  color: var(--aa-paper);
+  line-height: 1.05;
   margin: 0 0 var(--aa-space-3);
 }
 
 h1 {
-  font-size: var(--aa-text-2xl);
-  color: var(--aa-brass-500);
+  font-size: var(--aa-text-lockup);
+  color: var(--aa-lime);
+  text-shadow: 4px 4px 0 #000;
 }
 
 h2 {
-  font-size: var(--aa-text-xl);
+  font-size: var(--aa-text-h2);
 }
 
 h3 {
-  font-size: var(--aa-text-lg);
+  font-size: var(--aa-text-plaque);
 }
 
+/* ---------- Buttons: die-cut plaques with hard shadows ---------- */
 button {
-  font-family: var(--aa-font-ui);
-  font-size: var(--aa-text-sm);
-  color: var(--aa-obsidian-950);
-  background: var(--aa-brass-500);
-  border: none;
-  border-radius: var(--aa-radius-md);
+  font-family: var(--aa-font-display);
+  font-style: italic;
+  text-transform: uppercase;
+  font-size: var(--aa-text-body);
+  color: var(--aa-ink);
+  background: var(--aa-lime);
+  border: 2px solid var(--aa-ink);
+  border-radius: var(--aa-radius-none);
   padding: var(--aa-space-2) var(--aa-space-4);
+  min-height: 44px;
   cursor: pointer;
-  transition: background var(--aa-dur-fast) var(--aa-ease);
+  box-shadow: var(--aa-shadow-hard-5);
+  transition: transform var(--aa-dur-snap) var(--aa-ease-snap);
 }
 
 button:hover {
-  background: var(--aa-brass-300);
+  transform: translate(-1px, -1px);
 }
 
 button:active {
-  background: var(--aa-brass-600);
+  transform: translate(3px, 3px);
+  box-shadow: none;
 }
 
 button:disabled {
-  background: var(--aa-obsidian-500);
-  color: var(--aa-ink-600);
+  background: var(--aa-panel);
+  color: var(--aa-paper-dim-30);
+  border-color: var(--aa-outline);
+  box-shadow: none;
   cursor: not-allowed;
+  transform: none;
 }
 
 button.aa-ghost {
   background: transparent;
-  color: var(--aa-brass-500);
-  border: var(--aa-border-brass);
+  color: var(--aa-paper);
+  border: var(--aa-border-paper);
 }
 
-/* ---------- Navigation ---------- */
+/* ---------- Navigation ribbon ---------- */
 .aa-nav {
   display: flex;
   gap: var(--aa-space-2);
   margin-bottom: var(--aa-space-5);
-  border-bottom: var(--aa-border);
+  border-bottom: var(--aa-border-strong);
   padding-bottom: var(--aa-space-3);
   flex-wrap: wrap;
 }
 
 .aa-nav button {
   background: transparent;
-  color: var(--aa-ink-400);
-  border: 1px solid transparent;
+  color: var(--aa-paper-dim-45);
+  border: 2px solid transparent;
+  box-shadow: none;
+  font-size: var(--aa-text-mono);
 }
 
 .aa-nav button:hover {
-  color: var(--aa-brass-300);
-  background: var(--aa-obsidian-800);
+  color: var(--aa-lime);
+  transform: none;
 }
 
 .aa-nav button.active {
-  color: var(--aa-brass-500);
-  border: var(--aa-border-brass);
+  color: var(--aa-lime);
+  border: 2px solid var(--aa-lime);
 }
 
-/* ---------- Cards & surfaces ---------- */
+/* ---------- Panels ---------- */
 .aa-card {
-  background: var(--aa-obsidian-800);
-  border: var(--aa-border);
-  border-radius: var(--aa-radius-lg);
+  background: var(--aa-panel);
+  border: var(--aa-border-strong);
+  border-radius: var(--aa-radius-none);
   padding: var(--aa-space-4);
-  box-shadow: var(--aa-shadow-card);
+  margin-bottom: var(--aa-space-4);
 }
 
 .aa-muted {
-  color: var(--aa-ink-600);
-  font-size: var(--aa-text-sm);
+  color: var(--aa-paper-dim-45);
+  font-size: var(--aa-text-mono);
 }
 
 .aa-mono {
   font-family: var(--aa-font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--aa-track-1);
 }
 
-/* ---------- Specimen seal ---------- */
-.aa-seal {
+/* ---------- Tape strips ---------- */
+.aa-tape {
+  display: inline-block;
+  background: var(--aa-paper);
+  color: var(--aa-ink);
+  font-family: var(--aa-font-mono);
+  font-size: var(--aa-text-tape);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 3px 8px;
+  transform: rotate(-1deg);
+}
+
+.aa-tape.lime {
+  background: var(--aa-lime);
+}
+
+.aa-tape.cyan {
+  background: var(--aa-cyan);
+}
+
+/* ---------- Sticker chips (type badges) ---------- */
+.aa-chip-row {
+  display: flex;
+  gap: var(--aa-space-1);
+  justify-content: center;
+}
+
+.aa-chip {
+  display: inline-block;
+  padding: 2px 6px;
+  border: 2px solid var(--aa-paper);
+  color: var(--aa-paper);
+  background: transparent;
+  font-family: var(--aa-font-mono);
+  font-size: var(--aa-text-tape);
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  transform: rotate(1deg);
+}
+
+.aa-chip-fire,
+.aa-chip-venom {
+  border-color: var(--aa-tangerine);
+  color: var(--aa-tangerine);
+}
+
+.aa-chip-water,
+.aa-chip-ice {
+  border-color: var(--aa-cyan);
+  color: var(--aa-cyan);
+}
+
+.aa-chip-lightning {
+  border-color: var(--aa-lime);
+  color: var(--aa-lime);
+}
+
+/* ---------- Holo-decal badge card ---------- */
+.aa-badge {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   gap: var(--aa-space-1);
   padding: var(--aa-space-2);
-  border-radius: var(--aa-radius-lg);
-  border: 1px solid transparent;
+  border: 2px solid transparent;
   background: transparent;
   cursor: pointer;
-  transition:
-    border-color var(--aa-dur-fast) var(--aa-ease),
-    box-shadow var(--aa-dur-fast) var(--aa-ease);
+  transition: transform var(--aa-dur-snap) var(--aa-ease-snap);
 }
 
-.aa-seal canvas {
-  background: var(--aa-obsidian-700);
-  border-radius: var(--aa-radius-lg);
+.aa-badge:hover {
+  transform: rotate(-1deg) scale(1.04);
 }
 
-.aa-seal.selected {
-  border: var(--aa-border-brass);
-  box-shadow: var(--aa-glow-brass);
+.aa-badge.selected {
+  border: 2px solid var(--aa-lime);
 }
 
-.aa-seal.fainted {
+.aa-badge.fainted {
   opacity: 0.4;
   filter: saturate(0.2);
 }
 
-.aa-seal-name {
-  font-family: var(--aa-font-display);
-  font-size: var(--aa-text-sm);
-  color: var(--aa-ink-100);
+.aa-badge-art svg,
+.aa-badge-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.aa-badge-svg.foil {
+  animation: aa-foilshift var(--aa-dur-shimmer) linear infinite;
+}
+
+@keyframes aa-foilshift {
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+
+.aa-badge-name {
   max-width: 9rem;
   text-align: center;
 }
 
-/* ---------- Type chips ---------- */
-.aa-chip {
-  display: inline-block;
-  font-size: var(--aa-text-xs);
-  font-family: var(--aa-font-mono);
-  color: var(--aa-brass-300);
-  background: var(--aa-obsidian-700);
-  border: var(--aa-border);
-  border-radius: var(--aa-radius-sm);
-  padding: 0 var(--aa-space-2);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+/* ---------- Arena fighter (badge + segmented ring) ---------- */
+.aa-fighter {
+  position: relative;
+  flex: none;
 }
 
-/* ---------- Move card ---------- */
-.aa-move {
+.aa-fighter.idle {
+  animation: aa-idlebounce var(--aa-dur-idle) ease-in-out infinite;
+}
+
+@keyframes aa-idlebounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+.aa-fighter-ring,
+.aa-fighter-ring svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.aa-fighter-badge {
+  position: absolute;
+  inset: 20%;
+}
+
+/* ---------- Battle / broadcast ---------- */
+.aa-broadcast {
   display: flex;
-  flex-direction: column;
-  gap: var(--aa-space-1);
-  background: var(--aa-obsidian-700);
-  border: var(--aa-border);
-  border-radius: var(--aa-radius-md);
-  padding: var(--aa-space-2) var(--aa-space-3);
-  cursor: pointer;
-  text-align: left;
-  color: var(--aa-ink-200);
-  transition: border-color var(--aa-dur-fast) var(--aa-ease);
-}
-
-.aa-move:hover:not(:disabled) {
-  border-color: var(--aa-brass-500);
-  background: var(--aa-obsidian-700);
-}
-
-.aa-move:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  background: var(--aa-obsidian-700);
-  color: var(--aa-ink-600);
-}
-
-.aa-move-name {
-  font-weight: 600;
-  color: var(--aa-ink-100);
-}
-
-.aa-move-stats {
+  justify-content: space-between;
+  align-items: center;
   font-family: var(--aa-font-mono);
-  font-size: var(--aa-text-xs);
-  color: var(--aa-ink-400);
+  font-size: var(--aa-text-mono);
+  font-weight: 800;
+  letter-spacing: var(--aa-track-2);
+  text-transform: uppercase;
+  color: var(--aa-paper-dim-60);
+  border-bottom: var(--aa-border-strong);
+  padding-bottom: var(--aa-space-2);
+  margin-bottom: var(--aa-space-3);
 }
 
-/* ---------- Ink-ring HP ---------- */
-.aa-hp-ring {
+.aa-live-dot {
   display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--aa-tangerine);
+  margin-right: 6px;
 }
 
-.aa-hp-ring .track {
-  stroke: var(--aa-obsidian-600);
+.aa-commentary {
+  font-style: italic;
+  color: var(--aa-cyan);
+  font-size: var(--aa-text-body);
+  min-height: 1.5em;
 }
 
-.aa-hp-ring .fill.healthy {
-  stroke: var(--aa-victory);
-}
-
-.aa-hp-ring .fill.wounded {
-  stroke: var(--aa-warn);
-}
-
-.aa-hp-ring .fill.critical {
-  stroke: var(--aa-defeat);
-}
-
-.aa-hp-ring text {
-  fill: var(--aa-ink-200);
-  font-family: var(--aa-font-mono);
-}
-
-/* ---------- Battle ---------- */
 .aa-battle-field {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: var(--aa-space-4);
   flex-wrap: wrap;
+  padding: var(--aa-space-4);
+  background-image: var(--aa-halftone);
+  background-size: var(--aa-halftone-size) var(--aa-halftone-size);
+  border: var(--aa-border-strong);
 }
 
 .aa-battle-log {
   font-family: var(--aa-font-mono);
-  font-size: var(--aa-text-sm);
-  background: var(--aa-obsidian-950);
-  border: var(--aa-border);
-  border-radius: var(--aa-radius-md);
+  font-size: var(--aa-text-mono);
+  background: var(--aa-ink);
+  border: var(--aa-border-2);
   padding: var(--aa-space-3);
   max-height: 16rem;
   overflow-y: auto;
@@ -256,124 +338,208 @@ button.aa-ghost {
 }
 
 .aa-log-line.effective {
-  color: var(--aa-brass-300);
+  color: var(--aa-tangerine);
+  font-weight: 800;
 }
 
 .aa-log-line.status {
-  color: var(--aa-status);
+  color: var(--aa-cyan);
 }
 
 .aa-log-line.faint {
-  color: var(--aa-defeat);
+  color: var(--aa-tangerine);
 }
 
 .aa-log-commentary {
   font-family: var(--aa-font-ui);
   font-style: italic;
-  color: var(--aa-ink-600);
+  color: var(--aa-cyan);
   padding-left: var(--aa-space-4);
 }
 
+/* ---------- Control panel + move cards ---------- */
 .aa-actions {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
   gap: var(--aa-space-2);
   margin-top: var(--aa-space-4);
+  padding: var(--aa-space-3);
+  background: var(--aa-panel-deep);
+  border-top: 7px solid transparent;
+  border-image: var(--aa-hazard) 7;
 }
 
-/* ---------- Verdict card & share grid ---------- */
+.aa-move {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aa-space-1);
+  background: var(--aa-panel);
+  border: var(--aa-border-2);
+  padding: var(--aa-space-2) var(--aa-space-3);
+  cursor: pointer;
+  text-align: left;
+  color: var(--aa-paper);
+  box-shadow: var(--aa-shadow-hard-4);
+  min-height: 44px;
+  font-style: normal;
+  text-transform: none;
+}
+
+.aa-move:hover:not(:disabled) {
+  border-color: var(--aa-lime);
+  transform: translate(-1px, -1px);
+}
+
+.aa-move:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.aa-move-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--aa-space-2);
+  align-items: baseline;
+}
+
+.aa-move-name {
+  font-family: var(--aa-font-display);
+  font-style: italic;
+  text-transform: uppercase;
+  font-size: var(--aa-text-body);
+  color: var(--aa-paper);
+}
+
+.aa-move-power {
+  font-family: var(--aa-font-mono);
+  font-weight: 800;
+  color: var(--aa-lime);
+}
+
+.aa-move-stats {
+  font-family: var(--aa-font-mono);
+  font-size: var(--aa-text-fine);
+  color: var(--aa-paper-dim-60);
+  text-transform: uppercase;
+  letter-spacing: var(--aa-track-1);
+}
+
+/* ---------- Verdict lockups + result card ---------- */
 .aa-verdict {
   text-align: center;
-  border-radius: var(--aa-radius-xl);
   padding: var(--aa-space-5);
-  box-shadow: var(--aa-shadow-modal);
+  border: 8px solid transparent;
+  border-image: var(--aa-hazard) 8;
+  background: var(--aa-ink);
+  background-image: var(--aa-halftone);
+  background-size: var(--aa-halftone-size) var(--aa-halftone-size);
+}
+
+.aa-verdict h2 {
+  font-size: var(--aa-text-verdict);
+  text-shadow: 5px 5px 0 #000;
+  transform: rotate(-3deg);
 }
 
 .aa-verdict.victory h2 {
-  color: var(--aa-victory);
+  color: var(--aa-lime);
 }
 
 .aa-verdict.defeat h2 {
-  color: var(--aa-defeat);
+  color: var(--aa-tangerine);
 }
 
 .aa-share {
   font-family: var(--aa-font-mono);
+  font-size: var(--aa-text-mono);
   white-space: pre;
-  background: var(--aa-obsidian-950);
-  border: var(--aa-border);
-  border-radius: var(--aa-radius-md);
+  background: var(--aa-panel);
+  border: var(--aa-border-2);
   padding: var(--aa-space-3);
   margin: var(--aa-space-3) auto;
   display: inline-block;
   text-align: left;
 }
 
-/* ---------- Streak wax seals & quests ---------- */
+/* ---------- Streak sticker chips ---------- */
 .aa-streak-row {
   display: flex;
   gap: var(--aa-space-2);
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .aa-wax {
-  width: 2rem;
-  height: 2rem;
-  border-radius: var(--aa-radius-full);
+  width: 36px;
+  height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--aa-text-xs);
   font-family: var(--aa-font-mono);
-  border: 1px solid var(--aa-obsidian-600);
-  color: var(--aa-ink-600);
+  font-size: var(--aa-text-mono);
+  font-weight: 800;
+  border: 2px solid var(--aa-paper-faint-25);
+  color: var(--aa-paper-dim-30);
+  background: var(--aa-panel);
+  box-shadow: 3px 3px 0 #000;
+  transform: rotate(-2deg);
+}
+
+.aa-wax:nth-child(2n) {
+  transform: rotate(2deg);
 }
 
 .aa-wax.filled {
-  background: var(--aa-brass-500);
-  color: var(--aa-obsidian-950);
-  border-color: var(--aa-brass-600);
+  border-color: var(--aa-lime);
+  color: var(--aa-lime);
 }
 
 .aa-wax.freeze {
-  background: var(--aa-freeze);
-  color: var(--aa-obsidian-950);
-  border-color: var(--aa-freeze);
+  border-color: var(--aa-cyan);
+  color: var(--aa-cyan);
+  background: rgb(53 224 255 / 12%);
 }
 
 .aa-wax.today {
-  box-shadow: var(--aa-glow-brass);
-  border-color: var(--aa-brass-500);
+  border-style: dashed;
+  border-color: var(--aa-paper);
+  color: var(--aa-paper);
 }
 
+/* ---------- Quest ribbon ---------- */
 .aa-quest {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: var(--aa-space-3);
-  background: var(--aa-obsidian-700);
-  border: var(--aa-border);
-  border-left: 4px solid var(--aa-brass-700);
-  border-radius: var(--aa-radius-sm);
+  background: var(--aa-panel);
+  border: var(--aa-border-2);
+  border-left: 7px solid transparent;
+  border-image: var(--aa-hazard) 7;
   padding: var(--aa-space-2) var(--aa-space-3);
   margin-bottom: var(--aa-space-2);
 }
 
 .aa-quest.complete {
-  border-left-color: var(--aa-victory);
-  box-shadow: var(--aa-glow-brass);
+  border-color: var(--aa-lime);
+  border-image: none;
+  border-left: 7px solid var(--aa-lime);
 }
 
-/* ---------- Codex grid ---------- */
+/* ---------- Codex sticker book ---------- */
 .aa-codex {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
   gap: var(--aa-space-3);
 }
 
 .aa-credit {
-  font-size: var(--aa-text-xs);
-  color: var(--aa-info);
+  font-family: var(--aa-font-mono);
+  font-size: var(--aa-text-tape);
+  text-transform: uppercase;
+  letter-spacing: var(--aa-track-1);
+  color: var(--aa-cyan);
 }
 
 /* ---------- Workbench ---------- */
@@ -383,45 +549,91 @@ button.aa-ghost {
   align-items: center;
   flex-wrap: wrap;
   margin-bottom: var(--aa-space-4);
+  padding: var(--aa-space-4);
+  border: var(--aa-border-strong);
+  background-image: var(--aa-halftone);
+  background-size: var(--aa-halftone-size) var(--aa-halftone-size);
 }
 
 .aa-bench-slot {
   min-width: 8rem;
   min-height: 8rem;
-  border: 1px dashed var(--aa-obsidian-500);
-  border-radius: var(--aa-radius-lg);
+  border: 2px dashed var(--aa-paper-dim-30);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--aa-ink-600);
+  color: var(--aa-paper-dim-30);
+  font-family: var(--aa-font-mono);
+  font-size: var(--aa-text-tape);
+  font-weight: 800;
+  letter-spacing: var(--aa-track-1);
+  text-transform: uppercase;
 }
 
 .aa-bench-slot.filled {
-  border-style: solid;
-  border-color: var(--aa-brass-700);
+  border: 2px solid var(--aa-lime);
 }
 
 .aa-toast {
-  background: var(--aa-obsidian-700);
-  border: var(--aa-border-brass);
-  border-radius: var(--aa-radius-md);
-  padding: var(--aa-space-3);
+  background: var(--aa-panel);
+  border: var(--aa-border-paper);
+  box-shadow: var(--aa-shadow-hard-6);
+  padding: var(--aa-space-4);
   margin-top: var(--aa-space-3);
-  box-shadow: var(--aa-glow-brass);
+  animation: aa-slam var(--aa-dur-slam) var(--aa-ease-snap);
 }
 
+@keyframes aa-slam {
+  0% {
+    transform: scale(2.4) rotate(14deg);
+    opacity: 0;
+  }
+
+  55% {
+    transform: scale(0.88) rotate(-5deg);
+  }
+
+  80% {
+    transform: scale(1.08);
+  }
+
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.aa-discovery-lockup {
+  font-family: var(--aa-font-display);
+  font-style: italic;
+  text-transform: uppercase;
+  color: var(--aa-lime);
+  font-size: var(--aa-text-h2);
+  text-shadow:
+    -2px -2px 0 var(--aa-ink),
+    2px -2px 0 var(--aa-ink),
+    -2px 2px 0 var(--aa-ink),
+    2px 2px 0 var(--aa-ink),
+    5px 5px 0 #000;
+  transform: rotate(-8deg);
+  display: inline-block;
+}
+
+/* ---------- Banners ---------- */
 .aa-banner {
-  background: var(--aa-obsidian-800);
-  border: var(--aa-border);
-  border-radius: var(--aa-radius-md);
+  background: var(--aa-panel);
+  border: var(--aa-border-2);
   padding: var(--aa-space-2) var(--aa-space-3);
   margin-bottom: var(--aa-space-4);
-  font-size: var(--aa-text-sm);
-  color: var(--aa-ink-400);
+  font-size: var(--aa-text-mono);
+  color: var(--aa-paper-dim-60);
 }
 
 .aa-banner strong {
-  color: var(--aa-brass-500);
+  font-family: var(--aa-font-display);
+  font-style: italic;
+  text-transform: uppercase;
+  color: var(--aa-lime);
 }
 
 .aa-grid-2 {

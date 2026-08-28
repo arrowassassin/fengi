@@ -6,7 +6,7 @@ import { dayNumber } from "../../retention/streak";
 import { weeklyModifierFor } from "../../retention/weeklyModifier";
 import type { Game } from "../../state/game";
 import { todayUtc } from "../../state/game";
-import { renderSeal } from "../components/seal";
+import { renderBadge } from "../components/badge";
 import { button, el } from "../dom";
 import type { BattleScreenOptions } from "./battle";
 
@@ -89,7 +89,7 @@ export function renderHomeScreen(game: Game, startBattle: StartBattle): HTMLElem
   const bossRow = el("div", { className: "aa-streak-row" });
   bossCard.append(bossRow);
   void dailyBossSquad(date).then((squad) => {
-    for (const boss of squad) bossRow.append(renderSeal(boss, { size: 96 }));
+    for (const boss of squad) bossRow.append(renderBadge(boss, { size: 96 }));
     bossCard.append(
       button(defeated ? "Rematch" : "⚔️ Challenge the boss", () => {
         game.questEvent({ metric: "boss-attempts", amount: 1 });
@@ -127,5 +127,37 @@ export function renderHomeScreen(game: Game, startBattle: StartBattle): HTMLElem
   );
 
   root.append(achievementCard);
+
+  // ---------- Oracle settings ----------
+  const settings = el("div", { className: "aa-card" });
+  settings.append(el("h3", { text: "Fusion oracle" }));
+  const progress = el("p", { className: "aa-muted aa-mono", text: "" });
+  const toggle = el("label", {}, [
+    (() => {
+      const box = document.createElement("input");
+      box.type = "checkbox";
+      box.checked = game.onDeviceOracle;
+      box.addEventListener("change", () => {
+        game.setOnDeviceOracle(box.checked, (text) => {
+          progress.textContent = text;
+        });
+        progress.textContent = box.checked
+          ? "On-device oracle armed — the model downloads on your first fuse."
+          : "";
+      });
+      return box;
+    })(),
+    " Use the on-device oracle (WebLLM, ~1B model download on first fuse)",
+  ]);
+  settings.append(
+    toggle,
+    el("p", {
+      className: "aa-muted",
+      text: "Off: the seeded workbench generator invents fusions. Either way, crafting never fails.",
+    }),
+    progress,
+  );
+  root.append(settings);
+
   return root;
 }

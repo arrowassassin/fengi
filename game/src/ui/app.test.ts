@@ -50,9 +50,9 @@ describe("workbench crafting flow", () => {
     const screen = renderWorkbenchScreen(game);
     document.body.append(screen);
 
-    const seals = [...screen.querySelectorAll<HTMLElement>(".aa-codex .aa-seal")];
-    seals[0]?.click();
-    seals[1]?.click();
+    const badges = [...screen.querySelectorAll<HTMLElement>(".aa-codex .aa-badge")];
+    badges[0]?.click();
+    badges[1]?.click();
     const fuse = [...screen.querySelectorAll<HTMLButtonElement>("button")].find((b) =>
       b.textContent?.includes("Fuse"),
     );

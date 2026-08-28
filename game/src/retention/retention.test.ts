@@ -162,8 +162,8 @@ describe("weekly modifier (spec §5: deterministic per ISO week)", () => {
   });
 });
 
-describe("share grid (spec §5: spoiler-safe emoji summary)", () => {
-  it("renders result, squad emoji rows, and turn count — no specimen names", () => {
+describe("share grid (handoff 1c: spoiler-free clipboard text)", () => {
+  it("renders result, squad emoji, turns, streak — no specimen names", () => {
     const grid = buildShareGrid({
       outcome: "side0",
       turns: 14,
@@ -171,12 +171,30 @@ describe("share grid (spec §5: spoiler-safe emoji summary)", () => {
       playerSquadEmoji: ["🔥", "🌿", "⚡"],
       opponentSquadEmoji: ["💧", "🪨", "❄️"],
       playerRemaining: 2,
+      streakDays: 6,
+      freezesBanked: 1,
+      daily: true,
     });
-    expect(grid).toContain("Alchemy Arena");
-    expect(grid).toContain("2026-08-28");
-    expect(grid).toContain("🔥🌿⚡");
-    expect(grid).toContain("14");
+    expect(grid).toContain("ALCHEMY ARENA · DAILY 2026-08-28");
+    expect(grid).toContain("🔥 🌿 ⚡ SQUAD · 2/3 STOOD");
+    expect(grid).toContain("14 TURNS");
+    expect(grid).toContain("🔥6 🧊1 STREAK · FREEZE HELD");
     expect(grid).not.toMatch(/Primal/);
+  });
+
+  it("masks the opponent squad for daily-boss shares (no boss spoilers)", () => {
+    const grid = buildShareGrid({
+      outcome: "side1",
+      turns: 5,
+      date: "2026-08-28",
+      playerSquadEmoji: ["🔥"],
+      opponentSquadEmoji: ["🧾", "📚", "⚡"],
+      playerRemaining: 0,
+      maskOpponent: true,
+      daily: true,
+    });
+    expect(grid).not.toContain("🧾");
+    expect(grid).not.toContain("VS");
   });
 });
 
