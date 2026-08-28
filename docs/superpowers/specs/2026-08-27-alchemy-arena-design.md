@@ -16,6 +16,13 @@
 > procedural holo-decal badge system). Contradictions between the handoff and
 > the locked items below are logged in `game/src/design/COMPONENTS.md` — none
 > were resolved silently.
+>
+> **Product decision (2026-08-28, design owner):** where the handoff and the
+> locked items below conflict, **the design wins**: elements carry exactly
+> **3 moves**, and types are **freeform AI-invented labels** backed by a
+> deterministic label→archetype mapping onto the 12-way chart (mechanics stay
+> reproducible). §3's "exactly 4 moves" and "types from the chart" are
+> superseded accordingly; determinism guarantees are unchanged.
 
 ## 1. Concept **[locked]**
 

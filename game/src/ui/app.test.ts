@@ -48,14 +48,14 @@ describe("workbench crafting flow", () => {
   it("fusing two specimens grows the codex and shows a discovery toast", async () => {
     const game = newGame();
     const before = game.codex.length;
-    const screen = renderWorkbenchScreen(game);
+    const screen = renderWorkbenchScreen(game, { brewMs: 0 });
     document.body.append(screen);
 
     const badges = [...screen.querySelectorAll<HTMLElement>(".aa-codex .aa-badge")];
     badges[0]?.click();
     badges[1]?.click();
-    const fuse = [...screen.querySelectorAll<HTMLButtonElement>("button")].find((b) =>
-      b.textContent?.includes("Fuse"),
+    const fuse = [...screen.querySelectorAll<HTMLButtonElement>("button")].find(
+      (b) => b.textContent === "FUSE",
     );
     expect(fuse).toBeDefined();
     fuse?.click();
@@ -63,7 +63,7 @@ describe("workbench crafting flow", () => {
     await tick();
 
     expect(game.codex.length).toBe(before + 1);
-    expect(screen.textContent).toContain("First discovered by");
+    expect(screen.textContent).toContain("FIRST IN THE WORLD");
     expect(game.totals.crafts).toBe(1);
   });
 });

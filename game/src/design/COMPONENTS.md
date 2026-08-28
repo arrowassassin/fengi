@@ -12,8 +12,8 @@ All components style exclusively via `tokens.css` custom properties (spec §7c).
 | # | Handoff says | Spec v2 says | Status |
 |---|---|---|---|
 | 1 | Badge seed = 32-bit FNV-style hash of the element **name** | §7e **[locked]**: artwork seeded by the **64-bit recipe hash** | Resolved: design's badge *visuals* ported verbatim, seeded from the 64-bit recipe hash (same determinism guarantee, stronger hash — the §7 upgrade applied to the badge system) |
-| 2 | 3 moves per element (plaque, arena, prototype recipe table) | §3 **[locked]**: exactly **4** moves | **Kept spec (4)**, rendered in the design's move-card style. Needs product sign-off to change |
-| 3 | Freeform invented types (`PAPER`, `IDEA`, `GOSSIP`, `LAW`) | §3/§4 **[locked]**: 1–2 types from the fixed 12-type chart | **Kept spec** (chart types) for engine determinism; chips render in design style. Needs product sign-off to change |
+| 2 | 3 moves per element (plaque, arena, prototype recipe table) | §3 said exactly 4 moves | **RESOLVED 2026-08-28 by the design owner: design wins.** Engine, schema, adapters, and UI all use exactly 3 moves |
+| 3 | Freeform invented types (`PAPER`, `IDEA`, `GOSSIP`, `LAW`) | §3/§4 said 1–2 types from the fixed 12-type chart | **RESOLVED 2026-08-28 by the design owner: design wins.** Types are freeform invented labels; each label maps deterministically onto one of the 12 mechanical archetypes (keyword families + hash fold) so the battle chart stays total and reproducible |
 | 4 | ink/lime/tangerine/cyan palette, Archivo Black/Archivo/JetBrains Mono, zero border radius | spec default was brass/obsidian + Fraunces/Spline Sans | Designs win (brief pre-authorized: designs are source of truth on visuals) |
 | 5 | HP = integer 0–12 ring segments | engine HP is continuous | UI maps `currentHp/maxHp` → 12 segments; engine untouched (§7d) |
 

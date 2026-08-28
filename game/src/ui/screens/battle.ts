@@ -87,18 +87,26 @@ export function renderBattleScreen(options: BattleScreenOptions): HTMLElement {
   let resultRecorded = false;
 
   const header = el("div", { className: "aa-broadcast" });
+  const watching = 8_000 + Number(options.seed % 9_000n);
   header.append(
     el("span", {}, [el("span", { className: "aa-live-dot" }), `LIVE · ${options.opponentLabel}`]),
-    el("span", { className: "aa-turn-counter", text: "TURN 01" }),
+    el("span", {
+      className: "aa-turn-counter",
+      text: `TURN 01 · ${watching.toLocaleString()} WATCHING`,
+    }),
   );
-  const field = el("div", { className: "aa-battle-field" });
+  const commentaryLine = el("div", { className: "aa-commentary" });
+  const field = el("div", { className: "aa-battle-field aa-scanlines" });
   const actions = el("div", { className: "aa-actions" });
   const logPane = el("div", { className: "aa-battle-log" });
   logPane.setAttribute("aria-live", "polite");
   const footer = el("div", {});
-  root.append(header, field, actions, logPane, footer);
+  root.append(header, commentaryLine, field, actions, logPane, footer);
 
   function appendNewLogLines(): void {
+    let latestCommentary: string | undefined;
+    let hype = false;
+    let shake = false;
     for (; logCursor < state.log.length; logCursor++) {
       const event = state.log[logCursor];
       if (event === undefined) continue;
@@ -109,7 +117,23 @@ export function renderBattleScreen(options: BattleScreenOptions): HTMLElement {
       const commentary = commentate(templateCommentator, event);
       if (commentary !== undefined) {
         logPane.append(el("div", { className: "aa-log-commentary", text: commentary }));
+        latestCommentary = commentary;
       }
+      if (event.kind === "damage" && event.side === 1 && event.effectiveness > 1) hype = true;
+      if (event.kind === "damage" && event.crit) shake = true;
+    }
+    if (latestCommentary !== undefined) {
+      clear(commentaryLine);
+      commentaryLine.append(latestCommentary, el("span", { className: "aa-muted", text: " ▌" }));
+    }
+    if (hype) {
+      const lockup = el("div", { className: "aa-hype-lockup", text: "SUPER EFFECTIVE!" });
+      field.append(lockup);
+      setTimeout(() => lockup.remove(), 1200);
+    }
+    if (shake) {
+      field.classList.add("aa-shake");
+      setTimeout(() => field.classList.remove("aa-shake"), 300);
     }
     logPane.scrollTop = logPane.scrollHeight;
   }
@@ -163,12 +187,26 @@ export function renderBattleScreen(options: BattleScreenOptions): HTMLElement {
       className: `aa-card aa-verdict ${won ? "victory" : state.outcome === "draw" ? "" : "defeat"}`,
     });
     verdict.append(
-      el("h2", { text: won ? "Victory" : state.outcome === "draw" ? "Draw" : "Defeat" }),
-      el("p", {
-        className: "aa-mono aa-muted",
-        text: `${options.opponentLabel} · ${state.turn} turns`,
+      el("span", {
+        className: "aa-tape",
+        text: `${options.opponentLabel.toUpperCase()} · ${state.turn} TURNS`,
       }),
+      el("h2", { text: won ? "Victory" : state.outcome === "draw" ? "Draw" : "Defeat" }),
     );
+    // Finisher tape (handoff 1c): the last damaging blow the winner landed.
+    const finisher = [...state.log]
+      .reverse()
+      .find((e) => e.kind === "move-used" && e.side === (won ? 0 : 1));
+    if (finisher !== undefined && finisher.kind === "move-used") {
+      verdict.append(
+        el("div", {}, [
+          el("span", {
+            className: "aa-tape lime",
+            text: `FINISHER: ${finisher.move.toUpperCase()}`,
+          }),
+        ]),
+      );
+    }
     // Squad row with final ring states (handoff 1c).
     const squadRow = el("div", { className: "aa-streak-row" }, []);
     squadRow.style.justifyContent = "center";
@@ -194,18 +232,40 @@ export function renderBattleScreen(options: BattleScreenOptions): HTMLElement {
       streakDays: options.game.streak.streak,
       freezesBanked: options.game.streak.freezes,
     });
-    const shareBlock = el("div", { className: "aa-share", text: grid });
-    const copyButton = button("Copy share grid", () => {
+    // Judge quip (handoff 1c): italic line with cyan mono attribution.
+    const quip = won
+      ? "It never even blinked. Brutal."
+      : state.outcome === "draw"
+        ? "Both benches lie silent. I refuse to score this."
+        : "The bench saw it coming. The bench said nothing.";
+    verdict.append(
+      el("p", {}, [
+        el("em", { text: `"${quip}"` }),
+        " ",
+        el("span", { className: "aa-credit", text: "— JUDGE K-OS" }),
+      ]),
+    );
+    const shareBlock = el("div", {}, [
+      el("span", { className: "aa-tape cyan", text: "SPOILER-FREE SHARE" }),
+      el("div", { className: "aa-share", text: grid }),
+    ]);
+    const copyButton = button("COPY TEXT", () => {
       void navigator.clipboard?.writeText(grid).then(() => {
-        copyButton.textContent = "Copied!";
+        copyButton.textContent = "COPIED";
       });
     });
     verdict.append(
       shareBlock,
-      el("div", {}, [copyButton, " ", button("Back", options.onExit, "aa-ghost")]),
+      el("div", {}, [copyButton, " ", button("BACK", options.onExit, "aa-ghost")]),
+      el("div", {
+        className: "aa-meta-line",
+        text: "ALCHEMY ARENA · BROADCAST CH.9 · NO ACCOUNTS · IN-BROWSER",
+      }),
     );
     footer.append(verdict);
   }
+
+  let selectedMove: number | undefined;
 
   function renderActions(): void {
     clear(actions);
@@ -217,24 +277,39 @@ export function renderBattleScreen(options: BattleScreenOptions): HTMLElement {
     for (const action of legalActions(state, 0)) {
       if (action.kind === "move") {
         const move = active.specimen.moves[action.moveIndex];
-        actions.append(
-          renderMoveCard(move, active.movePp[action.moveIndex], () => {
-            if (move.category === "status") {
-              options.game.questEvent({ metric: "status-moves-used", amount: 1 });
-            }
-            takeTurn(action);
-          }),
-        );
+        // Handoff 1b: first tap selects (lime border + READY tab), second commits.
+        const card = renderMoveCard(move, active.movePp[action.moveIndex], () => {
+          if (selectedMove !== action.moveIndex) {
+            selectedMove = action.moveIndex;
+            renderActions();
+            return;
+          }
+          selectedMove = undefined;
+          if (move.category === "status") {
+            options.game.questEvent({ metric: "status-moves-used", amount: 1 });
+          }
+          takeTurn(action);
+        });
+        if (selectedMove === action.moveIndex) {
+          card.classList.add("selected");
+          card.append(el("span", { className: "aa-ready-tab", text: "READY" }));
+        }
+        actions.append(card);
       } else if (action.kind === "struggle") {
-        actions.append(button("Exhausted Strike", () => takeTurn(action)));
+        actions.append(button("EXHAUSTED STRIKE", () => takeTurn(action)));
       } else {
         const target = me.squad[action.squadIndex];
         if (target !== undefined) {
           actions.append(
-            button(`Switch → ${target.specimen.name}`, () => takeTurn(action), "aa-ghost"),
+            button(`SWITCH → ${target.specimen.name}`, () => takeTurn(action), "aa-ghost"),
           );
         }
       }
+    }
+    if (actions.querySelector(".aa-switch-note") === null) {
+      actions.append(
+        el("div", { className: "aa-mono aa-muted aa-switch-note", text: "SWAP COSTS THE TURN" }),
+      );
     }
   }
 
@@ -267,9 +342,14 @@ export function renderBattleScreen(options: BattleScreenOptions): HTMLElement {
 
   function rerender(): void {
     const counter = header.querySelector(".aa-turn-counter");
-    if (counter !== null) counter.textContent = `TURN ${String(state.turn + 1).padStart(2, "0")}`;
+    if (counter !== null) {
+      counter.textContent = `TURN ${String(state.turn + 1).padStart(2, "0")} · ${watching.toLocaleString()} WATCHING`;
+    }
     clear(field);
     field.append(sideView(0), sideView(1));
+    if (state.outcome === undefined) {
+      field.append(el("span", { className: "aa-corner", text: "YOUR MOVE" }));
+    }
     appendNewLogLines();
     renderActions();
     finish();
