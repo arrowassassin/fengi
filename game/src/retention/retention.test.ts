@@ -4,8 +4,8 @@ import { ACHIEVEMENTS, earnedAchievements } from "./achievements";
 import { dailyBossSquad } from "./dailyBoss";
 import { questsForDay, updateQuestProgress } from "./quests";
 import { buildShareGrid } from "./shareGrid";
-import { INITIAL_STREAK, recordPlay } from "./streak";
-import { weeklyModifierFor } from "./weeklyModifier";
+import { dayNumber, INITIAL_STREAK, recordPlay } from "./streak";
+import { isoWeekOf, weeklyModifierFor } from "./weeklyModifier";
 
 describe("daily boss (spec §5: deterministic from UTC date)", () => {
   it("same date → same boss squad", async () => {
@@ -61,6 +61,27 @@ describe("streaks + freezes (spec §5: max 2 bankable, auto-spend)", () => {
     expect(s.freezes).toBe(2);
     for (; day <= 21; day++) s = recordPlay(s, `2026-08-${String(day).padStart(2, "0")}`);
     expect(s.freezes).toBe(2); // capped
+  });
+
+  it("a multi-day gap spends one freeze per missed day and still banks the milestone", () => {
+    let s = INITIAL_STREAK;
+    for (let d = 1; d <= 6; d++) s = recordPlay(s, `2026-08-0${d}`);
+    s = { ...s, freezes: 2 };
+    s = recordPlay(s, "2026-08-09"); // missed 08-07 and 08-08
+    expect(s.streak).toBe(7); // freezes preserved the run, this play is day 7
+    expect(s.freezeSpentDates).toEqual(["2026-08-07", "2026-08-08"]);
+    expect(s.freezes).toBe(1); // 2 spent, 7-day milestone banks 1 back
+    expect(s.bestStreak).toBe(7);
+  });
+
+  it("malformed date components throw instead of silently corrupting the streak", () => {
+    // Regression: Number("xx") is NaN, not undefined — a NaN day used to slip
+    // past the guard and reset the streak while storing a garbage lastPlayed.
+    expect(() => dayNumber("2026-08-xx")).toThrow(/bad date/);
+    expect(() => dayNumber("garbage")).toThrow(/bad date/);
+    const s = recordPlay(INITIAL_STREAK, "2026-08-01");
+    expect(() => recordPlay(s, "2026-xx-05")).toThrow(/bad date/);
+    expect(dayNumber("2026-08-28")).toBe(dayNumber("2026-08-27") + 1);
   });
 
   it("month boundaries count as consecutive days", () => {
@@ -120,6 +141,15 @@ describe("weekly modifier (spec §5: deterministic per ISO week)", () => {
     const b = weeklyModifierFor(new Date(Date.UTC(2026, 7, 28))); // Fri same ISO week
     expect(a.id).toBe(b.id);
     expect(Object.keys(a.config.typeDamageMultipliers ?? {}).length).toBeGreaterThan(0);
+  });
+
+  it("isoWeekOf assigns ISO year-boundary days to the correct week", () => {
+    // Jan 1 can belong to the previous ISO year, and late Dec to the next.
+    expect(isoWeekOf(new Date(Date.UTC(2026, 0, 1)))).toBe("2026-W01"); // Thu
+    expect(isoWeekOf(new Date(Date.UTC(2027, 0, 1)))).toBe("2026-W53"); // Fri → prior ISO year
+    expect(isoWeekOf(new Date(Date.UTC(2021, 0, 1)))).toBe("2020-W53"); // Fri, leap-week year
+    expect(isoWeekOf(new Date(Date.UTC(2024, 11, 30)))).toBe("2025-W01"); // Mon → next ISO year
+    expect(isoWeekOf(new Date(Date.UTC(2025, 11, 28)))).toBe("2025-W52"); // Sun closes the year
   });
 
   it("adjacent weeks differ (usually across a sample)", () => {

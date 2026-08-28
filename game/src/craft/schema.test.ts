@@ -78,6 +78,8 @@ describe("parseCrafted (strict fusion JSON schema, spec §3)", () => {
     ["zero types", JSON.stringify({ ...validPayload, types: [] })],
     ["three types", JSON.stringify({ ...validPayload, types: ["fire", "wood", "water"] })],
     ["empty name", JSON.stringify({ ...validPayload, name: "" })],
+    ["plain text in the emoji field", JSON.stringify({ ...validPayload, emoji: "abc" })],
+    ["family-ZWJ emoji over 3 code points", JSON.stringify({ ...validPayload, emoji: "👨‍👩‍👧‍👦" })],
     ["flavor over 140 chars", JSON.stringify({ ...validPayload, flavor: "x".repeat(141) })],
     [
       "unknown effect",
@@ -95,6 +97,24 @@ describe("parseCrafted (strict fusion JSON schema, spec §3)", () => {
     ],
   ])("rejects %s", (_label, raw) => {
     expect(parseCrafted(raw).ok).toBe(false);
+  });
+
+  it("is immune to __proto__/constructor pollution in hostile payloads", () => {
+    const hostile = JSON.stringify({
+      ...validPayload,
+      moves: [
+        { ...validPayload.moves[0], __proto__: { polluted: true } },
+        ...validPayload.moves.slice(1),
+      ],
+    }).replace('{"name":"Molten Fern"', '{"__proto__":{"polluted":true},"name":"Molten Fern"');
+    const r = parseCrafted(hostile);
+    expect(r.ok).toBe(true);
+    // biome-ignore lint/suspicious/noExplicitAny: probing for pollution
+    expect(({} as any).polluted).toBeUndefined();
+    if (r.ok) {
+      expect(Object.getPrototypeOf(r.value)).toBe(Object.prototype);
+      expect(Object.keys(r.value).sort()).toEqual(["emoji", "flavor", "moves", "name", "types"]);
+    }
   });
 
   it("clamps/normalizes whitespace in names and trims flavor", () => {

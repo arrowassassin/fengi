@@ -23,7 +23,11 @@ export const INITIAL_STREAK: StreakState = {
 export function dayNumber(date: string): number {
   const [y, m, d] = date.split("-").map(Number);
   if (y === undefined || m === undefined || d === undefined) throw new Error(`bad date ${date}`);
-  return Math.floor(Date.UTC(y, m - 1, d) / 86_400_000);
+  const day = Math.floor(Date.UTC(y, m - 1, d) / 86_400_000);
+  // Number("xx") is NaN, not undefined — guard it too so a malformed date
+  // throws instead of silently corrupting the streak state.
+  if (Number.isNaN(day)) throw new Error(`bad date ${date}`);
+  return day;
 }
 
 function dateFromDayNumber(day: number): string {

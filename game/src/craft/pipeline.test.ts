@@ -55,6 +55,34 @@ describe("craft pipeline (spec §3: crafting never fails)", () => {
     expect(result.provenance).toBe("fallback");
   });
 
+  it("bounds retries at 3 and recovers when a later attempt is valid", async () => {
+    const [a, b] = starterPair(0, 3);
+    let calls = 0;
+    const flaky: CraftAdapter = {
+      name: "flaky",
+      invent: (req) => {
+        calls++;
+        if (calls < 3) return Promise.resolve("not json yet");
+        return new DeterministicAdapter().invent(req);
+      },
+    };
+    const recovered = await craftElement(a, b, flaky);
+    expect(recovered.provenance).toBe("llm");
+    expect(calls).toBe(3);
+
+    let garbageCalls = 0;
+    const countingGarbage: CraftAdapter = {
+      name: "counting-garbage",
+      invent: () => {
+        garbageCalls++;
+        return Promise.resolve("]]]{{{ not json");
+      },
+    };
+    const fallen = await craftElement(a, b, countingGarbage);
+    expect(fallen.provenance).toBe("fallback");
+    expect(garbageCalls).toBe(3); // 1 try + 2 retries, then deterministic fallback
+  });
+
   it("never throws for any starter pair (property)", async () => {
     await fc.assert(
       fc.asyncProperty(

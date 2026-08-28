@@ -111,7 +111,15 @@ export function parseCrafted(raw: string): ParseResult {
   if (name === undefined || name.length > MAX_NAME) return fail("bad name");
 
   const emoji = normalizeText(data.emoji);
-  if (emoji === undefined || [...emoji].length > 3) return fail("bad emoji");
+  // Bounded in code points AND actually pictographic — a sloppy model must
+  // not smuggle plain text into the emoji slot the UI renders as an icon.
+  if (
+    emoji === undefined ||
+    [...emoji].length > 3 ||
+    !/[\p{Extended_Pictographic}\p{Regional_Indicator}]/u.test(emoji)
+  ) {
+    return fail("bad emoji");
+  }
 
   if (!Array.isArray(data.types) || data.types.length < 1 || data.types.length > 2) {
     return fail("types must have 1-2 entries");
