@@ -54,10 +54,11 @@ export function renderHomeScreen(game: Game, startBattle: StartBattle): HTMLElem
   }
 
   countdown.textContent = `NEXT BOSS ${countdownText(new Date())}`;
-  let sawConnected = false;
+  // The screen is appended synchronously after render, so any tick that finds
+  // the node disconnected means it was unmounted — stop, or the interval
+  // leaks forever (e.g. navigating away before the first tick).
   const timer = setInterval(() => {
-    if (countdown.isConnected) sawConnected = true;
-    else if (sawConnected) {
+    if (!countdown.isConnected) {
       clearInterval(timer);
       return;
     }

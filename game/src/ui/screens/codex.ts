@@ -164,8 +164,23 @@ export function renderCodexScreen(game: Game, onSquadChange: () => void): HTMLEl
     return game.lineage.find((entry) => entry.childId === id);
   }
 
-  function renderLineageNode(id: string, depth: number): HTMLElement {
+  /**
+   * Duplicate ancestors repeat their badge (handoff 1e), so a deep chain of
+   * fusions-of-fusions grows the full tree exponentially (Fibonacci-style).
+   * A shared node budget keeps the overlay bounded: shallow trees render in
+   * full, and anything beyond the budget collapses to a ⋯ marker.
+   */
+  const LINEAGE_NODE_BUDGET = 120;
+
+  function renderLineageNode(id: string, depth: number, budget: { left: number }): HTMLElement {
     const node = el("div", { className: "aa-lineage-node" });
+    if (budget.left <= 0) {
+      const mark = el("div", { className: "aa-mono aa-muted", text: "⋯" });
+      mark.title = "Deeper lineage truncated";
+      node.append(mark);
+      return node;
+    }
+    budget.left -= 1;
     const specimen = game.byId(id);
     if (specimen === undefined) {
       node.append(el("div", { className: "aa-mono aa-muted", text: "???" }));
@@ -181,7 +196,7 @@ export function renderCodexScreen(game: Game, onSquadChange: () => void): HTMLEl
     const generationRow = el("div", { className: "aa-lineage-gen" });
     generationRow.style.opacity = String(Math.max(0.55, 0.85 - depth * 0.1));
     for (const parentId of parents.parentIds) {
-      generationRow.append(renderLineageNode(parentId, depth + 1));
+      generationRow.append(renderLineageNode(parentId, depth + 1, budget));
     }
     node.append(generationRow);
     return node;
@@ -192,7 +207,7 @@ export function renderCodexScreen(game: Game, onSquadChange: () => void): HTMLEl
     overlay.append(
       el("span", { className: "aa-tape", text: `LINEAGE · ${specimen.name.toUpperCase()}` }),
       button("✕", () => overlay.remove(), "aa-ghost aa-overlay-close"),
-      renderLineageNode(specimen.id, 0),
+      renderLineageNode(specimen.id, 0, { left: LINEAGE_NODE_BUDGET }),
       el("div", {}, [
         el("span", { className: "aa-tape", text: "◦ = PRIMITIVE" }),
         " ",

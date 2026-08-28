@@ -17,7 +17,9 @@ export function renderMoveCard(
     el("span", { className: "aa-move-name", text: move.name }),
     el("span", { className: "aa-move-power", text: move.power > 0 ? String(move.power) : "—" }),
   );
-  const chip = el("span", { className: `aa-chip aa-chip-${move.type}`, text: move.type });
+  // Chip shows the invented type label (approved design: freeform types);
+  // the mechanical archetype only picks the chip color.
+  const chip = el("span", { className: `aa-chip aa-chip-${move.type}`, text: move.typeLabel });
   card.append(
     head,
     el("div", {}, [chip, " ", el("span", { className: "aa-chip", text: move.category })]),

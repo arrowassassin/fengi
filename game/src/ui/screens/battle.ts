@@ -330,6 +330,10 @@ export function renderBattleScreen(options: BattleScreenOptions): HTMLElement {
   }
 
   function takeTurn(playerAction: Action): void {
+    // Any committed action consumes the selection — a switch, struggle, or
+    // faint auto-switch must never leave a stale READY card armed for the
+    // next fighter (one tap would fire a move the player never inspected).
+    selectedMove = undefined;
     const before = state.log.length;
     const opponentAction = aiPolicy(state, 1);
     stepTurn(state, [playerAction, opponentAction]);
