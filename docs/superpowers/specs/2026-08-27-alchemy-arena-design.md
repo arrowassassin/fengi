@@ -6,10 +6,16 @@
 > repository when implementation began (the repo contained only an initial commit).
 > This document is a faithful reconstruction from the approved implementation brief
 > and is the working source of truth. Items marked **[locked]** must not be changed
-> without explicit product sign-off. Where the approved Claude Design exports
-> ("Fusion Prototype") deviate on visuals, **the designs win**; the design project
-> was unreachable from the implementation environment (auth-gated MCP), so visual
-> tokens below carry the spec defaults and are flagged for reconciliation.
+> without explicit product sign-off.
+>
+> **Design handoff update (2026-08-28, later):** the approved Claude Design export
+> now lives in-repo at `design/claude-design-export/` (pulled from
+> `feature/design-handoff`) and **is the source of truth for all visuals**,
+> superseding the §7a/§7b defaults below (palette is ink/lime/tangerine/cyan,
+> type is Archivo Black italic / Archivo / JetBrains Mono, artwork is the
+> procedural holo-decal badge system). Contradictions between the handoff and
+> the locked items below are logged in `game/src/design/COMPONENTS.md` — none
+> were resolved silently.
 
 ## 1. Concept **[locked]**
 
