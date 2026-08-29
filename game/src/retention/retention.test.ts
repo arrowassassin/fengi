@@ -1,0 +1,210 @@
+import { describe, expect, it } from "vitest";
+import { serializeLog } from "../engine";
+import { ACHIEVEMENTS, earnedAchievements } from "./achievements";
+import { dailyBossSquad } from "./dailyBoss";
+import { questsForDay, updateQuestProgress } from "./quests";
+import { buildShareGrid } from "./shareGrid";
+import { dayNumber, INITIAL_STREAK, recordPlay } from "./streak";
+import { isoWeekOf, weeklyModifierFor } from "./weeklyModifier";
+
+describe("daily boss (spec §5: deterministic from UTC date)", () => {
+  it("same date → same boss squad", async () => {
+    const a = await dailyBossSquad("2026-08-28");
+    const b = await dailyBossSquad("2026-08-28");
+    expect(a.map((s) => s.name)).toEqual(b.map((s) => s.name));
+    expect(a).toHaveLength(3);
+  });
+
+  it("different dates → different squads (usually)", async () => {
+    const names = new Set<string>();
+    for (const d of ["2026-08-25", "2026-08-26", "2026-08-27", "2026-08-28"]) {
+      names.add((await dailyBossSquad(d)).map((s) => s.name).join("|"));
+    }
+    expect(names.size).toBeGreaterThan(1);
+  });
+});
+
+describe("streaks + freezes (spec §5: max 2 bankable, auto-spend)", () => {
+  it("increments on consecutive days", () => {
+    let s = recordPlay(INITIAL_STREAK, "2026-08-01");
+    s = recordPlay(s, "2026-08-02");
+    s = recordPlay(s, "2026-08-03");
+    expect(s.streak).toBe(3);
+  });
+
+  it("same-day replays don't double count", () => {
+    let s = recordPlay(INITIAL_STREAK, "2026-08-01");
+    s = recordPlay(s, "2026-08-01");
+    expect(s.streak).toBe(1);
+  });
+
+  it("a 1-day gap spends a freeze and keeps the streak", () => {
+    let s = { ...recordPlay(INITIAL_STREAK, "2026-08-01"), freezes: 1 };
+    s = recordPlay(s, "2026-08-03"); // missed 08-02
+    expect(s.streak).toBe(2);
+    expect(s.freezes).toBe(0);
+    expect(s.freezeSpentDates).toContain("2026-08-02");
+  });
+
+  it("a gap with no freezes resets to 1", () => {
+    let s = recordPlay(INITIAL_STREAK, "2026-08-01");
+    s = recordPlay(s, "2026-08-05");
+    expect(s.streak).toBe(1);
+  });
+
+  it("earns a freeze at each 7-day milestone, capped at 2", () => {
+    let s = INITIAL_STREAK;
+    let day = 1;
+    for (; day <= 7; day++) s = recordPlay(s, `2026-08-${String(day).padStart(2, "0")}`);
+    expect(s.freezes).toBe(1);
+    for (; day <= 14; day++) s = recordPlay(s, `2026-08-${String(day).padStart(2, "0")}`);
+    expect(s.freezes).toBe(2);
+    for (; day <= 21; day++) s = recordPlay(s, `2026-08-${String(day).padStart(2, "0")}`);
+    expect(s.freezes).toBe(2); // capped
+  });
+
+  it("a multi-day gap spends one freeze per missed day and still banks the milestone", () => {
+    let s = INITIAL_STREAK;
+    for (let d = 1; d <= 6; d++) s = recordPlay(s, `2026-08-0${d}`);
+    s = { ...s, freezes: 2 };
+    s = recordPlay(s, "2026-08-09"); // missed 08-07 and 08-08
+    expect(s.streak).toBe(7); // freezes preserved the run, this play is day 7
+    expect(s.freezeSpentDates).toEqual(["2026-08-07", "2026-08-08"]);
+    expect(s.freezes).toBe(1); // 2 spent, 7-day milestone banks 1 back
+    expect(s.bestStreak).toBe(7);
+  });
+
+  it("malformed date components throw instead of silently corrupting the streak", () => {
+    // Regression: Number("xx") is NaN, not undefined — a NaN day used to slip
+    // past the guard and reset the streak while storing a garbage lastPlayed.
+    expect(() => dayNumber("2026-08-xx")).toThrow(/bad date/);
+    expect(() => dayNumber("garbage")).toThrow(/bad date/);
+    const s = recordPlay(INITIAL_STREAK, "2026-08-01");
+    expect(() => recordPlay(s, "2026-xx-05")).toThrow(/bad date/);
+    expect(dayNumber("2026-08-28")).toBe(dayNumber("2026-08-27") + 1);
+  });
+
+  it("month boundaries count as consecutive days", () => {
+    let s = recordPlay(INITIAL_STREAK, "2026-08-31");
+    s = recordPlay(s, "2026-09-01");
+    expect(s.streak).toBe(2);
+  });
+});
+
+describe("daily quests (spec §5: 3/day, seeded by date + player)", () => {
+  it("is deterministic per date+player and gives 3 distinct quests", () => {
+    const a = questsForDay("2026-08-28", "player-1");
+    const b = questsForDay("2026-08-28", "player-1");
+    expect(a).toEqual(b);
+    expect(a).toHaveLength(3);
+    expect(new Set(a.map((q) => q.id)).size).toBe(3);
+  });
+
+  it("different players usually get different quests", () => {
+    const sets = new Set(
+      ["p1", "p2", "p3", "p4", "p5"].map((p) =>
+        questsForDay("2026-08-28", p)
+          .map((q) => q.id)
+          .join("|"),
+      ),
+    );
+    expect(sets.size).toBeGreaterThan(1);
+  });
+
+  it("progress updates only matching metrics and clamps at target", () => {
+    const quests = questsForDay("2026-08-28", "player-1");
+    const first = quests[0];
+    if (first === undefined) throw new Error("no quests");
+    let progress = {};
+    for (let i = 0; i < first.target + 5; i++) {
+      progress = updateQuestProgress(quests, progress, { metric: first.metric, amount: 1 });
+    }
+    const record = progress as Record<string, number>;
+    expect(record[first.id]).toBe(first.target);
+  });
+});
+
+describe("achievements", () => {
+  it("thresholds unlock cumulatively", () => {
+    expect(earnedAchievements({ crafts: 0, discoveries: 0, wins: 0, bestStreak: 0 })).toEqual([]);
+    const earned = earnedAchievements({ crafts: 100, discoveries: 10, wins: 25, bestStreak: 30 });
+    expect(earned.length).toBeGreaterThan(4);
+    for (const id of earned) {
+      expect(ACHIEVEMENTS.some((a) => a.id === id)).toBe(true);
+    }
+  });
+});
+
+describe("weekly modifier (spec §5: deterministic per ISO week)", () => {
+  it("same week → same modifier; config feeds the engine", () => {
+    const a = weeklyModifierFor(new Date(Date.UTC(2026, 7, 26))); // Wed
+    const b = weeklyModifierFor(new Date(Date.UTC(2026, 7, 28))); // Fri same ISO week
+    expect(a.id).toBe(b.id);
+    expect(Object.keys(a.config.typeDamageMultipliers ?? {}).length).toBeGreaterThan(0);
+  });
+
+  it("isoWeekOf assigns ISO year-boundary days to the correct week", () => {
+    // Jan 1 can belong to the previous ISO year, and late Dec to the next.
+    expect(isoWeekOf(new Date(Date.UTC(2026, 0, 1)))).toBe("2026-W01"); // Thu
+    expect(isoWeekOf(new Date(Date.UTC(2027, 0, 1)))).toBe("2026-W53"); // Fri → prior ISO year
+    expect(isoWeekOf(new Date(Date.UTC(2021, 0, 1)))).toBe("2020-W53"); // Fri, leap-week year
+    expect(isoWeekOf(new Date(Date.UTC(2024, 11, 30)))).toBe("2025-W01"); // Mon → next ISO year
+    expect(isoWeekOf(new Date(Date.UTC(2025, 11, 28)))).toBe("2025-W52"); // Sun closes the year
+  });
+
+  it("adjacent weeks differ (usually across a sample)", () => {
+    const ids = new Set(
+      [0, 7, 14, 21, 28].map(
+        (offset) => weeklyModifierFor(new Date(Date.UTC(2026, 5, 1 + offset))).id,
+      ),
+    );
+    expect(ids.size).toBeGreaterThan(1);
+  });
+});
+
+describe("share grid (handoff 1c: spoiler-free clipboard text)", () => {
+  it("renders result, squad emoji, turns, streak — no specimen names", () => {
+    const grid = buildShareGrid({
+      outcome: "side0",
+      turns: 14,
+      date: "2026-08-28",
+      playerSquadEmoji: ["🔥", "🌿", "⚡"],
+      opponentSquadEmoji: ["💧", "🪨", "❄️"],
+      playerRemaining: 2,
+      streakDays: 6,
+      freezesBanked: 1,
+      daily: true,
+    });
+    expect(grid).toContain("ALCHEMY ARENA · DAILY 2026-08-28");
+    expect(grid).toContain("🔥 🌿 ⚡ SQUAD · 2/3 STOOD");
+    expect(grid).toContain("14 TURNS");
+    expect(grid).toContain("🔥6 🧊1 STREAK · FREEZE HELD");
+    expect(grid).not.toMatch(/Primal/);
+  });
+
+  it("masks the opponent squad for daily-boss shares (no boss spoilers)", () => {
+    const grid = buildShareGrid({
+      outcome: "side1",
+      turns: 5,
+      date: "2026-08-28",
+      playerSquadEmoji: ["🔥"],
+      opponentSquadEmoji: ["🧾", "📚", "⚡"],
+      playerRemaining: 0,
+      maskOpponent: true,
+      daily: true,
+    });
+    expect(grid).not.toContain("🧾");
+    expect(grid).not.toContain("VS");
+  });
+});
+
+it("weekly modifier keeps battles deterministic end to end", async () => {
+  const { aiPolicy, runBattle } = await import("../engine");
+  const { STARTERS } = await import("../content/starters");
+  const mod = weeklyModifierFor(new Date(Date.UTC(2026, 7, 28)));
+  const squad = STARTERS.slice(0, 3);
+  const foe = STARTERS.slice(3, 6);
+  const r1 = runBattle([squad, foe], 5n, [aiPolicy, aiPolicy], mod.config);
+  const r2 = runBattle([squad, foe], 5n, [aiPolicy, aiPolicy], mod.config);
+  expect(serializeLog(r1.log)).toBe(serializeLog(r2.log));
+});

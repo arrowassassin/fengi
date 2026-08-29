@@ -1,0 +1,89 @@
+/**
+ * Alchemy Arena — design tokens (Step 1), extracted from the approved
+ * Claude Design handoff (design/claude-design-export/, branch
+ * feature/design-handoff): "underground lab / televised street fight"
+ * identity. Hard-edged, die-cut, no border radius anywhere.
+ *
+ * Contradictions between the handoff and spec v2 are logged in
+ * src/design/COMPONENTS.md — none were resolved silently.
+ */
+
+:root {
+  /* ---------- Palette (handoff: STRICT roles) ---------- */
+  --aa-ink: #0d0d0f; /* ground / page background */
+  --aa-panel: #17171c; /* all panels, cards, chips */
+  --aa-panel-deep: #121216; /* control panel bg */
+  --aa-overlay: #0a0a0c; /* full-screen overlays (lineage) */
+  --aa-outline: #26262e; /* default panel borders */
+  --aa-outline-strong: #2c2c34;
+  --aa-lime: #d8ff3e; /* selection, energy, CTAs, player HP — never decorative */
+  --aa-tangerine: #ff5c2a; /* damage, crits, hype moments ONLY */
+  --aa-cyan: #35e0ff; /* info/status, commentary, primitives */
+  --aa-paper: #f5f2ea; /* off-white: text, tape strips, emphasis borders */
+  --aa-magenta: #ff3ef0; /* only inside the holo gradient */
+  --aa-holo: linear-gradient(135deg, #35e0ff, #ff3ef0, #d8ff3e);
+
+  /* Dim text = off-white at alpha .3–.6; never pure white or gray hues. */
+  --aa-paper-dim-30: rgb(245 242 234 / 30%);
+  --aa-paper-dim-45: rgb(245 242 234 / 45%);
+  --aa-paper-dim-60: rgb(245 242 234 / 60%);
+  --aa-paper-faint-13: rgb(245 242 234 / 13%);
+  --aa-paper-faint-20: rgb(245 242 234 / 20%);
+  --aa-paper-faint-25: rgb(245 242 234 / 25%);
+
+  /* ---------- Typography (handoff) ---------- */
+  /* Display is ALWAYS italic + uppercase (synthesized slant). */
+  --aa-font-display: "Archivo Black", "Archivo", sans-serif;
+  --aa-font-ui: "Archivo", system-ui, sans-serif;
+  --aa-font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --aa-font-emoji: "Noto Emoji", "JetBrains Mono", monospace; /* monochrome glyphs */
+
+  /* ---------- Type scale (from artboards) ---------- */
+  --aa-text-tape: 8px; /* tape strips / chips (mono 800, tracked) */
+  --aa-text-fine: 8.5px; /* move effect lines */
+  --aa-text-mono: 10px; /* counters, meta lines */
+  --aa-text-body: 13px; /* body, commentary */
+  --aa-text-plaque: 19px; /* plaque names */
+  --aa-text-h2: 26px; /* section headers (display italic) */
+  --aa-text-lockup: 34px; /* SUPER EFFECTIVE! */
+  --aa-text-boss: 44px; /* boss titles */
+  --aa-text-verdict: 52px; /* VICTORY */
+  --aa-track-1: 1px;
+  --aa-track-2: 2px;
+  --aa-track-3: 3px;
+
+  /* ---------- Spacing (4px base) ---------- */
+  --aa-space-1: 4px;
+  --aa-space-2: 8px;
+  --aa-space-3: 12px;
+  --aa-space-4: 16px;
+  --aa-space-5: 24px;
+  --aa-space-6: 32px;
+  --aa-space-7: 48px;
+
+  /* ---------- Shape language: NO border radius anywhere ---------- */
+  --aa-radius-none: 0;
+  --aa-border-2: 2px solid var(--aa-outline);
+  --aa-border-strong: 2px solid var(--aa-outline-strong);
+  --aa-border-paper: 2px solid var(--aa-paper);
+
+  /* Hard drop shadows — never soft. */
+  --aa-shadow-hard-4: 4px 4px 0 #000;
+  --aa-shadow-hard-5: 5px 5px 0 #000;
+  --aa-shadow-hard-6: 6px 6px 0 #000;
+
+  /* Hazard stripes: panel edges, ribbon spines, card borders. */
+  --aa-hazard: repeating-linear-gradient(-45deg, #d8ff3e 0 8px, #0d0d0f 8px 16px);
+
+  /* Halftone dot field. */
+  --aa-halftone: radial-gradient(rgb(245 242 234 / 5%) 1.1px, transparent 1.6px);
+  --aa-halftone-size: 11px;
+
+  /* ---------- Motion (global: 150–250ms snaps, ease-out w/ overshoot) ---------- */
+  --aa-ease-snap: cubic-bezier(0.2, 1.4, 0.4, 1);
+  --aa-dur-snap: 200ms;
+  --aa-dur-slam: 450ms;
+  --aa-dur-pop: 400ms;
+  --aa-dur-idle: 1.8s;
+  --aa-dur-shimmer: 5s;
+}
