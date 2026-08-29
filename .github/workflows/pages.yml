@@ -6,16 +6,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -31,21 +29,12 @@ jobs:
       - run: npm run build
         env:
           VITE_BASE: /${{ github.event.repository.name }}/
-      - uses: actions/configure-pages@v5
+      # Branch-based Pages deploy: pushing gh-pages auto-enables Pages on a
+      # fresh repo, which the API path cannot do with the workflow token
+      # (creating a Pages site needs admin; GITHUB_TOKEN can't hold it).
+      - uses: peaceiris/actions-gh-pages@v4
         with:
-          # First run on a fresh repo: enable Pages (GitHub Actions source)
-          # automatically instead of 404ing on the missing Pages site.
-          enablement: true
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: game/dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: game/dist
+          force_orphan: true
+          commit_message: "Deploy ${{ github.sha }}"
