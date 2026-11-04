@@ -49,7 +49,7 @@ The initial operating target is one Node server and a persistent local SQLite vo
 
 ### AI content authoring
 
-`NVIDIA_API_KEY` is server-only and blank in `.env.example`; opt-in `FENGI_AI_ENABLED=false` by default. Use LangChain ChatOpenAI against NVIDIA’s documented compatible endpoint with a bounded timeout, bounded output and at most one retry. A private CLI produces draft content, never a public unmetered endpoint. Model choices are configurable through `NVIDIA_MODEL`.
+`NVIDIA_API_KEY` is server-only and blank in `.env.example`; private authoring defaults on; `FENGI_AI_ENABLED=false` explicitly disables it. Missing key/model configuration falls back without calling the provider. Use LangChain ChatOpenAI against NVIDIA’s documented compatible endpoint with a bounded timeout, bounded output and at most one retry. A private CLI produces draft content, never a public unmetered endpoint. Model choices are configurable through `NVIDIA_MODEL`.
 
 AI output is untrusted: parse JSON with Zod, reject unknown/duplicate category IDs and empty or oversized strings, and derive accepted answers and scores from the reviewed canonical catalogue. Failure or no key returns a deterministic draft with an explicit source/status. Human review is required before publishing a new pack; no model judges live play. Trial access does not establish production rights for either service use or generated content. Production licensing, model terms and provider costs remain a release gate.
 

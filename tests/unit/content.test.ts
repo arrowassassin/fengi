@@ -3,19 +3,71 @@ import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { draftContent, validateDraft } from "../../src/server/content-draft";
 
+const provider = vi.hoisted(() => ({ options: vi.fn(), invoke: vi.fn() }));
+vi.mock("@langchain/openai", () => ({
+  ChatOpenAI: class {
+    constructor(options: unknown) {
+      provider.options(options);
+    }
+    invoke = provider.invoke;
+  },
+}));
+
 describe("private content pipeline", () => {
+  it("passes the runtime model to NVIDIA through the LangChain adapter by default", async () => {
+    provider.invoke.mockResolvedValueOnce({
+      content: JSON.stringify({
+        title: "Small wonders",
+        description: "Three familiar little worlds.",
+        categoryIds: ["planets", "chess", "si"],
+      }),
+    });
+    const result = await draftContent("runtime", {
+      NVIDIA_API_KEY: "test-only",
+      NVIDIA_MODEL: "configured-runtime-model",
+    });
+    expect(provider.options).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        model: "configured-runtime-model",
+        configuration: { baseURL: "https://integrate.api.nvidia.com/v1" },
+        useResponsesApi: false,
+      }),
+    );
+    expect(result.source).toBe("nvidia");
+    expect(result.reason).toBe("generated");
+  });
   it("runs without a key and without invoking a model", async () => {
     const invoke = vi.fn();
     const draft = await draftContent("seed", {}, { invoke });
     expect(draft.source).toBe("deterministic");
-    expect(draft.reason).toBe("disabled");
+    expect(draft.reason).toBe("missing-key");
     expect(invoke).not.toHaveBeenCalled();
     expect((await draftContent("seed", { FENGI_AI_ENABLED: "true" })).reason).toBe("missing-key");
+  });
+  it("supports an explicit off switch and requires a configured model", async () => {
+    const invoke = vi.fn();
+    expect(
+      (
+        await draftContent(
+          "s",
+          {
+            FENGI_AI_ENABLED: "false",
+            NVIDIA_API_KEY: "test-only",
+            NVIDIA_MODEL: "configured-test-model",
+          },
+          { invoke },
+        )
+      ).reason,
+    ).toBe("disabled");
+    expect((await draftContent("s", { NVIDIA_API_KEY: "test-only" }, { invoke })).reason).toBe(
+      "missing-model",
+    );
+    expect(invoke).not.toHaveBeenCalled();
   });
   it("validates a model draft and copies only canonical scoring", async () => {
     const result = await draftContent(
       "s",
-      { FENGI_AI_ENABLED: "true", NVIDIA_API_KEY: "test-only" },
+      { NVIDIA_API_KEY: "test-only", NVIDIA_MODEL: "configured-test-model" },
       {
         invoke: async () =>
           JSON.stringify({
@@ -45,7 +97,11 @@ describe("private content pipeline", () => {
   ])("falls back on malformed or unsafe output", async (output) => {
     const result = await draftContent(
       "s",
-      { FENGI_AI_ENABLED: "true", NVIDIA_API_KEY: "test-only" },
+      {
+        FENGI_AI_ENABLED: "true",
+        NVIDIA_API_KEY: "test-only",
+        NVIDIA_MODEL: "configured-test-model",
+      },
       { invoke: async () => output },
     );
     expect(result.reason).toBe("provider-or-validation-failure");
@@ -54,7 +110,11 @@ describe("private content pipeline", () => {
   it("contains provider failures without leaking error text", async () => {
     const result = await draftContent(
       "s",
-      { FENGI_AI_ENABLED: "true", NVIDIA_API_KEY: "test-only" },
+      {
+        FENGI_AI_ENABLED: "true",
+        NVIDIA_API_KEY: "test-only",
+        NVIDIA_MODEL: "configured-test-model",
+      },
       {
         invoke: async () => {
           throw new Error("secret in provider error");

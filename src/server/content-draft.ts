@@ -13,7 +13,12 @@ const draftSchema = z
 export type DraftResult = {
   source: "nvidia" | "deterministic";
   status: "review-required";
-  reason: "generated" | "disabled" | "missing-key" | "provider-or-validation-failure";
+  reason:
+    | "generated"
+    | "disabled"
+    | "missing-key"
+    | "missing-model"
+    | "provider-or-validation-failure";
   title: string;
   description: string;
   categories: typeof categories;
@@ -66,11 +71,13 @@ export async function draftContent(
     description: "Three familiar subjects, with room for an unexpected answer.",
     categories: dailyPrompts(seed),
   });
-  if (env.FENGI_AI_ENABLED !== "true") return fallback("disabled");
+  if (env.FENGI_AI_ENABLED !== undefined && env.FENGI_AI_ENABLED !== "true")
+    return fallback("disabled");
   if (!env.NVIDIA_API_KEY?.trim()) return fallback("missing-key");
+  const modelName = env.NVIDIA_MODEL?.trim();
+  if (!modelName) return fallback("missing-model");
   try {
-    const model =
-      injected ?? modelFor(env.NVIDIA_API_KEY, env.NVIDIA_MODEL || "meta/llama-3.1-8b-instruct");
+    const model = injected ?? modelFor(env.NVIDIA_API_KEY, modelName);
     const output = await model.invoke(
       `Create an editorial draft for a friendly word game. Return only a JSON object with title (3-80 characters), description (5-240 characters), categoryIds (exactly three distinct IDs from this list): ${categories.map((c) => c.id).join(", ")}. Do not invent facts, answers, scores or IDs. Make the language welcoming and never claim player rarity.`,
     );

@@ -44,9 +44,13 @@ This is **private content authoring**, not a public model endpoint or live gamep
 
 ```dotenv
 NVIDIA_API_KEY=your_key_here
-NVIDIA_MODEL=meta/llama-3.1-8b-instruct
+NVIDIA_MODEL=your_configured_model_id
 FENGI_AI_ENABLED=true
 ```
+
+Private authoring defaults on when `FENGI_AI_ENABLED` is unset; set it to `false` to disable. Both NVIDIA values must be configured on the server. The adapter reads `NVIDIA_MODEL` at runtime and never substitutes a different model. Missing credentials or model configuration return an explicit deterministic fallback.
+
+Run `npm run content:verify-live` to make two bounded calls through the real LangChain adapter. It succeeds only for NVIDIA-sourced, validated responses; fallback exits nonzero. It prints only status/counts and neither saves nor publishes generated content. This command consumes provider quota.
 
 Then run `npm run content:draft`. It writes a permission-restricted JSON draft under ignored `content-drafts/`. Without a key, with AI disabled, or on timeout/invalid output, it writes a deterministic draft with an explicit reason. No error bodies or credentials are logged. The model chooses among reviewed categories; accepted answers and scores come from the canonical catalogue, never generated claims. Review drafts before manually publishing content.
 
