@@ -121,12 +121,12 @@ export function generatedGate(content: GeneratedPack["orbit"], tick: number, ind
 export function orbitDefinition(content: GeneratedPack["orbit"]) {
   return define<OrbitState, OrbitCommand>(
     initialOrbit,
-    (_s, state, c) => {
+    (session, state, c) => {
       if (state.done) return state;
       if (c.type === "reverse") return { ...state, direction: state.direction === 1 ? -1 : 1 };
+      const speed = content.speed * (session.calm ? 1.3 / 2.05 : 1);
       const tick = state.tick + 1,
-        angle =
-          (state.angle + state.direction * STEP * content.speed + Math.PI * 2) % (Math.PI * 2);
+        angle = (state.angle + state.direction * STEP * speed + Math.PI * 2) % (Math.PI * 2);
       let { sparks, lives } = state,
         cooldown = Math.max(0, state.cooldown - 1);
       if (distance(angle, generatedTarget(content, sparks)) < 0.13) sparks++;

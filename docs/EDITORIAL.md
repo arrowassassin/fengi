@@ -1,6 +1,6 @@
 # Reviewed AI collections
 
-Fengi uses AI for short titles, descriptions and selection of three existing Odd Answer categories. It does not invent facts, answer lists, scores or rarity statistics. The collection is consumed by a real v1 practice game: publication binds the selected categories to a reproducible seed, so canonical answer judging, server-side save validation, offline progress and recovery remain unchanged. Daily historical editions are never repointed. Collections with the same ordered category selection intentionally share a practice session.
+Fengi uses AI for reviewed practice packs: Signal binary patterns/clues, Pair Bloom card arrangements, Orbit targets/gate phases/speed, Trail walls/seeds, and Odd Answer prose/category selection. Trusted rules validate and score play; models do not invent verified facts, answer banks or rarity statistics. For Odd Answer, the collection is consumed by a v1 practice game: publication binds the selected categories to a reproducible seed, so canonical answer judging, server-side save validation, offline progress and recovery remain unchanged. Daily historical editions are never repointed. Collections with the same ordered category selection intentionally share a practice session.
 
 ## Operator workflow
 
@@ -35,7 +35,7 @@ Snapshots use SQLite's online backup API and are individually consistent. They a
 
 `npm run db:restore -- BUNDLE NEW_DIRECTORY` verifies a complete bundle, copies both databases into an exclusively created directory, and verifies the restored files. It never overwrites live data. Stop every writer, preserve the existing databases and WAL files, switch both `FENGI_DATABASE_PATH` and `FENGI_EDITORIAL_PATH` to the restored absolute paths, then restart and exercise recovery and published collections. Do not copy old WAL/SHM files into the restored directory. A failed restore directory is incomplete and must not be activated. Restore rehearsal, off-host transport and atomic runtime configuration changes remain operator responsibilities.
 
-AI currently writes short prose and selects three categories from eight curated Odd Answer categories. It does not generate unlimited verified answers or power the other four games.
+AI packs supply game-specific candidates for all five games as detailed below. Odd Answer remains limited to prose and three selections from eight curated answer banks; its answers and scoring are not model-generated.
 
 ## Generated route gardens
 
@@ -60,7 +60,7 @@ Revocation removes a collection from public discovery and its collection landing
 
 - Signal Grid: the model proposes a 25-cell binary solution and clue indices. Trusted code derives row/column counts and adds deterministic clues until the solution is unique. Candidates with fewer than five editable cells are rejected. The model's proposed solution is retained; clue repair is disclosed rather than presented as wholly model-authored design.
 - Pair Bloom: the model proposes all sixteen card positions using exactly two of each of eight existing safe symbols. Trusted code rejects unbalanced decks and validates matched-pair progress.
-- Orbit Tap: the model proposes target angles, three gate phases and speed within the existing calm-to-standard range. Trusted code retains gate locations, hit detection, cooldowns, duration and lives. It validates bounded settings and distinct/separated targets, not subjective difficulty or full player-input history. A terminal loss counts as a completed session, not a successful high score.
+- Orbit Tap: the model proposes target angles, three gate phases and standard speed within the existing calm-to-standard range. Calm practice multiplies that proposed speed by the v1 calm/standard ratio (1.3/2.05), so it always moves more slowly and retains a separate save identity. Trusted code retains gate locations, hit detection, cooldowns, duration and lives. It validates bounded settings and distinct/separated targets, not subjective difficulty or full player-input history. A terminal loss counts as a completed session, not a successful high score.
 - Trail Trace: the model proposes walls and seeds; a trusted route solver checks reachability and computes the optimum.
 - Odd Answer: the model selects three of eight reviewed categories and writes prose. Answers, factual correctness and scores remain in the curated banks; no novel unverified answer lists are generated.
 

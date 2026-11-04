@@ -25,7 +25,7 @@ test.beforeAll(async () => {
     },
     pairs: { deck: createDeck(contentSeed) },
     orbit: {
-      targets: [0.5, 1.8, 3.6, 5.1],
+      targets: [0.5, 1.8, 3.6, 5.1].map((angle) => angle + Math.random() * 0.05),
       phases: [Math.floor(Math.random() * 50), 70, 140],
       speed: 1.5,
     },
@@ -37,7 +37,7 @@ test.beforeAll(async () => {
   store.transition(edition.id, edition.digest, "publish", "test-publisher");
 });
 test.afterAll(() => {
-  store.transition(edition.id, edition.digest, "revoke", "test-cleanup");
+  if (edition) store.transition(edition.id, edition.digest, "revoke", "test-cleanup");
   store.db.close();
 });
 test("published collection reaches its exact playable categories, saves and restores", async ({
@@ -182,3 +182,34 @@ for (const game of ["signal", "pairs", "orbit"] as const)
     await page.reload();
     await expect(page.getByRole("heading", { name: "Time well spent." })).toBeVisible();
   });
+
+test("generated Orbit calm moves slower, saves separately and resumes paused", async ({ page }) => {
+  const pack = edition.pack;
+  if (!pack) throw new Error("Missing pack");
+  for (const calm of [false, true]) {
+    await page.goto(`/play/orbit?collection=${edition.id}${calm ? "&pace=calm" : ""}`);
+    await expect(
+      page.getByText(calm ? "Calm practice · slower movement" : "Standard pace", { exact: false }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Start run", exact: true }).click();
+    const key = `fengi:save:orbit:v2:practice:${edition.id}:${calm ? "calm" : "standard"}`;
+    await expect
+      .poll(() =>
+        page.evaluate((key) => JSON.parse(localStorage.getItem(key) || "{}").state?.tick ?? 0, key),
+      )
+      .toBeGreaterThan(20);
+    await page.getByRole("button", { name: "Pause", exact: true }).click();
+    await expect
+      .poll(() =>
+        page.evaluate((key) => JSON.parse(localStorage.getItem(key) || "{}").pending, key),
+      )
+      .toBe(false);
+    const rate = await page.evaluate((key) => {
+      const s = JSON.parse(localStorage.getItem(key) || "{}").state;
+      return s.angle / (s.tick / 60);
+    }, key);
+    expect(rate).toBeCloseTo(pack.orbit.speed * (calm ? 1.3 / 2.05 : 1), 5);
+    await page.reload();
+    await expect(page.getByRole("button", { name: "Resume", exact: true })).toBeVisible();
+  }
+});
