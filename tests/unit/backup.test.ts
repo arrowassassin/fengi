@@ -1,6 +1,7 @@
-import { mkdtempSync, rmSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import Database from "better-sqlite3";
 import { expect, it } from "vitest";
 import { verifyBundle } from "../../src/server/backup";
@@ -29,6 +30,36 @@ it("requires both snapshots and rejects editorial corruption and unsupported sch
     db.pragma("user_version = 999");
     db.close();
     expect(() => verifyBundle(dir)).toThrow("schema");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+it("backs up with default arguments from a fresh directory without overwriting a bundle", () => {
+  const dir = mkdtempSync(join(tmpdir(), "fengi-backup-cli-"));
+  const script = resolve("scripts/backup.ts"),
+    loader = resolve("node_modules/tsx/dist/loader.mjs");
+  const options = {
+    cwd: dir,
+    env: {
+      ...process.env,
+      FENGI_DATABASE_PATH: join(dir, "data/progress.sqlite"),
+      FENGI_EDITORIAL_PATH: join(dir, "data/editorial.sqlite"),
+    },
+    stdio: "pipe" as const,
+  };
+  try {
+    execFileSync(process.execPath, ["--import", loader, script], options);
+    const bundles = readdirSync(join(dir, "backups"));
+    expect(bundles).toHaveLength(1);
+    const destination = join(dir, "backups", bundles[0]);
+    verifyBundle(destination);
+    const marker = readFileSync(join(destination, "complete.json"), "utf8");
+    expect(() =>
+      execFileSync(process.execPath, ["--import", loader, script, destination], options),
+    ).toThrow();
+    expect(readFileSync(join(destination, "complete.json"), "utf8")).toBe(marker);
+    verifyBundle(destination);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
