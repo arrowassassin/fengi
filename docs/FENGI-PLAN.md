@@ -4,7 +4,7 @@
 
 Fengi is a guest-first destination for short, satisfying browser games. One daily edition per game is shared globally at 00:00 UTC; practice has independent seeds and records. A round has a clear end, an honest result and an optional next round. No autoplay, punitive streaks, fabricated player percentiles or paid competitive advantages. Working names need originality/trademark review before launch.
 
-The existing Alchemy Arena source in `game/`, its design assets and infrastructure remain intact as legacy reference. New work lives at the repository root in `src/`; the clean starting checkout had no uncommitted user changes. No legacy code is deleted. The new app does not use the older design as its source of truth.
+The repository now contains only the new Fengi app at the root in `src/`. At the user’s request, the obsolete Alchemy Arena app, design exports, historical specifications/prototype, registry worker and deployment workflow were removed from the branch. Git history retains those tracked files. Fengi’s original v1 game rules and save compatibility remain part of the current app and are retained.
 
 ## Five playable games
 
@@ -61,7 +61,7 @@ AI output is untrusted: parse JSON with Zod, reject unknown/duplicate category I
 4. Product shell: home, archive, practice, recoverable server progress, error/not-found handling, sharing and mobile layouts.
 5. Private content workflow: LangChain adapter, schema validation, fallback and redacted failure behavior.
 6. Quality: unit tests for determinism, invariants, generation, judging, persistence and AI failure; browser tests on desktop/mobile for navigation, real completion, reload, tab interruption, keyboard controls and corrupt/blocked storage; lint, typecheck and production build.
-7. Review handoff: inspect the final diff, commit only intentional source changes, push the feature branch, open a draft PR, verify remote HEAD and report CI outcomes. Never merge or deploy. Convert the old automatic Pages workflow to manual-only so a future root merge cannot silently publish the unrelated legacy app.
+7. Review handoff: inspect the final diff, commit only intentional source changes, push the feature branch, open a draft PR, verify remote HEAD and report CI outcomes. Never merge or deploy. Keep CI verification-only; the obsolete Pages deployment workflow is removed.
 
 ## Release boundaries
 

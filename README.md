@@ -84,4 +84,4 @@ npm run db:cleanup # dry run; -- --apply removes only eligible empty provisional
 
 See the operational restore procedure before restoring a database. This is a single-node SQLite deployment, not a horizontally distributed persistence service. Anonymous scores remain untrusted for rankings. New route loads need the server; there is no service worker. Odd Answer still has a finite eight-category v1 catalogue.
 
-The original Alchemy Arena app remains untouched in `game/`, with historical designs in `design/` and `docs/`. It is not the new product entry point. The legacy GitHub Pages workflow is manual-only; the new server app is not a static Pages export. Nothing is deployed automatically by this change.
+This repository contains the new Fengi app only. The obsolete Alchemy Arena app, design exports, prototype, infrastructure and Pages deployment workflow have been removed; their history remains in Git. The current app requires a Node server and is not a static Pages export. CI validates changes but does not deploy them.
