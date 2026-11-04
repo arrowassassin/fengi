@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import type { Session } from "../games/registry";
-import { readRecords, removeRecord } from "../lib/persistence";
+import { readRecord, removeRecord } from "../lib/persistence";
 import { downloadRecords } from "../lib/progress-client";
 
 const loading = () => <p className="loading">Getting your game ready…</p>;
@@ -65,7 +65,8 @@ function SessionHost({ session }: { session: Session }) {
           type="button"
           onClick={() => {
             try {
-              downloadRecords(readRecords(localStorage).filter((r) => r.id === session.id));
+              const record = readRecord(localStorage, session.id);
+              downloadRecords(record ? [record] : []);
             } catch {
               setDownloadError(
                 "Browser storage is unavailable; there is no downloadable local copy.",

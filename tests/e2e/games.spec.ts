@@ -21,6 +21,7 @@ test("home, all five games, navigation, themes and responsive layout", async ({ 
 });
 test("Signal Grid keyboard input, undo, interruption and real completion", async ({ page }) => {
   await page.goto(`/play/signal?mode=practice&seed=${seed}`);
+  await expect(page.locator('[data-engine="phaser"] canvas')).toHaveCount(1);
   const puzzle = createPuzzle(seed),
     editable = page.locator(".signal-tile:not([disabled])");
   await expect(editable.first()).toBeVisible();
@@ -63,6 +64,7 @@ test("Odd Answer rejects unknown input, accepts canonical answers, persists resu
   page,
 }) => {
   await page.goto(`/play/odd?mode=practice&seed=${seed}`);
+  await expect(page.locator('[data-engine="phaser"] canvas')).toHaveCount(1);
   await page.getByLabel("Your answer", { exact: true }).fill("not an answer");
   await page.getByRole("button", { name: "Lock answer" }).click();
   await expect(page.getByRole("alert").filter({ hasText: "Not in this edition" })).toContainText(
@@ -78,6 +80,7 @@ test("Odd Answer rejects unknown input, accepts canonical answers, persists resu
 });
 test("Trail Trace follows a solver-verified route through all seeds", async ({ page }) => {
   await page.goto(`/play/trail?mode=practice&seed=${seed}`);
+  await expect(page.locator('[data-engine="phaser"] canvas')).toHaveCount(1);
   const garden = createGarden(seed),
     route = shortestRoute(garden.walls, garden.seeds);
   if (!route) throw new Error("missing route");
@@ -90,6 +93,7 @@ test("Trail Trace follows a solver-verified route through all seeds", async ({ p
 });
 test("Pair Bloom completes all eight pairs and survives reload", async ({ page }) => {
   await page.goto(`/play/pairs?mode=practice&seed=${seed}`);
+  await expect(page.locator('[data-engine="phaser"] canvas')).toHaveCount(1);
   const deck = createDeck(seed);
   for (let symbol = 0; symbol < 8; symbol++) {
     const pair = deck.flatMap((v, i) => (v === symbol ? [i] : []));
@@ -111,6 +115,7 @@ test("Orbit runs, reverses, pauses, reloads paused, then reaches a real terminal
 }) => {
   test.setTimeout(65000);
   await page.goto(`/play/orbit?mode=practice&seed=${seed}`);
+  await expect(page.locator('[data-engine="phaser"] canvas')).toHaveCount(1);
   await page.getByRole("button", { name: "Start run", exact: true }).click();
   await page.getByRole("button", { name: "Reverse direction" }).click();
   await page.waitForTimeout(1100);

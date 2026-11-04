@@ -1,6 +1,6 @@
 # Fengi
 
-Five instant-play browser games with shared daily editions, seeded practice, a seven-day archive and recoverable progress. Built with Next.js, React and strict TypeScript. Gameplay works without an external account or NVIDIA key. SQLite stores anonymous profiles and progress on the server; browser caching covers temporary interruptions.
+Five instant-play browser games with shared daily editions, seeded practice, a seven-day archive and recoverable progress. Built with Next.js, React, Phaser 4.2.1 and strict TypeScript. Gameplay works without an external account or NVIDIA key. SQLite stores anonymous profiles and progress on the server; browser caching covers temporary interruptions.
 
 - **Signal Grid:** solver-verified, uniquely solvable circle/cross grids.
 - **Orbit Tap:** fixed-step arcade with reversal, pulsing gates, three lives, pause/resume and calm practice.
@@ -22,7 +22,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open `http://localhost:3000`. The blank `.env.local` key is intentional. All five games work without it. Use `npm run build` and `npm start` for the production server. The development server binds to all interfaces for remote workspaces; restrict network exposure as appropriate.
+Open `http://localhost:3000`. The blank `.env.local` key is intentional. All five games work without it. Use `npm run build` and `npm start` for the production server. Both servers bind to loopback by default. Public production binding requires the trusted-ingress configuration in the operations guide.
 
 ## Quality checks
 
@@ -58,7 +58,8 @@ LangChain `ChatOpenAI` connects to NVIDIA’s documented Chat Completions endpoi
 src/app/                  App Router routes, metadata, global styles, health endpoint
 src/components/           Product shell, shared results, save lifecycle, navigation
 src/games/<game>/v1/       Retained v1 rules, content and views
-src/games/releases/        Versioned save validators and frozen random generator
+src/games/releases/        Pure command reducers, versioned validators and frozen PRNG
+src/games/runtime/         Disposable Phaser scenes and renderer-independent contracts
 src/games/registry.ts      Game metadata and versioned session identities
 src/lib/persistence.ts    Validated browser cache and legacy save import
 src/server/               SQLite store, API security, save validation, private LangChain
@@ -67,17 +68,18 @@ tests/unit/              Engine, content and persistence tests
 tests/e2e/               Real gameplay, reload, mobile and failure-flow tests
 ```
 
-See [the implementation plan](docs/FENGI-PLAN.md) for product decisions, verified stable versions and scale-up boundaries; [operations](docs/OPERATIONS.md) for deployment preparation, content versioning, recovery and remaining production work.
+See [the implementation plan](docs/FENGI-PLAN.md) for product decisions, verified stable versions and scale-up boundaries; [the engine decision](docs/ENGINE-ARCHITECTURE.md) for maintenance evidence and the React/Phaser boundary; [operations](docs/OPERATIONS.md) for deployment preparation, content versioning, recovery and remaining production work.
 
 ## Scope and data
 
-Progress is saved to `.data/fengi.sqlite` and cached locally. The production startup script keeps that path outside the generated build. Use a persistent local volume; an ephemeral/serverless filesystem will lose data. `FENGI_DATABASE_PATH` can select an absolute path; set `FENGI_ORIGIN` to the exact public HTTPS origin behind a reverse proxy. These have local defaults and need no external credentials.
+Progress is saved to `.data/fengi.sqlite` and cached locally. The production startup script keeps that path outside the generated build. Use a persistent local volume; an ephemeral/serverless filesystem will lose data. `FENGI_DATABASE_PATH` can select an absolute path; set `FENGI_ORIGIN` to the exact public HTTPS origin and `FENGI_CLIENT_IP_HEADER` to a proxy-overwritten single-IP header behind a trusted reverse proxy. These have local defaults and need no external credentials.
 
 Your progress includes one-time recovery codes, profile deletion and a JSON export. Recovery codes grant profile access: keep them private. Same-game browser tabs have one editor; server revisions reject stale device writes and provide an explicit conflict flow. Unsynced local records are retained for recovery. Old browser-only v1 saves load on their original engine and import when played.
 
 ```bash
 npm run db:backup -- /absolute/backup/path/fengi.sqlite
 npm run db:verify -- /absolute/backup/path/fengi.sqlite
+npm run db:cleanup # dry run; -- --apply removes only eligible empty provisional profiles
 ```
 
 See the operational restore procedure before restoring a database. This is a single-node SQLite deployment, not a horizontally distributed persistence service. Anonymous scores remain untrusted for rankings. New route loads need the server; there is no service worker. Odd Answer still has a finite eight-category v1 catalogue.

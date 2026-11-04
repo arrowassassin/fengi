@@ -1,29 +1,15 @@
 "use client";
 import { useMemo, useState } from "react";
-import { z } from "zod";
 import { Result, SaveNotice } from "../../../components/game-shared";
-import { useSavedGame } from "../../../components/use-saved-game";
 import type { Session } from "../../registry";
+import { oddGame } from "../../releases/definitions-v1";
+import { PhaserSurface } from "../../runtime/phaser-surface";
+import { useGameSession } from "../../runtime/use-game-session";
 import { dailyPrompts, judge } from "./engine";
 
-const schema = z.object({ answers: z.array(z.string().max(80).nullable()).max(3) });
 export default function Odd({ session }: { session: Session }) {
   const prompts = useMemo(() => dailyPrompts(session.seed), [session.seed]);
-  const { state, setState, ready, warning } = useSavedGame(
-    session,
-    { answers: [] as (string | null)[] },
-    (value) => {
-      const parsed = schema.safeParse(value);
-      return parsed.success &&
-        parsed.data.answers.every((a, i) => a === null || judge(prompts[i], a))
-        ? parsed.data
-        : null;
-    },
-    (s) => ({
-      completed: s.answers.length === 3,
-      summary: `${s.answers.reduce((sum, answer, i) => sum + (answer ? (judge(prompts[i], answer)?.points ?? 0) : 0), 0)} points`,
-    }),
-  );
+  const { state, dispatch, ready, warning } = useGameSession(oddGame, session);
   const [answer, setAnswer] = useState(""),
     [error, setError] = useState("");
   if (!ready) return <p className="loading">Opening your prompts…</p>;
@@ -42,7 +28,7 @@ export default function Odd({ session }: { session: Session }) {
       );
       return;
     }
-    setState((s) => ({ answers: [...s.answers, result.word] }));
+    dispatch({ type: "answer", answer: result.word });
     setAnswer("");
     setError("");
   }
@@ -87,11 +73,41 @@ export default function Odd({ session }: { session: Session }) {
             </p>
           </div>
           <div className="word-panel">
-            <div className="spread">
-              <span className="pill">PROMPT {index + 1} / 3</span>
-              <span>{score} pts</span>
-            </div>
-            <h3>{current.prompt}</h3>
+            <PhaserSurface
+              game="odd"
+              picture={{
+                nodes: [
+                  { id: "odd-prompt", text: current.prompt, color: "--ink", shape: "text" },
+                  { id: "odd-score", text: `${score} pts`, color: "--lilac-ink", shape: "text" },
+                  ...[0, 1, 2].map((i) => ({
+                    id: `odd-round-${i}`,
+                    text:
+                      i < index
+                        ? `${state.answers[i] === null ? "Skip" : (judge(prompts[i], state.answers[i] ?? "")?.points ?? 0)}`
+                        : String(i + 1),
+                    fill: i === index ? "--lilac-ink" : "--panel",
+                    color: i === index ? "--panel" : "--lilac-ink",
+                  })),
+                ],
+              }}
+            >
+              <div className="spread">
+                <span className="pill">PROMPT {index + 1} / 3</span>
+                <span data-scene-id="odd-score">{score} pts</span>
+              </div>
+              <ol className="word-rounds" aria-label="Round progress">
+                {[0, 1, 2].map((i) => (
+                  <li
+                    key={i}
+                    data-scene-id={`odd-round-${i}`}
+                    aria-label={`Round ${i + 1}: ${i < index ? "answered" : i === index ? "current" : "upcoming"}`}
+                  >
+                    {i + 1}
+                  </li>
+                ))}
+              </ol>
+              <h3 data-scene-id="odd-prompt">{current.prompt}</h3>
+            </PhaserSurface>
             <p className="small muted">{current.note}</p>
             <form onSubmit={submit}>
               <label htmlFor="odd-answer">Your answer</label>
@@ -112,7 +128,7 @@ export default function Odd({ session }: { session: Session }) {
                   className="button text"
                   type="button"
                   onClick={() => {
-                    setState((s) => ({ answers: [...s.answers, null] }));
+                    dispatch({ type: "answer", answer: null });
                     setAnswer("");
                     setError("");
                   }}

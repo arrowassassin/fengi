@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { z } from "zod";
 import { Result, SaveNotice } from "../../../components/game-shared";
-import { useSavedGame } from "../../../components/use-saved-game";
 import type { Session } from "../../registry";
+import { orbitGame } from "../../releases/definitions-v1";
+import { PhaserSurface } from "../../runtime/phaser-surface";
+import { useGameSession } from "../../runtime/use-game-session";
 import {
-  advance,
   DURATION,
   hazardActive,
   hazards,
@@ -16,34 +16,8 @@ import {
   target,
 } from "./engine";
 
-const schema = z.object({
-  tick: z.number().int().min(0).max(2700),
-  angle: z
-    .number()
-    .min(0)
-    .max(Math.PI * 2),
-  direction: z.union([z.literal(1), z.literal(-1)]),
-  sparks: z.number().int().min(0).max(2700),
-  lives: z.number().int().min(0).max(3),
-  cooldown: z.number().int().min(0).max(70),
-  done: z.boolean(),
-});
 export default function Orbit({ session }: { session: Session }) {
-  const { state, setState, ready, warning, saveNow } = useSavedGame(
-    session,
-    initialOrbit(),
-    (value) => {
-      const parsed = schema.safeParse(value);
-      return parsed.success &&
-        parsed.data.done === (parsed.data.lives === 0 || parsed.data.tick === 2700)
-        ? parsed.data
-        : null;
-    },
-    (s) => ({
-      completed: s.done,
-      summary: `${orbitScore(s)} points${session.calm ? " · calm" : ""}`,
-    }),
-  );
+  const { state, commit: setState, ready, warning, saveNow } = useGameSession(orbitGame, session);
   const simulation = useRef<OrbitState>(initialOrbit()),
     initialized = useRef(false),
     [frame, setFrame] = useState(initialOrbit),
@@ -55,40 +29,33 @@ export default function Orbit({ session }: { session: Session }) {
       initialized.current = true;
     }
   }, [ready, state]);
-  useEffect(() => {
+  const accumulator = useRef(0),
+    lastSavedTick = useRef(0);
+  function step(deltaMs: number) {
     if (!running || !ready) return;
-    let request = 0,
-      last = 0,
-      accumulator = 0;
-    const loop = (now: number) => {
-      if (last) accumulator += Math.min((now - last) / 1000, 0.1);
-      last = now;
-      while (accumulator >= STEP && !simulation.current.done) {
-        simulation.current = advance(simulation.current, session.seed, session.calm);
-        accumulator -= STEP;
-      }
-      setFrame(simulation.current);
-      if (simulation.current.tick % 60 === 0 || simulation.current.done)
-        setState({ ...simulation.current });
-      if (simulation.current.done) {
-        setRunning(false);
-        return;
-      }
-      request = requestAnimationFrame(loop);
-    };
-    request = requestAnimationFrame(loop);
+    accumulator.current += Math.min(deltaMs / 1000, 0.1);
+    while (accumulator.current >= STEP && !simulation.current.done) {
+      simulation.current = orbitGame.reduce(session, simulation.current, { type: "step" });
+      accumulator.current -= STEP;
+    }
+    setFrame(simulation.current);
+    if (simulation.current.tick - lastSavedTick.current >= 60 || simulation.current.done) {
+      lastSavedTick.current = simulation.current.tick;
+      setState({ ...simulation.current });
+    }
+    if (simulation.current.done) setRunning(false);
+  }
+  useEffect(() => {
     const pause = () => {
       if (document.hidden) {
         setRunning(false);
+        accumulator.current = 0;
         setState({ ...simulation.current });
       }
     };
     document.addEventListener("visibilitychange", pause);
-    return () => {
-      cancelAnimationFrame(request);
-      document.removeEventListener("visibilitychange", pause);
-    };
-  }, [running, ready, session.seed, session.calm, setState]);
+    return () => document.removeEventListener("visibilitychange", pause);
+  }, [setState]);
   useEffect(() => {
     if (!ready) return;
     const save = () => saveNow(simulation.current);
@@ -148,54 +115,72 @@ export default function Orbit({ session }: { session: Session }) {
             </p>
           </div>
           <div className="board-area">
-            <div className="orbit-stage">
-              <svg
-                viewBox="0 0 320 320"
-                role="img"
-                aria-label={`Orbit arena: ${frame.sparks} sparks, ${frame.lives} lives, ${running ? "running" : "paused"}`}
-              >
-                <circle className="orbit-track" cx="160" cy="160" r="118" fill="none" />
-                {hazards.map((angle, i) => {
-                  const p = point(angle);
-                  return (
-                    <g key={`gate-${i}`}>
-                      <circle
-                        cx={p.x}
-                        cy={p.y}
-                        r="13"
-                        className={hazardActive(frame.tick, i) ? "gate closed" : "gate"}
-                      />
-                      <text x={p.x} y={p.y + 4} textAnchor="middle" className="gate-label">
-                        {hazardActive(frame.tick, i) ? "×" : "·"}
-                      </text>
-                    </g>
-                  );
-                })}
-                <circle cx={spark.x} cy={spark.y} r="9" className="spark" />
-                <circle
-                  cx={player.x}
-                  cy={player.y}
-                  r="10"
-                  className={`orbiter ${frame.cooldown ? "recovering" : ""}`}
-                />
-                <text x="160" y="151" textAnchor="middle" className="orbit-score">
-                  {orbitScore(frame)}
-                </text>
-                <text x="160" y="178" textAnchor="middle" className="orbit-caption">
-                  {running ? "FIND YOUR RHYTHM" : frame.tick ? "PAUSED" : "READY WHEN YOU ARE"}
-                </text>
-              </svg>
-            </div>
+            <PhaserSurface
+              game="orbit"
+              onFrame={step}
+              picture={{
+                nodes: [],
+                orbit: {
+                  angle: frame.angle,
+                  spark: target(session.seed, frame.sparks),
+                  gates: hazards.map((angle, i) => ({
+                    angle,
+                    closed: hazardActive(frame.tick, i),
+                  })),
+                  score: orbitScore(frame),
+                  running,
+                  recovering: frame.cooldown > 0,
+                },
+              }}
+            >
+              <div className="orbit-stage">
+                <svg
+                  viewBox="0 0 320 320"
+                  role="img"
+                  aria-label={`Orbit arena: ${frame.sparks} sparks, ${frame.lives} lives, ${running ? "running" : "paused"}`}
+                >
+                  <circle className="orbit-track" cx="160" cy="160" r="118" fill="none" />
+                  {hazards.map((angle, i) => {
+                    const p = point(angle);
+                    return (
+                      <g key={`gate-${i}`}>
+                        <circle
+                          cx={p.x}
+                          cy={p.y}
+                          r="13"
+                          className={hazardActive(frame.tick, i) ? "gate closed" : "gate"}
+                        />
+                        <text x={p.x} y={p.y + 4} textAnchor="middle" className="gate-label">
+                          {hazardActive(frame.tick, i) ? "×" : "·"}
+                        </text>
+                      </g>
+                    );
+                  })}
+                  <circle cx={spark.x} cy={spark.y} r="9" className="spark" />
+                  <circle
+                    cx={player.x}
+                    cy={player.y}
+                    r="10"
+                    className={`orbiter ${frame.cooldown ? "recovering" : ""}`}
+                  />
+                  <text x="160" y="151" textAnchor="middle" className="orbit-score">
+                    {orbitScore(frame)}
+                  </text>
+                  <text x="160" y="178" textAnchor="middle" className="orbit-caption">
+                    {running ? "FIND YOUR RHYTHM" : frame.tick ? "PAUSED" : "READY WHEN YOU ARE"}
+                  </text>
+                </svg>
+              </div>
+            </PhaserSurface>
             <div className="actions centered">
               <button
                 type="button"
                 className="button primary"
                 disabled={!running}
                 onClick={() => {
-                  simulation.current = {
-                    ...simulation.current,
-                    direction: -simulation.current.direction,
-                  };
+                  simulation.current = orbitGame.reduce(session, simulation.current, {
+                    type: "reverse",
+                  });
                   setFrame(simulation.current);
                 }}
               >

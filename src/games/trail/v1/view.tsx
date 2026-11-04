@@ -1,26 +1,15 @@
 "use client";
 import { useMemo, useState } from "react";
-import { z } from "zod";
 import { Result, SaveNotice } from "../../../components/game-shared";
-import { useSavedGame } from "../../../components/use-saved-game";
 import type { Session } from "../../registry";
-import { createGarden, neighbors, pathMask, validPath } from "./engine";
+import { trailGame } from "../../releases/definitions-v1";
+import { PhaserSurface } from "../../runtime/phaser-surface";
+import { useGameSession } from "../../runtime/use-game-session";
+import { createGarden, neighbors, pathMask } from "./engine";
 
-const schema = z.object({ path: z.array(z.number().int().min(0).max(35)).min(1).max(1001) });
 export default function Trail({ session }: { session: Session }) {
   const garden = useMemo(() => createGarden(session.seed), [session.seed]);
-  const { state, setState, ready, warning } = useSavedGame(
-    session,
-    { path: [0] },
-    (value) => {
-      const parsed = schema.safeParse(value);
-      return parsed.success && validPath(parsed.data.path, garden) ? parsed.data : null;
-    },
-    (s) => ({
-      completed: s.path.at(-1) === 35 && pathMask(s.path, garden.seeds) === 7,
-      summary: `${s.path.length - 1} moves · optimal ${garden.optimum}`,
-    }),
-  );
+  const { state, dispatch, ready, warning } = useGameSession(trailGame, session);
   const [message, setMessage] = useState("Gather all three seeds before reaching the exit.");
   if (!ready) return <p className="loading">Growing your garden…</p>;
   const current = state.path.at(-1) ?? 0,
@@ -32,7 +21,7 @@ export default function Trail({ session }: { session: Session }) {
       !garden.walls.includes(to) &&
       state.path.length <= 1000
     ) {
-      setState((s) => ({ path: [...s.path, to] }));
+      dispatch({ type: "move", to });
       setMessage(
         to === 35 && mask !== 7
           ? "The exit is here, but some seeds are still in the garden."
@@ -78,48 +67,81 @@ export default function Trail({ session }: { session: Session }) {
             </p>
           </div>
           <div className="board-area">
-            <fieldset
-              className="trail-board"
-              aria-label="Garden board"
-              onKeyDown={(event) => {
-                const delta = { ArrowUp: -6, ArrowDown: 6, ArrowLeft: -1, ArrowRight: 1 }[
-                  event.key
-                ];
-                if (delta !== undefined) {
-                  event.preventDefault();
-                  move(current + delta);
-                }
-              }}
-            >
-              {Array.from({ length: 36 }, (_, i) => {
-                const seedIndex = garden.seeds.indexOf(i),
-                  collected = seedIndex >= 0 && !!(mask & (1 << seedIndex)),
-                  wall = garden.walls.includes(i);
-                return (
-                  <button
-                    type="button"
-                    key={`garden-${i}`}
-                    data-garden-cell={i}
-                    className={`garden-cell ${wall ? "hedge" : ""} ${i === current ? "player" : ""} ${state.path.includes(i) ? "visited" : ""}`}
-                    disabled={wall}
-                    onClick={() => move(i)}
-                    aria-label={`Row ${Math.floor(i / 6) + 1}, column ${(i % 6) + 1}${wall ? ", hedge" : i === current ? ", you are here" : i === 35 ? ", exit" : seedIndex >= 0 ? (collected ? ", seed collected" : ", seed") : ""}`}
-                  >
-                    {wall
+            <PhaserSurface
+              game="trail"
+              picture={{
+                nodes: Array.from({ length: 36 }, (_, i) => {
+                  const seed = garden.seeds.indexOf(i),
+                    wall = garden.walls.includes(i);
+                  return {
+                    id: `trail-${i}`,
+                    text: wall
                       ? "▥"
                       : i === current
                         ? "●"
                         : i === 35
                           ? "⌂"
-                          : seedIndex >= 0 && !collected
+                          : seed >= 0 && !(mask & (1 << seed))
                             ? "✿"
                             : i === 0
                               ? "○"
-                              : ""}
-                  </button>
-                );
-              })}
-            </fieldset>
+                              : "",
+                    fill: wall
+                      ? "--moss-ink"
+                      : i === current
+                        ? "--ink"
+                        : state.path.includes(i)
+                          ? "--moss-path"
+                          : "--panel",
+                    color: wall ? "--moss" : i === current ? "--paper" : "--moss-ink",
+                  };
+                }),
+              }}
+            >
+              <fieldset
+                className="trail-board"
+                aria-label="Garden board"
+                onKeyDown={(event) => {
+                  const delta = { ArrowUp: -6, ArrowDown: 6, ArrowLeft: -1, ArrowRight: 1 }[
+                    event.key
+                  ];
+                  if (delta !== undefined) {
+                    event.preventDefault();
+                    move(current + delta);
+                  }
+                }}
+              >
+                {Array.from({ length: 36 }, (_, i) => {
+                  const seedIndex = garden.seeds.indexOf(i),
+                    collected = seedIndex >= 0 && !!(mask & (1 << seedIndex)),
+                    wall = garden.walls.includes(i);
+                  return (
+                    <button
+                      type="button"
+                      key={`garden-${i}`}
+                      data-garden-cell={i}
+                      data-scene-id={`trail-${i}`}
+                      className={`garden-cell ${wall ? "hedge" : ""} ${i === current ? "player" : ""} ${state.path.includes(i) ? "visited" : ""}`}
+                      disabled={wall}
+                      onClick={() => move(i)}
+                      aria-label={`Row ${Math.floor(i / 6) + 1}, column ${(i % 6) + 1}${wall ? ", hedge" : i === current ? ", you are here" : i === 35 ? ", exit" : seedIndex >= 0 ? (collected ? ", seed collected" : ", seed") : ""}`}
+                    >
+                      {wall
+                        ? "▥"
+                        : i === current
+                          ? "●"
+                          : i === 35
+                            ? "⌂"
+                            : seedIndex >= 0 && !collected
+                              ? "✿"
+                              : i === 0
+                                ? "○"
+                                : ""}
+                    </button>
+                  );
+                })}
+              </fieldset>
+            </PhaserSurface>
             <fieldset className="direction-pad" aria-label="Movement">
               <button type="button" aria-label="Move left" onClick={() => move(current - 1)}>
                 ←
@@ -139,7 +161,7 @@ export default function Trail({ session }: { session: Session }) {
                 type="button"
                 className="button secondary"
                 disabled={state.path.length === 1}
-                onClick={() => setState((s) => ({ path: s.path.slice(0, -1) }))}
+                onClick={() => dispatch({ type: "undo" })}
               >
                 Undo step
               </button>
@@ -147,7 +169,7 @@ export default function Trail({ session }: { session: Session }) {
                 type="button"
                 className="button text"
                 onClick={() => {
-                  setState({ path: [0] });
+                  dispatch({ type: "reset" });
                   setMessage("Back at the entrance. Try a different route.");
                 }}
               >

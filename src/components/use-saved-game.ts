@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Session } from "../games/registry";
-import { makeRecord, readRecords, type SavedRecord, saveRecord } from "../lib/persistence";
+import { makeRecord, readRecord, type SavedRecord, saveRecord } from "../lib/persistence";
 import { api, loadRemote, SyncError } from "../lib/progress-client";
 
 /** One editor per tab lease; server revisions arbitrate devices and retries. */
@@ -137,7 +137,7 @@ export function useSavedGame<T>(
     async function load() {
       let saved: SavedRecord | undefined;
       try {
-        saved = readRecords(localStorage).find((r) => r.id === session.id);
+        saved = readRecord(localStorage, session.id);
       } catch {
         warn("Browser storage is unavailable. Loading server progress.");
       }

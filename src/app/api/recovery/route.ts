@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { profile, readBody, respond, setSession } from "../../../server/http";
+import { requestActor } from "../../../server/admission";
+import { profile, readBody, renewSession, respond, setSession } from "../../../server/http";
 import { getStore, StoreError } from "../../../server/store";
 
 const schema = z.discriminatedUnion("action", [
@@ -11,8 +12,15 @@ export function POST(request: Request) {
     const parsed = schema.safeParse(await readBody(request));
     if (!parsed.success) throw new StoreError(400, "Invalid recovery request.");
     const db = getStore();
-    if (parsed.data.action === "create") return { code: db.recovery(await profile()) };
-    db.limit("profile:recover", 60);
+    if (parsed.data.action === "create") {
+      const code = db.recovery(await profile());
+      await renewSession(request);
+      return { code };
+    }
+    if (!db.hasRecovery(parsed.data.code)) {
+      db.limitInvalidRecovery(requestActor(request));
+      throw new StoreError(400, "Recovery code is invalid or already used.");
+    }
     await setSession(db.recover(parsed.data.code), request);
     return { ok: true };
   });

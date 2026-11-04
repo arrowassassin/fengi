@@ -213,3 +213,55 @@ test("an original browser-only v1 save imports without being reset", async ({ pa
     )
     .toBe(5);
 });
+test("older retained offline saves resume and exports include more than sixty pending records", async ({
+  page,
+  context,
+}) => {
+  await page.addInitScript(() => {
+    if (localStorage.getItem("retention-fixture")) return;
+    for (let i = 0; i < 70; i++) {
+      const id = `pairs:v1:practice:retained-${i}:standard`;
+      localStorage.setItem(
+        `fengi:save:${id}`,
+        JSON.stringify({
+          version: 1,
+          id,
+          game: "pairs",
+          mode: "practice",
+          label: "Practice",
+          updated: i + 1,
+          completed: false,
+          summary: `${i + 5} turns`,
+          state: { matched: [], turns: i + 5 },
+          pending: true,
+          baseRevision: 0,
+          mutationId: crypto.randomUUID(),
+        }),
+      );
+    }
+    localStorage.setItem("retention-fixture", "ready");
+  });
+  await page.goto("/play/pairs?mode=practice&seed=retained-0&version=1");
+  await expect(page.locator(".pair-card")).toHaveCount(16);
+  await expect
+    .poll(async () =>
+      (await context.request.get("/api/progress"))
+        .json()
+        .then((x) => x.saves?.[0]?.record.state.turns),
+    )
+    .toBe(5);
+  await page.goto("/progress");
+  await expect(page.locator(".history-list article")).toHaveCount(60);
+  const downloaded = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export progress", exact: true }).click();
+  const file = await (await downloaded).path();
+  if (!file) throw new Error("Export missing");
+  const { readFile } = await import("node:fs/promises");
+  const exported = JSON.parse(await readFile(file, "utf8"));
+  expect(exported.records).toHaveLength(70);
+  expect(exported.records.filter((r: { pending?: boolean }) => r.pending)).toHaveLength(69);
+  expect(
+    exported.records.find((r: { id: string }) => r.id === "pairs:v1:practice:retained-1:standard")
+      .state.turns,
+  ).toBe(6);
+});

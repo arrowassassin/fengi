@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { requestActor } from "../../../server/admission";
 import { COOKIE, profile, readBody, respond, setSession } from "../../../server/http";
 import { getStore, StoreError } from "../../../server/store";
 export const runtime = "nodejs";
@@ -13,8 +14,8 @@ export function POST(request: Request) {
           401,
           "This profile session expired or was deleted. Restore your profile using a recovery code.",
         );
-      db.limit("profile:create", 120);
-      await setSession(db.create(), request);
+      db.admitCreation(requestActor(request));
+      await setSession(db.create(), request, 1);
     }
     return { ok: true };
   });

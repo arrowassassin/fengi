@@ -25,7 +25,8 @@ export interface StorageLike {
   key?(index: number): string | null;
   removeItem?(key: string): void;
 }
-export function readRecords(storage: StorageLike, limit = 60): SavedRecord[] {
+/** All retained records, including pending edits outside the history display window. */
+export function readAllRecords(storage: StorageLike): SavedRecord[] {
   const individual: SavedRecord[] = [];
   if (storage.key && typeof storage.length === "number") {
     for (let i = 0; i < storage.length; i++) {
@@ -42,7 +43,23 @@ export function readRecords(storage: StorageLike, limit = 60): SavedRecord[] {
     }
   }
   const legacy = readLegacy(storage).filter((r) => !individual.some((s) => s.id === r.id));
-  return [...individual, ...legacy].sort((a, b) => b.updated - a.updated).slice(0, limit);
+  return [...individual, ...legacy].sort((a, b) => b.updated - a.updated);
+}
+export function readRecords(storage: StorageLike, limit = 60): SavedRecord[] {
+  return readAllRecords(storage).slice(0, limit);
+}
+/** Exact lookup must never depend on ordering, age, or the 60-item history window. */
+export function readRecord(storage: StorageLike, id: string): SavedRecord | undefined {
+  const raw = storage.getItem(RECORD_PREFIX + id);
+  if (raw && raw.length <= 32768) {
+    try {
+      const parsed = recordSchema.safeParse(JSON.parse(raw));
+      if (parsed.success && parsed.data.id === id && sessionFromId(id)) return parsed.data;
+    } catch {
+      /* Legacy fallback is still available. */
+    }
+  }
+  return readLegacy(storage).find((record) => record.id === id);
 }
 function readLegacy(storage: StorageLike): SavedRecord[] {
   const raw = storage.getItem(STORAGE_KEY);
@@ -63,9 +80,8 @@ function readLegacy(storage: StorageLike): SavedRecord[] {
 export function saveRecord(storage: StorageLike, record: SavedRecord): void {
   if (storage.key && typeof storage.length === "number") {
     storage.setItem(RECORD_PREFIX + record.id, JSON.stringify(record));
-    for (const old of readRecords(storage, 10000).slice(60)) {
-      if (!old.pending) storage.removeItem?.(RECORD_PREFIX + old.id);
-    }
+    // Never prune another session here: another tab can edit it between read and delete.
+    // The history view is bounded; retained cache is removed only by explicit user action.
     return;
   }
   const records = readRecords(storage).filter((r) => r.id !== record.id);

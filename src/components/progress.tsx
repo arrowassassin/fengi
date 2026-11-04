@@ -1,55 +1,58 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { games, sessionFromId, sessionHref } from "../games/registry";
-import { readRecords, type SavedRecord, saveRecord } from "../lib/persistence";
+import { readAllRecords, type SavedRecord } from "../lib/persistence";
 import { loadRemote } from "../lib/progress-client";
+import { progressView, type RemoteProgress } from "../lib/progress-view";
 import { Recovery } from "./recovery";
 export function Progress() {
   const [records, setRecords] = useState<SavedRecord[]>([]),
     [ready, setReady] = useState(false),
     [error, setError] = useState(false);
+  const remote = useRef<RemoteProgress>({ saves: [], profileId: "" });
+  function exportRecords() {
+    return progressView(readAllRecords(localStorage), remote.current);
+  }
   useEffect(() => {
-    let cancelled = false;
-    async function load() {
+    let cancelled = false,
+      generation = 0;
+    function render() {
+      if (cancelled) return;
       let local: SavedRecord[] = [];
       try {
-        local = readRecords(localStorage);
+        local = readAllRecords(localStorage);
       } catch {
         setError(true);
       }
+      setRecords(progressView(local, remote.current).slice(0, 60));
+    }
+    async function load() {
+      const request = ++generation;
       try {
-        const { saves: remote, profileId } = await loadRemote();
-        const merged = remote.map((item) => {
-          const pending = local.find((r) => r.id === item.record.id && r.pending);
-          const record = pending ?? {
-            ...item.record,
-            baseRevision: item.revision,
-            profileId,
-            pending: false,
-          };
-          try {
-            saveRecord(localStorage, record);
-          } catch {
-            setError(true);
-          }
-          return record;
-        });
-        local = [...merged, ...local.filter((r) => !merged.some((m) => m.id === r.id))];
+        const result = await loadRemote();
+        if (cancelled || request !== generation) return;
+        remote.current = result;
       } catch {
-        setError(true);
+        if (!cancelled && request === generation) setError(true);
       }
-      if (!cancelled) {
-        setRecords(local);
+      if (!cancelled && request === generation) {
+        render();
         setReady(true);
       }
     }
+    // No cache writes: a late server response cannot acknowledge or replace another tab's edits.
+    render();
     void load();
-    const refresh = () => void load();
+    const refresh = () => render(),
+      focus = () => void load();
     window.addEventListener("storage", refresh);
+    window.addEventListener("focus", focus);
     return () => {
       cancelled = true;
+      generation++;
       window.removeEventListener("storage", refresh);
+      window.removeEventListener("focus", focus);
     };
   }, []);
   if (!ready) return <p className="loading">Opening your collection…</p>;
@@ -70,7 +73,7 @@ export function Progress() {
           if browser cookies are cleared.
         </p>
       </div>
-      <Recovery />
+      <Recovery exportRecords={exportRecords} />
       {records.length ? (
         <div className="history-list">
           {records.map((record) => (

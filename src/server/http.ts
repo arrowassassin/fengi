@@ -19,14 +19,14 @@ export async function profile() {
   getStore().limit(`profile:${id}`, 300);
   return id;
 }
-export async function setSession(secret: string, request: Request) {
+export async function setSession(secret: string, request: Request, days = 180) {
   const origin = publicOrigin(request);
   (await cookies()).set(COOKIE, secret, {
     httpOnly: true,
     sameSite: "strict",
     secure: origin.startsWith("https:"),
     path: "/",
-    maxAge: 180 * 86400,
+    maxAge: days * 86400,
   });
 }
 export async function readBody(request: Request): Promise<unknown> {
@@ -93,4 +93,9 @@ export async function respond(route: string, run: () => Promise<unknown>): Promi
       ...(status === 429 ? { "Retry-After": "60" } : {}),
     },
   });
+}
+
+export async function renewSession(request: Request) {
+  const secret = (await cookies()).get(COOKIE)?.value;
+  if (secret) await setSession(secret, request);
 }

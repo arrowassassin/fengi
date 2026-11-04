@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { profile, readBody, respond } from "../../../server/http";
+import { profile, readBody, renewSession, respond } from "../../../server/http";
 import { getStore, StoreError } from "../../../server/store";
 import { validateSave } from "../../../server/validate-save";
 export const runtime = "nodejs";
@@ -35,6 +35,8 @@ export function PUT(request: Request) {
     } catch {
       throw new StoreError(422, "Save does not match this game edition.");
     }
-    return getStore().save(id, record, parsed.data.expectedRevision, parsed.data.mutationId);
+    const saved = getStore().save(id, record, parsed.data.expectedRevision, parsed.data.mutationId);
+    await renewSession(request);
+    return saved;
   });
 }

@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
-import { clearRecords, readRecords } from "../lib/persistence";
+import { clearRecords, type SavedRecord } from "../lib/persistence";
 import { api, downloadRecords } from "../lib/progress-client";
-export function Recovery() {
+export function Recovery({ exportRecords }: { exportRecords: () => SavedRecord[] }) {
   const [code, setCode] = useState(""),
     [input, setInput] = useState(""),
     [message, setMessage] = useState(""),
@@ -25,10 +25,10 @@ export function Recovery() {
     <section className="prose">
       <h2>Keep your progress safe.</h2>
       <p>
-        Your last 60 sessions are saved on this server and cached in your browser. A recovery code
-        opens your profile on another browser if cookies are lost. Keep it private: anyone with the
-        code can access your progress. Each code works once; generating a new one replaces the
-        previous code.
+        Your last 60 sessions are saved on this server. Pending browser edits are kept until
+        synchronized; exports include all retained pending edits. A recovery code opens your profile
+        on another browser if cookies are lost. Keep it private: anyone with the code can access
+        your progress. Each code works once; generating a new one replaces the previous code.
       </p>
       <div className="actions">
         <button
@@ -47,7 +47,7 @@ export function Recovery() {
         <button
           type="button"
           className="button secondary"
-          onClick={() => void run(async () => downloadRecords(readRecords(localStorage)))}
+          onClick={() => void run(async () => downloadRecords(exportRecords()))}
         >
           Export progress
         </button>

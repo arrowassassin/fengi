@@ -1612,3 +1612,65 @@ fieldset.trail-board {
     padding: 7px;
   }
 }
+
+/* Phaser paints the board; native controls retain their measured layout and focus rings. */
+.phaser-surface {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+}
+.phaser-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.phaser-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.engine-semantic {
+  position: relative;
+  z-index: 1;
+}
+.phaser-surface.engine-ready [data-scene-id],
+.phaser-surface.engine-ready [data-scene-id] span,
+.phaser-surface.engine-ready [data-scene-id]::after {
+  color: transparent;
+  background: transparent;
+  background-image: none;
+  border-color: transparent;
+  box-shadow: none;
+  text-shadow: none;
+}
+.engine-ready .pair-card {
+  transform: none;
+  transition: none;
+}
+.engine-ready .orbit-stage {
+  background: transparent;
+}
+.engine-ready .orbit-stage svg {
+  opacity: 0;
+}
+.word-rounds {
+  display: flex;
+  list-style: none;
+  gap: 12px;
+  margin: 22px 0;
+  padding: 0;
+}
+.word-rounds li {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: var(--panel);
+  font-size: 18px;
+}
+
+.engine-ready .trail-board {
+  background: transparent;
+}
