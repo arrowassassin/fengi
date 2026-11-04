@@ -28,6 +28,8 @@ jobs:
       - run: npm run test:e2e
       - run: npm run db:backup -- /tmp/fengi-ci-backup.sqlite
       - run: npm run db:verify -- /tmp/fengi-ci-backup.sqlite
+      - run: npm run db:restore -- /tmp/fengi-ci-backup.sqlite /tmp/fengi-ci-restored
+      - run: cp /tmp/fengi-ci-backup.sqlite/complete.json /tmp/fengi-ci-restored/complete.json && npm run db:verify -- /tmp/fengi-ci-restored
       - run: npm run db:cleanup
       - name: Retain failure traces
         if: failure()

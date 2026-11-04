@@ -1,15 +1,10 @@
-import { resolve } from "node:path";
-import Database from "better-sqlite3";
-import { DATABASE_VERSION } from "../src/server/store";
+import { readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { verifyBundle } from "../src/server/backup";
 
-if (!process.argv[2]) throw new Error("Usage: npm run db:verify -- /path/to/backup.sqlite");
-const db = new Database(resolve(process.argv[2]), { readonly: true, fileMustExist: true });
-try {
-  const result = db.pragma("integrity_check", { simple: true });
-  if (result !== "ok") throw new Error("Backup integrity check failed");
-  if (db.pragma("user_version", { simple: true }) !== DATABASE_VERSION)
-    throw new Error("Unsupported schema");
-  console.log("Backup integrity and schema verified.");
-} finally {
-  db.close();
-}
+if (!process.argv[2]) throw new Error("Provide a backup bundle directory");
+const directory = resolve(process.argv[2]);
+if (JSON.parse(readFileSync(join(directory, "complete.json"), "utf8")).version !== 1)
+  throw new Error("Incomplete or unsupported backup");
+verifyBundle(directory);
+console.log("Both database snapshots, editorial digests and schemas verified.");
