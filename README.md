@@ -90,8 +90,8 @@ Progress is saved to `.data/fengi.sqlite` and cached locally. The production sta
 Your progress includes one-time recovery codes, profile deletion and a JSON export. Recovery codes grant profile access: keep them private. Same-game browser tabs have one editor; server revisions reject stale device writes and provide an explicit conflict flow. Unsynced local records are retained for recovery. Old browser-only v1 saves load on their original engine and import when played.
 
 ```bash
-npm run db:backup -- /absolute/backup/path/fengi.sqlite
-npm run db:verify -- /absolute/backup/path/fengi.sqlite
+npm run db:backup -- /absolute/backup/path/new-bundle
+npm run db:verify -- /absolute/backup/path/new-bundle
 npm run db:cleanup # dry run; -- --apply removes only eligible empty provisional profiles
 ```
 

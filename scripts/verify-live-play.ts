@@ -20,7 +20,7 @@ try {
   const captureDir = "/workspace/fengi-live-ai-captures";
   await mkdir(captureDir, { recursive: true });
   const editions = [];
-  for (let attempt = 1; attempt <= 1; attempt++) {
+  for (let attempt = 1; attempt <= 2; attempt++) {
     const start = Date.now(),
       draft = await draftContent(`live-browser-${attempt}`, process.env, undefined, true, true);
     if (draft.source !== "nvidia" || draft.reason !== "generated") {
@@ -33,7 +33,8 @@ try {
           stage: "generation",
         }),
       );
-      throw new Error("Live generation failed");
+      if (attempt === 2) throw new Error("Live generation failed");
+      continue;
     }
     const edition = store.create(
       draft,
@@ -58,6 +59,7 @@ try {
         externalPublication: false,
       }),
     );
+    break;
   }
   const origin = "http://127.0.0.1:3187";
   server = spawn(process.execPath, ["scripts/start.mjs"], {
