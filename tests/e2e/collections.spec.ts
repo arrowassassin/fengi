@@ -50,10 +50,13 @@ test("mushroom identity is responsive, keyboard reachable and visually stable", 
   await expect(page.getByRole("link", { name: "Skip to content" })).toBeFocused();
   await expect(page.locator(".collection-promo")).toHaveScreenshot("mushroom-collection.png", {
     animations: "disabled",
+    // Permit minor platform font rasterization differences, not layout changes.
+    maxDiffPixelRatio: 0.001,
   });
   await page.getByRole("button", { name: "Use dark theme" }).click();
   await expect(page.locator(".collection-promo")).toHaveScreenshot("mushroom-collection-dark.png", {
     animations: "disabled",
+    maxDiffPixelRatio: 0.001,
   });
   expect(
     (await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze())

@@ -88,7 +88,10 @@ export default function Home() {
             and absolutely no rush.
           </p>
           <Link className="button secondary" href="/collections">
-            Meet the collections <span aria-hidden="true">↗</span>
+            Meet the collections
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M4 12 12 4M4 4h8v8" stroke="currentColor" strokeWidth="1.5" />
+            </svg>
           </Link>
         </div>
       </section>
