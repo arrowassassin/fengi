@@ -31,10 +31,69 @@ describe("private content pipeline", () => {
         model: "configured-runtime-model",
         configuration: { baseURL: "https://integrate.api.nvidia.com/v1" },
         useResponsesApi: false,
+        maxTokens: 4096,
+        streaming: true,
+        modelKwargs: { reasoning_effort: "low" },
+        timeout: 60000,
+        maxRetries: 1,
       }),
     );
     expect(result.source).toBe("nvidia");
     expect(result.reason).toBe("generated");
+  });
+  it("uses a bounded total deadline and supports explicit high reasoning", async () => {
+    const deadline = vi.spyOn(AbortSignal, "timeout");
+    provider.invoke.mockRejectedValueOnce(new Error("private provider failure"));
+    try {
+      const result = await draftContent("s", {
+        NVIDIA_API_KEY: "test-only",
+        NVIDIA_MODEL: "configured-test-model",
+        NVIDIA_REASONING_EFFORT: "high",
+      });
+      expect(provider.options).toHaveBeenLastCalledWith(
+        expect.objectContaining({ modelKwargs: { reasoning_effort: "high" } }),
+      );
+      expect(deadline).toHaveBeenCalledWith(90000);
+      expect(provider.invoke).toHaveBeenLastCalledWith(
+        expect.any(String),
+        expect.objectContaining({ signal: expect.any(AbortSignal) }),
+      );
+      expect(result.source).toBe("deterministic");
+      expect(JSON.stringify(result)).not.toContain("private provider failure");
+    } finally {
+      deadline.mockRestore();
+    }
+  });
+  it("rejects unsupported reasoning configuration before calling the provider", async () => {
+    const calls = provider.invoke.mock.calls.length;
+    const result = await draftContent("s", {
+      NVIDIA_API_KEY: "test-only",
+      NVIDIA_MODEL: "configured-test-model",
+      NVIDIA_REASONING_EFFORT: "unsupported",
+    });
+    expect(result.reason).toBe("provider-or-validation-failure");
+    expect(provider.invoke.mock.calls).toHaveLength(calls);
+  });
+  it.each([
+    { content: null, response_metadata: { finish_reason: "length" } },
+    { content: "", response_metadata: { finish_reason: "length" } },
+    { content: '{"title":', response_metadata: { finish_reason: "length" } },
+    {
+      content: JSON.stringify({
+        title: "Small wonders",
+        description: "Three familiar little worlds.",
+        categoryIds: ["planets", "chess", "si"],
+      }),
+      response_metadata: { finish_reason: "length" },
+    },
+  ])("rejects length-truncated output even when it looks like valid JSON", async (response) => {
+    provider.invoke.mockResolvedValueOnce(response);
+    const result = await draftContent("s", {
+      NVIDIA_API_KEY: "test-only",
+      NVIDIA_MODEL: "configured-test-model",
+    });
+    expect(result.source).toBe("deterministic");
+    expect(result.reason).toBe("provider-or-validation-failure");
   });
   it("runs without a key and without invoking a model", async () => {
     const invoke = vi.fn();
@@ -80,6 +139,25 @@ describe("private content pipeline", () => {
     expect(result.source).toBe("nvidia");
     expect(result.status).toBe("review-required");
     expect(result.categories[0].answers[0].word).toBe("Earth");
+  });
+  it("accepts a single JSON code fence and still validates its contents", async () => {
+    const env = { NVIDIA_API_KEY: "test-only", NVIDIA_MODEL: "configured-test-model" };
+    const draft = {
+      title: "Small wonders",
+      description: "Three familiar little worlds.",
+      categoryIds: ["planets", "chess", "si"],
+    };
+    for (const fence of ["```json", "```JSON", "```"]) {
+      const output = `${fence}\n${JSON.stringify(draft)}\n\x60\x60\x60`;
+      expect((await draftContent("s", env, { invoke: async () => output })).source).toBe("nvidia");
+      expect(
+        (await draftContent("s", env, { invoke: async () => `Here you go: ${output}` })).source,
+      ).toBe("deterministic");
+    }
+    const unsafe = `\x60\x60\x60json\n${JSON.stringify({ ...draft, points: 999 })}\n\x60\x60\x60`;
+    expect((await draftContent("s", env, { invoke: async () => unsafe })).source).toBe(
+      "deterministic",
+    );
   });
   it.each([
     "not json",

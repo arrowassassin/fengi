@@ -38,20 +38,26 @@ export function validateDraft(value: unknown) {
     ),
   };
 }
-function modelFor(key: string, model: string): DraftModel {
+function modelFor(key: string, model: string, reasoningEffort = "low"): DraftModel {
+  if (!["none", "low", "medium", "high"].includes(reasoningEffort))
+    throw new Error("Unsupported reasoning mode");
   const client = new ChatOpenAI({
     apiKey: key,
     model,
     temperature: 0.4,
-    maxTokens: 500,
-    timeout: 15000,
+    maxTokens: 4096,
+    streaming: true,
+    modelKwargs: { reasoning_effort: reasoningEffort },
+    timeout: 60000,
     maxRetries: 1,
     useResponsesApi: false,
     configuration: { baseURL: "https://integrate.api.nvidia.com/v1" },
   });
   return {
     async invoke(prompt) {
-      const response = await client.invoke(prompt, { signal: AbortSignal.timeout(20000) });
+      const response = await client.invoke(prompt, { signal: AbortSignal.timeout(90000) });
+      if (response.response_metadata?.finish_reason === "length")
+        throw new Error("Incomplete response");
       if (typeof response.content !== "string") throw new Error("Expected text response");
       return response.content;
     },
@@ -77,12 +83,16 @@ export async function draftContent(
   const modelName = env.NVIDIA_MODEL?.trim();
   if (!modelName) return fallback("missing-model");
   try {
-    const model = injected ?? modelFor(env.NVIDIA_API_KEY, modelName);
+    const model =
+      injected ??
+      modelFor(env.NVIDIA_API_KEY, modelName, env.NVIDIA_REASONING_EFFORT?.trim() || "low");
     const output = await model.invoke(
       `Create an editorial draft for a friendly word game. Return only a JSON object with title (3-80 characters), description (5-240 characters), categoryIds (exactly three distinct IDs from this list): ${categories.map((c) => c.id).join(", ")}. Do not invent facts, answers, scores or IDs. Make the language welcoming and never claim player rarity.`,
     );
     if (output.length > 8000) throw new Error("Oversized response");
-    const validated = validateDraft(JSON.parse(output));
+    // Accept one JSON code fence, but never extract JSON from surrounding prose.
+    const json = output.trim().replace(/^```(?:json)?\s*\n([\s\S]*?)\n```$/i, "$1");
+    const validated = validateDraft(JSON.parse(json));
     return {
       source: "nvidia",
       status: "review-required",
