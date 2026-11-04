@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import type { Session } from "../games/registry";
+import { type Session, sessionHref } from "../games/registry";
 export function SaveNotice({ warning }: { warning: string }) {
   return warning ? (
     <p className="notice" role="status">
@@ -28,7 +28,7 @@ export function Result({
   useEffect(() => {
     heading.current?.focus();
   }, []);
-  const text = `Fengi · ${title} · ${session.label}${session.calm ? " · Calm" : ""}\n${summary}\n${typeof window !== "undefined" ? window.location.href : ""}`;
+  const text = `Fengi · ${title} · ${session.label}${session.calm ? " · Calm" : ""}\n${summary}\n${typeof window !== "undefined" ? window.location.origin + sessionHref(session) : ""}`;
   async function share() {
     try {
       await navigator.clipboard.writeText(text);

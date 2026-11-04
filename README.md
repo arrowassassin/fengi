@@ -1,6 +1,6 @@
 # Fengi
 
-Five instant-play browser games with shared daily editions, seeded practice, a seven-day archive and per-device progress. Built with Next.js, React and strict TypeScript. Gameplay works without an account, database or NVIDIA key.
+Five instant-play browser games with shared daily editions, seeded practice, a seven-day archive and recoverable progress. Built with Next.js, React and strict TypeScript. Gameplay works without an external account or NVIDIA key. SQLite stores anonymous profiles and progress on the server; browser caching covers temporary interruptions.
 
 - **Signal Grid:** solver-verified, uniquely solvable circle/cross grids.
 - **Orbit Tap:** fixed-step arcade with reversal, pulsing gates, three lives, pause/resume and calm practice.
@@ -55,20 +55,29 @@ LangChain `ChatOpenAI` connects to NVIDIA’s documented Chat Completions endpoi
 ```text
 src/app/                  App Router routes, metadata, global styles, health endpoint
 src/components/           Product shell, shared results, save lifecycle, navigation
-src/games/<game>/engine.ts Pure deterministic rules and generators
-src/games/<game>/view.tsx  Accessible interactive React game
+src/games/<game>/v1/       Retained v1 rules, content and views
+src/games/releases/        Versioned save validators and frozen random generator
 src/games/registry.ts      Game metadata and versioned session identities
-src/lib/persistence.ts    Bounded, validated local storage records
-src/server/               Private LangChain adapter and content validation
+src/lib/persistence.ts    Validated browser cache and legacy save import
+src/server/               SQLite store, API security, save validation, private LangChain
 scripts/                  Offline operator tools
- tests/unit/              Engine, content and persistence tests
- tests/e2e/               Real gameplay, reload, mobile and failure-flow tests
+tests/unit/              Engine, content and persistence tests
+tests/e2e/               Real gameplay, reload, mobile and failure-flow tests
 ```
 
 See [the implementation plan](docs/FENGI-PLAN.md) for product decisions, verified stable versions and scale-up boundaries; [operations](docs/OPERATIONS.md) for deployment preparation, content versioning, recovery and remaining production work.
 
 ## Scope and data
 
-Progress stays in this browser (up to 60 recent sessions). Reload restores game state; no cloud sync, accounts or global rankings are claimed. Local scores are not tamper-resistant. The app has no analytics scripts. Newly opened routes still need the server; a service worker/offline cache is not implemented. Odd Answer reshuffles a finite eight-category catalogue; its content is not infinite.
+Progress is saved to `.data/fengi.sqlite` and cached locally. The production startup script keeps that path outside the generated build. Use a persistent local volume; an ephemeral/serverless filesystem will lose data. `FENGI_DATABASE_PATH` can select an absolute path; set `FENGI_ORIGIN` to the exact public HTTPS origin behind a reverse proxy. These have local defaults and need no external credentials.
+
+Your progress includes one-time recovery codes, profile deletion and a JSON export. Recovery codes grant profile access: keep them private. Same-game browser tabs have one editor; server revisions reject stale device writes and provide an explicit conflict flow. Unsynced local records are retained for recovery. Old browser-only v1 saves load on their original engine and import when played.
+
+```bash
+npm run db:backup -- /absolute/backup/path/fengi.sqlite
+npm run db:verify -- /absolute/backup/path/fengi.sqlite
+```
+
+See the operational restore procedure before restoring a database. This is a single-node SQLite deployment, not a horizontally distributed persistence service. Anonymous scores remain untrusted for rankings. New route loads need the server; there is no service worker. Odd Answer still has a finite eight-category v1 catalogue.
 
 The original Alchemy Arena app remains untouched in `game/`, with historical designs in `design/` and `docs/`. It is not the new product entry point. The legacy GitHub Pages workflow is manual-only; the new server app is not a static Pages export. Nothing is deployed automatically by this change.

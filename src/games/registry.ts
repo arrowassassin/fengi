@@ -66,13 +66,32 @@ export function validDate(value: string): boolean {
 }
 export type Session = {
   game: GameId;
+  rulesVersion: number;
   mode: "daily" | "practice";
   seed: string;
   id: string;
   label: string;
   calm: boolean;
 };
-export function sessionFor(game: GameId, params: URLSearchParams, today = utcDate()): Session {
+export type Release = { version: number; from: string };
+export type GameRelease = { id: GameId; version: number; releases: readonly Release[] };
+// Add a new release and activation date when rules/content change. Never repoint v1 engines.
+export const gameReleases: readonly GameRelease[] = games.map((game) => ({
+  id: game.id,
+  version: game.version,
+  releases: [{ version: 1, from: "0000-01-01" }],
+}));
+export function supportsVersion(game: GameId, version: number) {
+  return (
+    gameReleases.find((g) => g.id === game)?.releases.some((r) => r.version === version) ?? false
+  );
+}
+export function sessionFor(
+  game: GameId,
+  params: URLSearchParams,
+  today = utcDate(),
+  registry: readonly GameRelease[] = gameReleases,
+): Session {
   const mode = params.get("mode") === "practice" ? "practice" : "daily";
   const date = params.get("date") ?? today;
   const safeDate = validDate(date) && date <= today ? date : today;
@@ -80,12 +99,56 @@ export function sessionFor(game: GameId, params: URLSearchParams, today = utcDat
   const seed =
     mode === "daily" ? safeDate : /^[a-zA-Z0-9-]{1,48}$/.test(provided) ? provided : "first-light";
   const calm = game === "orbit" && mode === "practice" && params.get("pace") === "calm";
+  const entry = registry.find((g) => g.id === game);
+  if (!entry) throw new Error("Unregistered game");
+  const requested = params.get("version");
+  const active =
+    mode === "daily"
+      ? [...entry.releases]
+          .sort((a, b) => b.from.localeCompare(a.from))
+          .find((r) => r.from <= safeDate)?.version
+      : entry.version;
+  const rulesVersion =
+    requested === null
+      ? (active ?? entry.version)
+      : /^[1-9][0-9]{0,3}$/.test(requested)
+        ? Number(requested)
+        : 0;
   return {
     game,
+    rulesVersion,
     mode,
     seed,
     calm,
-    id: `${game}:v1:${mode}:${seed}:${calm ? "calm" : "standard"}`,
+    id: `${game}:v${rulesVersion}:${mode}:${seed}:${calm ? "calm" : "standard"}`,
     label: mode === "daily" ? safeDate : "Practice",
   };
+}
+
+export function sessionFromId(id: string): Session | null {
+  const match =
+    /^([a-z]+):v([1-9][0-9]{0,3}):(daily|practice):([a-zA-Z0-9-]{1,48}):(calm|standard)$/.exec(id);
+  if (!match || !isGameId(match[1])) return null;
+  const [, game, version, mode, seed, pace] = match;
+  if (mode === "daily" && (!validDate(seed) || seed > utcDate())) return null;
+  if (pace === "calm" && (game !== "orbit" || mode !== "practice")) return null;
+  return {
+    game: game as GameId,
+    rulesVersion: Number(version),
+    mode: mode as Session["mode"],
+    seed,
+    calm: pace === "calm",
+    id,
+    label: mode === "daily" ? seed : "Practice",
+  };
+}
+export function sessionHref(session: Session): string {
+  const query = new URLSearchParams({ version: String(session.rulesVersion) });
+  if (session.mode === "daily") query.set("date", session.seed);
+  else {
+    query.set("mode", "practice");
+    query.set("seed", session.seed);
+  }
+  if (session.calm) query.set("pace", "calm");
+  return `/play/${session.game}?${query}`;
 }

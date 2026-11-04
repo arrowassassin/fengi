@@ -26,6 +26,8 @@ jobs:
       - run: npm run build
       - run: npx playwright install chromium --with-deps
       - run: npm run test:e2e
+      - run: npm run db:backup -- /tmp/fengi-ci-backup.sqlite
+      - run: npm run db:verify -- /tmp/fengi-ci-backup.sqlite
       - name: Retain failure traces
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

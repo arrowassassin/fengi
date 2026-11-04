@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GameHost } from "../../../components/game-host";
-import { games, isGameId, sessionFor } from "../../../games/registry";
+import { games, isGameId, sessionFor, supportsVersion } from "../../../games/registry";
 export const dynamic = "force-dynamic";
 type Props = {
   params: Promise<{ game: string }>;
@@ -20,6 +20,16 @@ export default async function Play({ params, searchParams }: Props) {
     if (typeof value === "string") query.set(key, value);
   const session = sessionFor(game, query),
     info = games.find((g) => g.id === game);
+  if (!supportsVersion(game, session.rulesVersion))
+    return (
+      <section>
+        <h1>This edition is unavailable.</h1>
+        <p>
+          Your saved progress has not been changed. This rule version cannot run on this server.
+        </p>
+        <Link href="/progress">Back to your progress</Link>
+      </section>
+    );
   return (
     <section className={`game-page tone-${info?.color}`}>
       <div className="play-header">

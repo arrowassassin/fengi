@@ -13,12 +13,16 @@ export default function About() {
         shared by date in UTC. Practice uses separate seeds. There are no accounts, ads, paid
         advantages or global leaderboards in this version.
       </p>
-      <h2>Your progress stays here.</h2>
+      <h2>Your progress, with recovery.</h2>
       <p>
-        Game progress and your theme preference are stored in this browser’s local storage. The app
-        includes no analytics scripts or advertising trackers. Clearing browser data removes your
-        records; private browsing or storage restrictions may prevent saves. Hosting infrastructure
-        may keep ordinary request logs. Nothing syncs between devices.
+        Game progress is cached in this browser and saved on this server under an anonymous profile.
+        An HttpOnly session cookie gives access for up to 180 days. No email is required. Keep a
+        one-time recovery code from Your progress to restore access on another browser. The server
+        stores hashed credentials and up to 60 recent sessions, including your submitted game
+        answers. You can export your history or delete your profile from Your progress. Clearing
+        cookies alone does not delete server data. There are no analytics scripts or advertising
+        trackers. Operational logs record request IDs, status and duration, without game answers or
+        credentials.
       </p>
       <h2>Honest rules, explained scores.</h2>
       <p>

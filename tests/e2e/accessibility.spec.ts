@@ -50,6 +50,7 @@ test("health, unknown route and reduced-motion preference", async ({ page, reque
   const health = await request.get("/api/health");
   expect(health.status()).toBe(200);
   expect((await health.json()).status).toBe("ok");
+  expect((await health.json()).persistence).toBe("ready");
   expect(health.headers()["cache-control"]).toBe("no-store");
   await page.goto("/play/not-a-game");
   await expect(page.getByRole("heading", { name: "A little off the path." })).toBeVisible();

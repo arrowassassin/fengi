@@ -1,27 +1,63 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { games } from "../games/registry";
-import { readRecords, type SavedRecord } from "../lib/persistence";
+import { games, sessionFromId, sessionHref } from "../games/registry";
+import { readRecords, type SavedRecord, saveRecord } from "../lib/persistence";
+import { loadRemote } from "../lib/progress-client";
+import { Recovery } from "./recovery";
 export function Progress() {
   const [records, setRecords] = useState<SavedRecord[]>([]),
     [ready, setReady] = useState(false),
     [error, setError] = useState(false);
   useEffect(() => {
-    try {
-      setRecords(readRecords(localStorage));
-    } catch {
-      setError(true);
+    let cancelled = false;
+    async function load() {
+      let local: SavedRecord[] = [];
+      try {
+        local = readRecords(localStorage);
+      } catch {
+        setError(true);
+      }
+      try {
+        const { saves: remote, profileId } = await loadRemote();
+        const merged = remote.map((item) => {
+          const pending = local.find((r) => r.id === item.record.id && r.pending);
+          const record = pending ?? {
+            ...item.record,
+            baseRevision: item.revision,
+            profileId,
+            pending: false,
+          };
+          try {
+            saveRecord(localStorage, record);
+          } catch {
+            setError(true);
+          }
+          return record;
+        });
+        local = [...merged, ...local.filter((r) => !merged.some((m) => m.id === r.id))];
+      } catch {
+        setError(true);
+      }
+      if (!cancelled) {
+        setRecords(local);
+        setReady(true);
+      }
     }
-    setReady(true);
+    void load();
+    const refresh = () => void load();
+    window.addEventListener("storage", refresh);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("storage", refresh);
+    };
   }, []);
   if (!ready) return <p className="loading">Opening your collection…</p>;
   return (
     <>
       {error && (
         <p className="notice" role="status">
-          Storage is unavailable in this browser. Your games still work, but progress cannot be
-          kept.
+          Some progress could not be loaded or cached. Your available records are shown below.
         </p>
       )}
       <div className="progress-overview">
@@ -30,10 +66,11 @@ export function Progress() {
           <span>completed rounds in your recent history</span>
         </div>
         <p>
-          Up to 60 recent sessions stay on this device. Clearing browser data removes them. No cloud
-          sync is enabled.
+          Up to 60 recent sessions are saved on this server. Keep a recovery code to restore access
+          if browser cookies are cleared.
         </p>
       </div>
+      <Recovery />
       {records.length ? (
         <div className="history-list">
           {records.map((record) => (
@@ -45,10 +82,7 @@ export function Progress() {
                 <h2>{games.find((g) => g.id === record.game)?.name}</h2>
                 <p>{record.completed ? record.summary : "In progress · ready when you are"}</p>
               </div>
-              <Link
-                className="button secondary"
-                href={`/play/${record.game}?${record.mode === "daily" ? `date=${encodeURIComponent(record.id.split(":")[3] ?? "")}` : `mode=practice&seed=${encodeURIComponent(record.id.split(":")[3] ?? "")}`}${record.id.endsWith(":calm") ? "&pace=calm" : ""}`}
-              >
+              <Link className="button secondary" href={resumeHref(record.id)}>
                 {record.completed ? "View result" : "Continue"} →
               </Link>
             </article>
@@ -66,4 +100,9 @@ export function Progress() {
       )}
     </>
   );
+}
+
+function resumeHref(id: string) {
+  const session = sessionFromId(id);
+  return session ? sessionHref(session) : "/progress";
 }

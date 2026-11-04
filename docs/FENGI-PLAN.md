@@ -23,7 +23,7 @@ The existing Alchemy Arena source in `game/`, its design assets and infrastructu
 - Results: actual performance, an explanation of scoring, optional text sharing, “Done for now” and a deliberate practice invitation. Returning to the daily edition restores the result.
 - Practice: all five games and a new locally generated seed; Orbit’s calm mode is labeled and isolated. Unlimited seeds do not imply an infinite curated word catalogue.
 - Archive: last seven UTC editions with direct links. Active session identity remains fixed across midnight; the home page shows the next edition on a fresh visit.
-- Progress: per-device completion history, no implied global leaderboard or cloud sync. Storage failure is visible; malformed or outdated data is ignored safely. Keep bounded recent sessions.
+- Progress: server-backed anonymous history, one-time recovery, export and profile deletion. Keep a local cache for interruptions; show conflicts and preserve unsynced saves. No global leaderboard.
 - Visual language: warm paper, ink typography, saturated cobalt for logic, coral for arcade, lilac for words, moss for routes and rose for memory. Serif display type, readable system UI text, consistent spacing/radii, game-specific geometric art. No external font dependency.
 - Motion: short tile/feedback transitions and actual arcade motion; honor reduced motion for decorative effects. Pause arcade when the tab hides or the component leaves. Avoid fixed viewport shells and horizontal overflow at 320px.
 
@@ -37,9 +37,15 @@ Sources checked: [Next installation](https://nextjs.org/docs/app/getting-started
 
 ### Persistence and trust
 
-Browser-local versioned snapshots provide guest resume without a database or account service. Validate snapshots against schemas and game invariants, cap history, catch quota/security failures, and preserve session keys across reloads. Local results are not trusted competitive scores. Do not promise offline navigation until a service-worker/cache strategy is implemented. Existing loaded deterministic games do not need an AI service.
+Server-side SQLite provides durable anonymous profiles and up to 60 sessions per profile. `better-sqlite3` 13.0.3 (Node >=22) and its types 9.6.0 were verified as stable published releases using official npm metadata. [Driver API](https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md) supports transactions and online backup. Node 26's [built-in SQLite documentation](https://nodejs.org/docs/latest-v26.x/api/sqlite.html) labels that API a release candidate, so it was not selected. Cookie behavior follows [Next's official cookies API](https://nextjs.org/docs/app/api-reference/functions/cookies).
 
-Scale later through an explicit data adapter: PostgreSQL for accounts, published editions and cross-device progress; object storage/CDN for immutable content; background jobs and a durable queue for content generation; shared rate limits if a public AI endpoint is ever added. Do not introduce these operational dependencies before they are needed. A standalone Node server is the supported build output, not a static GitHub Pages export.
+Use WAL, FULL synchronous writes, transactional compare-and-swap revisions and idempotent mutation IDs. Anonymous sessions and one-time recovery codes are random 256-bit capabilities; only their hashes are stored. HttpOnly/SameSite cookies, exact-origin mutations, bounded bodies, per-profile request budgets and per-game state validation protect the API. Server summaries and completion flags are recomputed. This is not authoritative anti-cheat: clients still generate gameplay.
+
+One Web Lock per game session prevents multiple same-browser editors. The server resolves cross-device races by rejecting stale revisions, never last-writer-wins. Preserve the local unsynced copy and ask the player to download it or load the server copy. If Web Locks are unavailable, server revision checks remain the final guard. A profile ID binds writes to the profile loaded by the editor, preventing another tab's recovery action from redirecting old writes into the newly selected profile.
+
+Rule identity uses registered current versions plus activation-date history. Retain `src/games/<game>/v1/`, v1 validators and the frozen v1 PRNG when introducing v2. Add a v2 engine/view/validator, activate it in the registry, and add upgrade fixtures. Resume URLs include the saved version; old v1 IDs are unchanged. Unknown or retired versions show an unavailable edition and leave data untouched. Save-envelope schema version is separate from rule version. Do not silently migrate a puzzle state into different rules.
+
+The initial operating target is one Node server and a persistent local SQLite volume. For horizontal/multi-region operation, migrate the store contract to PostgreSQL and run concurrency, rollback and backup drills before adding replicas. No managed database, paid service or external credential was provisioned. The operational guide defines backup/restore, origin configuration, health and log signals, and remaining release gates.
 
 ### AI content authoring
 
@@ -52,7 +58,7 @@ AI output is untrusted: parse JSON with Zod, reject unknown/duplicate category I
 1. Foundation: stable dependencies, routes, registry, tokens, schema-validated persistence, complete Signal Grid daily/practice/result flow.
 2. Arcade + words: fixed-step simulation, pause/resume and calm mode; bounded category validation, skips, results and clear scoring.
 3. Routes + memory: BFS-backed solvability/optimality and turn-based matching with interruption recovery.
-4. Product shell: home, archive, practice, per-device progress, error/not-found handling, sharing and mobile layouts.
+4. Product shell: home, archive, practice, recoverable server progress, error/not-found handling, sharing and mobile layouts.
 5. Private content workflow: LangChain adapter, schema validation, fallback and redacted failure behavior.
 6. Quality: unit tests for determinism, invariants, generation, judging, persistence and AI failure; browser tests on desktop/mobile for navigation, real completion, reload, tab interruption, keyboard controls and corrupt/blocked storage; lint, typecheck and production build.
 7. Review handoff: inspect the final diff, commit only intentional source changes, push the feature branch, open a draft PR, verify remote HEAD and report CI outcomes. Never merge or deploy. Convert the old automatic Pages workflow to manual-only so a future root merge cannot silently publish the unrelated legacy app.
