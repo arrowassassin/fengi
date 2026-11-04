@@ -1,10 +1,14 @@
 import { createHash } from "node:crypto";
 import { join } from "node:path";
 import Database from "better-sqlite3";
+import { gardenState } from "../games/garden-state";
+import { sessionFromId } from "../games/registry";
 import { validateDraft } from "./content-draft";
 import { seedForCategories } from "./editorial";
 import { DATABASE_VERSION } from "./store";
 export function verifyBundle(directory: string) {
+  const references: { id: string; state: unknown }[] = [];
+  const layouts = new Map<string, unknown>();
   for (const name of ["progress", "editorial"]) {
     const db = new Database(join(directory, `${name}.sqlite`), {
       readonly: true,
@@ -20,6 +24,18 @@ export function verifyBundle(directory: string) {
       if (name === "progress") {
         for (const table of ["profiles", "sessions", "saves", "rate_limits", "settings"])
           db.prepare(`SELECT * FROM ${table} LIMIT 0`).all();
+        for (const row of db.prepare("SELECT id,body FROM saves").all() as {
+          id: string;
+          body: string;
+        }[]) {
+          const session = sessionFromId(row.id);
+          if (session?.game === "trail" && session.rulesVersion === 2) {
+            if (session.mode !== "practice") throw new Error("Invalid garden session");
+            const record = JSON.parse(row.body);
+            if (record.id !== row.id) throw new Error("Mismatched saved identity");
+            references.push({ id: session.seed, state: record.state });
+          }
+        }
         if ((db.pragma("foreign_key_check") as unknown[]).length)
           throw new Error("Broken snapshot references");
       }
@@ -27,11 +43,13 @@ export function verifyBundle(directory: string) {
         db.prepare("SELECT seq,edition,action,actor,digest,at FROM editorial_events").all();
         const rows = db
           .prepare("SELECT id,body,digest,state,reviewer,created FROM editions")
-          .all() as { body: string; digest: string; state: string }[];
+          .all() as { id: string; body: string; digest: string; state: string }[];
         for (const row of rows) {
           if (createHash("sha256").update(row.body).digest("hex") !== row.digest)
             throw new Error("Editorial digest mismatch");
           const data = JSON.parse(row.body);
+          if (data.garden && ["published", "revoked"].includes(row.state))
+            layouts.set(row.id, data.garden);
           validateDraft({
             title: data.title,
             description: data.description,
@@ -49,5 +67,10 @@ export function verifyBundle(directory: string) {
     } finally {
       db.close();
     }
+  }
+  for (const ref of references) {
+    const layout = layouts.get(ref.id);
+    if (!layout) throw new Error("Missing retained garden in paired snapshot");
+    gardenState(layout as Parameters<typeof gardenState>[0], ref.state);
   }
 }

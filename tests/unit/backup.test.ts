@@ -64,3 +64,58 @@ it("backs up with default arguments from a fresh directory without overwriting a
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+it("verifies populated garden pairs after backup/restore and rejects a missing retained layout", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "paired-garden-"));
+  const source = join(dir, "source"),
+    bundle = join(dir, "bundle"),
+    restored = join(dir, "restored");
+  const progress = new ProgressStore(join(source, "progress.sqlite"));
+  const editorial = new EditorialStore(join(source, "editorial.sqlite"));
+  try {
+    const { draftContent } = await import("../../src/server/content-draft");
+    const draft = await draftContent("fixture", {});
+    draft.garden = { walls: [7, 8, 9, 10], seeds: [6, 18, 28] };
+    const e = editorial.create(draft, "", "test rights");
+    if (!e) throw new Error("fixture");
+    editorial.transition(e.id, e.digest, "approve", "test");
+    editorial.transition(e.id, e.digest, "publish", "test");
+    const id = `trail:v2:practice:${e.id}:standard`;
+    progress.db
+      .prepare("INSERT INTO profiles(id,recovery_hash,created) VALUES(?,NULL,?)")
+      .run("test-profile", Date.now());
+    progress.db
+      .prepare("INSERT INTO saves(profile,id,revision,mutation,body,updated) VALUES(?,?,?,?,?,?)")
+      .run(
+        "test-profile",
+        id,
+        1,
+        "test",
+        JSON.stringify({ id, state: { version: 1, path: [0, 6] } }),
+        Date.now(),
+      );
+    const loader = resolve("node_modules/tsx/dist/loader.mjs");
+    execFileSync(process.execPath, ["--import", loader, resolve("scripts/backup.ts"), bundle], {
+      env: {
+        ...process.env,
+        FENGI_DATABASE_PATH: join(source, "progress.sqlite"),
+        FENGI_EDITORIAL_PATH: join(source, "editorial.sqlite"),
+      },
+      stdio: "pipe",
+    });
+    execFileSync(
+      process.execPath,
+      ["--import", loader, resolve("scripts/restore.ts"), bundle, restored],
+      { stdio: "pipe" },
+    );
+    verifyBundle(restored);
+    const db = new Database(join(restored, "editorial.sqlite"));
+    db.prepare("DELETE FROM editions WHERE id=?").run(e.id);
+    db.close();
+    expect(() => verifyBundle(restored)).toThrow("Missing retained garden");
+  } finally {
+    editorial.db.close();
+    progress.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

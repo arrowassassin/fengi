@@ -61,28 +61,34 @@ export class EditorialStore {
       categoryIds: result.categories.map((c) => c.id),
       ...(result.garden ? { garden: result.garden } : {}),
     });
-    if (validated.garden) {
-      for (const row of this.db.prepare("SELECT body FROM editions").all() as { body: string }[]) {
-        const prior = JSON.parse(row.body).garden;
-        if (prior && JSON.stringify(prior) === JSON.stringify(validated.garden))
-          throw new Error("Duplicate garden");
-      }
-    }
-    const body = JSON.stringify({
-      title: validated.title,
-      description: validated.description,
-      categoryIds: validated.categoryIds,
-      ...(validated.garden ? { garden: validated.garden } : {}),
-      seed: seedForCategories(validated.categoryIds),
-      source: result.source,
-      model: result.source === "nvidia" ? required(model) : "curated-v1",
-      rights: required(rights),
-    });
-    const id = randomUUID();
-    this.db
-      .prepare("INSERT INTO editions VALUES(?,?,?,'draft',NULL,?)")
-      .run(id, body, digest(body), Date.now());
-    return this.get(id);
+    return this.db
+      .transaction(() => {
+        if (validated.garden) {
+          for (const row of this.db.prepare("SELECT body FROM editions").all() as {
+            body: string;
+          }[]) {
+            const prior = JSON.parse(row.body).garden;
+            if (prior && JSON.stringify(prior) === JSON.stringify(validated.garden))
+              throw new Error("Duplicate garden");
+          }
+        }
+        const body = JSON.stringify({
+          title: validated.title,
+          description: validated.description,
+          categoryIds: validated.categoryIds,
+          ...(validated.garden ? { garden: validated.garden } : {}),
+          seed: seedForCategories(validated.categoryIds),
+          source: result.source,
+          model: result.source === "nvidia" ? required(model) : "curated-v1",
+          rights: required(rights),
+        });
+        const id = randomUUID();
+        this.db
+          .prepare("INSERT INTO editions VALUES(?,?,?,'draft',NULL,?)")
+          .run(id, body, digest(body), Date.now());
+        return this.get(id);
+      })
+      .immediate();
   }
   get(id: string): Edition | null {
     const row = this.db.prepare("SELECT * FROM editions WHERE id=?").get(id) as
