@@ -12,6 +12,8 @@ Five instant-play browser games with shared daily editions, seeded practice, a s
 
 Use Node **26.13.0 LTS** (`.nvmrc`). Versions are pinned; install from the lockfile.
 
+The SQLite driver can compile a native module during installation. Have Python 3 and a C++ build toolchain available (on Linux, `make` and `g++`). In restricted workspaces, set `npm_package_config_node_gyp_devdir` to a writable build-cache directory; the default is under your home directory. CI verifies a fresh installation on Ubuntu.
+
 ```bash
 nvm install
 nvm use
