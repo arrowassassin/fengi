@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { chromium, devices } from "@playwright/test";
 import { dailyPrompts } from "../src/games/odd/engine";
+import { shortestRoute } from "../src/games/trail/engine";
 import { draftContent } from "../src/server/content-draft";
 import { EditorialStore } from "../src/server/editorial";
 
@@ -17,7 +18,7 @@ try {
   const editions = [];
   for (let attempt = 1; attempt <= 2; attempt++) {
     const start = Date.now(),
-      draft = await draftContent(`live-browser-${attempt}`);
+      draft = await draftContent(`live-browser-${attempt}`, process.env, undefined, true);
     if (draft.source !== "nvidia" || draft.reason !== "generated")
       throw new Error("Live generation failed");
     const edition = store.create(
@@ -91,6 +92,22 @@ try {
         source: "nvidia",
         roundsCompleted: 3,
         restoredAfterReload: true,
+        externalPublication: false,
+      }),
+    );
+    if (!edition.garden) throw new Error("Missing generated garden");
+    await page.goto(`${origin}/collections/${edition.id}/trail`);
+    const route = shortestRoute(edition.garden.walls, edition.garden.seeds);
+    if (!route) throw new Error("Unsolvable garden");
+    for (const cell of route.slice(1))
+      await page.getByRole("button", { name: new RegExp(`^Cell ${cell + 1}(,|$)`) }).click();
+    await page.getByRole("status").filter({ hasText: "Garden complete!" }).waitFor();
+    console.log(
+      JSON.stringify({
+        scenario: index ? "mobile-garden" : "desktop-garden",
+        source: "nvidia",
+        validated: true,
+        completed: true,
         externalPublication: false,
       }),
     );

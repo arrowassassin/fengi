@@ -10,6 +10,7 @@ export type Edition = {
   title: string;
   description: string;
   categoryIds: string[];
+  garden?: DraftResult["garden"];
   seed: string;
   source: "nvidia" | "deterministic";
   model: string;
@@ -58,11 +59,20 @@ export class EditorialStore {
       title: result.title,
       description: result.description,
       categoryIds: result.categories.map((c) => c.id),
+      ...(result.garden ? { garden: result.garden } : {}),
     });
+    if (validated.garden) {
+      for (const row of this.db.prepare("SELECT body FROM editions").all() as { body: string }[]) {
+        const prior = JSON.parse(row.body).garden;
+        if (prior && JSON.stringify(prior) === JSON.stringify(validated.garden))
+          throw new Error("Duplicate garden");
+      }
+    }
     const body = JSON.stringify({
       title: validated.title,
       description: validated.description,
       categoryIds: validated.categoryIds,
+      ...(validated.garden ? { garden: validated.garden } : {}),
       seed: seedForCategories(validated.categoryIds),
       source: result.source,
       model: result.source === "nvidia" ? required(model) : "curated-v1",
@@ -92,6 +102,7 @@ export class EditorialStore {
       title: data.title,
       description: data.description,
       categoryIds: data.categoryIds,
+      ...(data.garden ? { garden: data.garden } : {}),
     });
     if (
       data.seed !== seedForCategories(data.categoryIds) ||

@@ -2,6 +2,7 @@ import { resolve } from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { dailyPrompts } from "../../src/games/odd/engine";
+import { createGarden, shortestRoute } from "../../src/games/trail/engine";
 import { draftContent } from "../../src/server/content-draft";
 import { type Edition, EditorialStore } from "../../src/server/editorial";
 
@@ -10,6 +11,8 @@ let store: EditorialStore;
 test.beforeAll(async () => {
   store = new EditorialStore(resolve(".data/editorial-e2e.sqlite"));
   const result = await draftContent("browser-fixture", {});
+  const fixture = createGarden(`fixture-${Date.now()}-${Math.random()}`);
+  result.garden = { walls: fixture.walls, seeds: fixture.seeds };
   const created = store.create(result, "", "Original deterministic test fixture; no inference");
   if (!created) throw new Error("Missing fixture");
   edition = created;
@@ -62,4 +65,20 @@ test("mushroom identity is responsive, keyboard reachable and visually stable", 
     (await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze())
       .violations,
   ).toEqual([]);
+});
+
+test("approved generated garden is playable and keyboard accessible", async ({ page }) => {
+  await page.goto(`/collections/${edition.id}/trail`);
+  expect(
+    (await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze()).violations,
+  ).toEqual([]);
+  const garden = edition.garden;
+  if (!garden) throw new Error("Missing garden");
+  const route = shortestRoute(garden.walls, garden.seeds);
+  if (!route) throw new Error("Missing route");
+  for (const cell of route.slice(1))
+    await page.getByRole("button", { name: new RegExp(`^Cell ${cell + 1}(,|$)`) }).click();
+  await expect(page.getByRole("status")).toContainText("Garden complete!");
+  await page.getByRole("button", { name: "Restart garden" }).click();
+  await expect(page.getByRole("status")).toContainText("0/3 seeds");
 });

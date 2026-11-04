@@ -4,11 +4,14 @@ import { z } from "zod";
 import { categories } from "../games/odd/content";
 import { dailyPrompts } from "../games/odd/engine";
 
+import { gardenSchema, validateGarden } from "./garden-draft";
+
 const draftSchema = z
   .object({
     title: z.string().trim().min(3).max(80),
     description: z.string().trim().min(5).max(240),
     categoryIds: z.array(z.string()).length(3),
+    garden: gardenSchema.optional(),
   })
   .strict();
 export type DraftResult = {
@@ -23,10 +26,12 @@ export type DraftResult = {
   title: string;
   description: string;
   categories: typeof categories;
+  garden?: ReturnType<typeof validateGarden>;
 };
 export type DraftModel = { invoke: (prompt: string) => Promise<string> };
 export function validateDraft(value: unknown) {
   const draft = draftSchema.parse(value);
+  if (draft.garden) draft.garden = validateGarden(draft.garden);
   if (
     new Set(draft.categoryIds).size !== 3 ||
     draft.categoryIds.some((id) => !categories.some((c) => c.id === id))
@@ -69,6 +74,7 @@ export async function draftContent(
   seed: string,
   env: Record<string, string | undefined> = process.env,
   injected?: DraftModel,
+  includeGarden = false,
 ): Promise<DraftResult> {
   const fallback = (reason: DraftResult["reason"]): DraftResult => ({
     source: "deterministic",
@@ -88,7 +94,7 @@ export async function draftContent(
       injected ??
       modelFor(env.NVIDIA_API_KEY, modelName, env.NVIDIA_REASONING_EFFORT?.trim() || "low");
     const output = await model.invoke(
-      `Create an editorial draft for a friendly word game. Return only a JSON object with title (3-80 characters), description (5-240 characters), categoryIds (exactly three distinct IDs from this list): ${categories.map((c) => c.id).join(", ")}. Do not invent facts, answers, scores or IDs. Make the language welcoming and never claim player rarity.`,
+      `Create an editorial draft for a friendly word game. Return only a JSON object with title (3-80 characters), description (5-240 characters), categoryIds (exactly three distinct IDs from this list): ${categories.map((c) => c.id).join(", ")}. Do not invent facts, answers, scores or IDs. Make the language welcoming and never claim player rarity. ${includeGarden ? "Also include garden:{walls:[integers],seeds:[integers]}. Design an original solvable 6x6 route puzzle, cells 0..35 row-major, start 0, exit 35. Exactly three distinct seed cells 1..34, four to twelve distinct walls 1..34, no overlap. All seeds and exit must be reachable from start using orthogonal moves. Do not include optimum or solution." : ""}`,
     );
     if (output.length > 8000) throw new Error("Oversized response");
     // Accept one JSON code fence, but never extract JSON from surrounding prose.
@@ -97,6 +103,7 @@ export async function draftContent(
     if (json.includes("```") || !json.startsWith("{") || !json.endsWith("}"))
       throw new Error("Expected JSON object");
     const validated = validateDraft(await new JsonOutputParser().parse(json));
+    if (includeGarden && !validated.garden) throw new Error("Missing garden");
     return {
       source: "nvidia",
       status: "review-required",
@@ -104,6 +111,7 @@ export async function draftContent(
       title: validated.title,
       description: validated.description,
       categories: validated.categories,
+      ...(validated.garden ? { garden: validated.garden } : {}),
     };
   } catch {
     // Provider errors may contain credentials or request bodies. Never print them.

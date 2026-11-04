@@ -32,7 +32,12 @@ export function verifyBundle(directory: string) {
           if (createHash("sha256").update(row.body).digest("hex") !== row.digest)
             throw new Error("Editorial digest mismatch");
           const data = JSON.parse(row.body);
-          validateDraft(data);
+          validateDraft({
+            title: data.title,
+            description: data.description,
+            categoryIds: data.categoryIds,
+            ...(data.garden ? { garden: data.garden } : {}),
+          });
           if (
             data.seed !== seedForCategories(data.categoryIds) ||
             !["nvidia", "deterministic"].includes(data.source) ||

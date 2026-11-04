@@ -6,10 +6,15 @@ const [action, id, hash, actor] = process.argv.slice(2);
 let store: EditorialStore | undefined;
 try {
   store = new EditorialStore(editorialPath());
-  if (action === "generate") {
+  if (["generate", "generate-garden"].includes(action)) {
     const rights = process.env.FENGI_AI_RIGHTS_REFERENCE;
     if (!rights?.trim()) throw new Error("Rights approval reference required");
-    const result = await draftContent(new Date().toISOString());
+    const result = await draftContent(
+      new Date().toISOString(),
+      process.env,
+      undefined,
+      action === "generate-garden",
+    );
     const edition = store.create(result, process.env.NVIDIA_MODEL || "", rights);
     console.log(
       JSON.stringify({

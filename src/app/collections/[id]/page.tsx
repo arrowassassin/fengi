@@ -26,6 +26,11 @@ export default async function Collection({ params }: { params: Promise<{ id: str
       <Link className="button primary" href={`/play/odd?collection=${e.id}`}>
         Play this collection <span aria-hidden="true">↗</span>
       </Link>
+      {e.garden && (
+        <Link className="button primary" href={`/collections/${e.id}/trail`}>
+          Play generated garden
+        </Link>
+      )}
       <p className="small muted">
         Original answers and scoring. Your progress saves as a practice game.
       </p>
