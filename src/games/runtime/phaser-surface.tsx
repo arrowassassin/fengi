@@ -152,11 +152,15 @@ export function PhaserSurface({
                     .fillCircle(rect.width - 9, rect.height - 8, 1.6);
               }
               item.text
+                .setWordWrapWidth(0, false)
                 .setText(node.text)
                 .setColor(css(node.color))
                 .setFontSize(font.fontSize)
                 .setFontFamily(font.fontFamily)
-                .setWordWrapWidth(Math.max(1, rect.width - 4), true)
+                .setWordWrapWidth(
+                  Array.from(node.text).length <= 1 ? 0 : Math.max(1, rect.width - 4),
+                  false,
+                )
                 .setOrigin(0.5)
                 .setPosition(rect.width / 2, rect.height / 2);
               if (changed && !motion.matches) {
@@ -279,10 +283,10 @@ export function PhaserSurface({
       <div
         ref={root}
         className={`phaser-surface ${ready ? "engine-ready" : ""}`}
-        data-engine={ready ? "phaser" : "loading"}
+        data-engine={failed ? "fallback" : ready ? "phaser" : "loading"}
         data-game={game}
       >
-        <div ref={host} className="phaser-canvas" aria-hidden="true" />
+        <div ref={host} className="phaser-canvas" aria-hidden="true" hidden={failed} />
         <div className="engine-semantic">{children}</div>
       </div>
       {failed && (

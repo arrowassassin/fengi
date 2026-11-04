@@ -149,3 +149,18 @@ test("malformed and denied storage do not prevent play", async ({ page }) => {
     "1",
   );
 });
+
+test("Pair Bloom retains graphics through full-page capture and viewport resize", async ({
+  page,
+}) => {
+  await page.goto(`/play/pairs?mode=practice&seed=review-capture`);
+  await expect(page.locator('[data-engine="phaser"] canvas')).toHaveCount(1);
+  await page.locator('[data-card="0"]').click();
+  await page.screenshot({ fullPage: true });
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.screenshot({ fullPage: true });
+  await expect(page.locator('[data-engine="phaser"] canvas')).toHaveCount(1);
+  await expect(page.getByText("Graphics could not load.", { exact: false })).toHaveCount(0);
+  await page.locator('[data-card="1"]').click();
+  await expect(page.locator(".stat-line")).toContainText("1 turns");
+});
