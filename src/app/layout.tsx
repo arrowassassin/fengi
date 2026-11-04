@@ -14,6 +14,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <Header />
+        {process.env.FENGI_STORAGE_MODE === "ephemeral" && (
+          <p className="storage-notice">
+            Demo hosting: server saves can reset on restart. Keep your browser copy and export
+            important progress.
+          </p>
+        )}
         <main id="main" className="main-container">
           {children}
         </main>

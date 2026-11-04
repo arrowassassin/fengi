@@ -1,3 +1,4 @@
+import { resolve } from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "tests/e2e",
@@ -9,6 +10,7 @@ export default defineConfig({
   ],
   webServer: {
     command: "npm run start",
+    env: { FENGI_EDITORIAL_PATH: resolve(".data/editorial-e2e.sqlite") },
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120000,

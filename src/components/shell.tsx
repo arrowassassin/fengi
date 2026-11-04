@@ -31,13 +31,17 @@ export function Header() {
     <header className="site-header">
       <div className="header-inner">
         <Link className="brand" href="/" aria-label="Fengi home">
-          fengi<span>.</span>
+          <span className="brand-mascot" aria-hidden="true" />
+          <span className="brand-word">
+            fengi<span>.</span>
+          </span>
         </Link>
         <nav aria-label="Main navigation">
           {[
             ["/", "Today"],
             ["/practice", "Practice"],
             ["/archive", "Archive"],
+            ["/collections", "Collections"],
             ["/progress", "Your progress"],
           ].map(([href, label]) => (
             <Link key={href} href={href} aria-current={path === href ? "page" : undefined}>
@@ -60,7 +64,9 @@ export function Header() {
 export function Footer() {
   return (
     <footer className="site-footer">
-      <p>Made for a moment well spent.</p>
+      <p>
+        <span className="footer-mark" aria-hidden="true" /> Play a little. Stay curious.
+      </p>
       <div>
         <span>Daily editions reset at 00:00 UTC</span>
         <Link href="/about">About & privacy</Link>

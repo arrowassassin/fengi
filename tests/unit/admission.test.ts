@@ -9,6 +9,15 @@ import { requestActor } from "../../src/server/admission";
 import { DATABASE_VERSION, PROVISIONAL_TTL_MS, ProgressStore } from "../../src/server/store";
 
 describe("caller-scoped admission", () => {
+  it("uses a shared public budget without trusting spoofable forwarding headers", () => {
+    const env = { FENGI_ORIGIN: "https://play.example", FENGI_ADMISSION_MODE: "shared" };
+    expect(
+      requestActor(
+        new Request("https://play.example", { headers: { "x-forwarded-for": "attacker" } }),
+        env,
+      ),
+    ).toBe("shared-public-ingress");
+  });
   it("does not let one caller consume another's creation allowance, including the hourly window", () => {
     let now = 100000;
     const db = new ProgressStore(":memory:", () => now);

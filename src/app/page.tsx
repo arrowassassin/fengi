@@ -74,6 +74,24 @@ export default function Home() {
           </Link>
         ))}
       </div>
+      <section className="collection-promo">
+        <div className="mascot-display" aria-hidden="true" />
+        <div>
+          <p className="eyebrow">A curious little club</p>
+          <h2>
+            Good company.
+            <br />
+            Odd answers.
+          </h2>
+          <p>
+            Explore our reviewed wordplay collections. Familiar subjects, unexpected combinations,
+            and absolutely no rush.
+          </p>
+          <Link className="button secondary" href="/collections">
+            Meet the collections <span aria-hidden="true">↗</span>
+          </Link>
+        </div>
+      </section>
       <section className="practice-strip">
         <div>
           <span className="eyebrow">Not done exploring?</span>

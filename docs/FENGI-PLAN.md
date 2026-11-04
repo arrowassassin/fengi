@@ -65,4 +65,4 @@ AI output is untrusted: parse JSON with Zod, reject unknown/duplicate category I
 
 ## Release boundaries
 
-This foundation is not a claim of launch readiness. Remaining release work includes real-device playtesting and difficulty calibration, editorial expansion and rights review, privacy/consent decisions for any future analytics, security/rate-limit design for accounts or public APIs, licensed model-provider validation with a real key, and an explicitly authorized deployment destination. No real key is available for a live NVIDIA integration test.
+This foundation is not a claim of launch readiness. Remaining release work includes real-device playtesting and difficulty calibration, editorial expansion and rights review, privacy/consent decisions for any future analytics, security/rate-limit design for accounts or public APIs, licensed model-provider validation with a real key, and an explicitly authorized deployment destination. Live NVIDIA verification now passes with the configured model; production rights and hosting guarantees still require operator approval and evidence.

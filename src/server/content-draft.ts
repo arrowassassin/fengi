@@ -1,3 +1,4 @@
+import { JsonOutputParser } from "@langchain/core/output_parsers";
 import { ChatOpenAI } from "@langchain/openai";
 import { z } from "zod";
 import { categories } from "../games/odd/content";
@@ -92,7 +93,10 @@ export async function draftContent(
     if (output.length > 8000) throw new Error("Oversized response");
     // Accept one JSON code fence, but never extract JSON from surrounding prose.
     const json = output.trim().replace(/^```(?:json)?\s*\n([\s\S]*?)\n```$/i, "$1");
-    const validated = validateDraft(JSON.parse(json));
+    // Use the final parser, never its partial/streaming repair path.
+    if (json.includes("```") || !json.startsWith("{") || !json.endsWith("}"))
+      throw new Error("Expected JSON object");
+    const validated = validateDraft(await new JsonOutputParser().parse(json));
     return {
       source: "nvidia",
       status: "review-required",

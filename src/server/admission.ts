@@ -7,6 +7,7 @@ export function requestActor(
 ): string {
   if (!env.FENGI_ORIGIN && (env.FENGI_LOCAL_ONLY === "true" || env.NODE_ENV === "development"))
     return "local-development";
+  if (env.FENGI_ORIGIN && env.FENGI_ADMISSION_MODE === "shared") return "shared-public-ingress";
   const header = env.FENGI_CLIENT_IP_HEADER?.toLowerCase();
   if (!env.FENGI_ORIGIN || !header || !/^[a-z0-9-]+$/.test(header))
     throw new StoreError(503, "New profile admission requires a configured trusted ingress.");

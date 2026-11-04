@@ -36,3 +36,26 @@ jobs:
           name: browser-failure-traces
           path: test-results/
           retention-days: 7
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build Spaces runtime without credentials
+        run: docker build -t fengi-ci .
+      - name: Verify guarded non-root runtime
+        run: |
+          if docker run --rm fengi-ci; then
+            echo 'Missing storage configuration must fail closed'
+            exit 1
+          fi
+          docker run -d --name fengi-ci -p 127.0.0.1:7860:7860 -e FENGI_ORIGIN=https://fengi-ci.invalid -e FENGI_ADMISSION_MODE=shared -e FENGI_STORAGE_MODE=ephemeral fengi-ci
+          trap 'docker rm -f fengi-ci' EXIT
+          test "$(docker exec fengi-ci id -u)" = 1000
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:7860/api/health; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:7860/api/health | python3 -c 'import json,sys; assert json.load(sys.stdin)["persistence"] == "ready"'
+          curl --fail --silent --output /dev/null http://127.0.0.1:7860/collections
+          curl --fail --silent --output /dev/null http://127.0.0.1:7860/brand/fengi-mascot-light.svg

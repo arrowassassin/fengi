@@ -153,6 +153,9 @@ describe("private content pipeline", () => {
       expect(
         (await draftContent("s", env, { invoke: async () => `Here you go: ${output}` })).source,
       ).toBe("deterministic");
+      expect(
+        (await draftContent("s", env, { invoke: async () => `${output} Enjoy!` })).source,
+      ).toBe("deterministic");
     }
     const unsafe = `\x60\x60\x60json\n${JSON.stringify({ ...draft, points: 999 })}\n\x60\x60\x60`;
     expect((await draftContent("s", env, { invoke: async () => unsafe })).source).toBe(

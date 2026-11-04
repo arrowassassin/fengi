@@ -1,3 +1,12 @@
+---
+title: Fengi
+emoji: 🍄
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+---
+
 # Fengi
 
 Five instant-play browser games with shared daily editions, seeded practice, a seven-day archive and recoverable progress. Built with Next.js, React, Phaser 4.2.1 and strict TypeScript. Gameplay works without an external account or NVIDIA key. SQLite stores anonymous profiles and progress on the server; browser caching covers temporary interruptions.
@@ -52,9 +61,9 @@ Private authoring defaults on when `FENGI_AI_ENABLED` is unset; set it to `false
 
 Run `npm run content:verify-live` to make two bounded calls through the real LangChain adapter. It succeeds only for NVIDIA-sourced, validated responses; fallback exits nonzero. It prints only status/counts and neither saves nor publishes generated content. This command consumes provider quota.
 
-Then run `npm run content:draft`. It writes a permission-restricted JSON draft under ignored `content-drafts/`. Without a key, with AI disabled, or on timeout/invalid output, it writes a deterministic draft with an explicit reason. No error bodies or credentials are logged. The model chooses among reviewed categories; accepted answers and scores come from the canonical catalogue, never generated claims. Review drafts before manually publishing content.
+For persisted drafts, `npm run content:draft` aliases the rights-gated editorial workflow. Set an approved `FENGI_AI_RIGHTS_REFERENCE` and follow [generation, review and publication](docs/EDITORIAL.md). Source provenance distinguishes real NVIDIA generation from deterministic fallback. Answers and scores stay canonical.
 
-LangChain `ChatOpenAI` connects to NVIDIA’s documented Chat Completions endpoint. A 15-second request timeout, 20-second abort deadline, one retry and bounded output protect authoring. **NVIDIA trial terms do not grant production use of the service or generated content.** Verify the executed provider agreement and model license before publishing AI-assisted material. No real NVIDIA request has been tested without a supplied key.
+LangChain `ChatOpenAI` uses NVIDIA Chat Completions, streaming, a 4,096-token budget, explicit low reasoning, a 60-second request timeout, a 90-second abort and at most one retry. LangChain `JsonOutputParser` parses complete output before strict schema and category validation. Truncated output and extraneous prose fail closed. Live validation passed with the configured Mistral model; this does not establish production rights or service availability.
 
 ## Structure
 
@@ -89,3 +98,7 @@ npm run db:cleanup # dry run; -- --apply removes only eligible empty provisional
 See the operational restore procedure before restoring a database. This is a single-node SQLite deployment, not a horizontally distributed persistence service. Anonymous scores remain untrusted for rankings. New route loads need the server; there is no service worker. Odd Answer still has a finite eight-category v1 catalogue.
 
 This repository contains the new Fengi app only. The obsolete Alchemy Arena app, design exports, prototype, infrastructure and Pages deployment workflow have been removed; their history remains in Git. The current app requires a Node server and is not a static Pages export. CI validates changes but does not deploy them.
+
+## Reviewed AI collections and Spaces
+
+See [Editorial operations](docs/EDITORIAL.md) for generation, rights review, approval, publication and revocation. See [Hugging Face hosting](docs/HUGGINGFACE.md) for Docker configuration and explicit persistence limits. No deployment is automatic.

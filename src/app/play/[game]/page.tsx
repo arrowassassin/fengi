@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GameHost } from "../../../components/game-host";
 import { games, isGameId, sessionFor, supportsVersion } from "../../../games/registry";
+import { publicEdition } from "../../../server/editorial";
 export const dynamic = "force-dynamic";
 type Props = {
   params: Promise<{ game: string }>;
@@ -18,6 +19,14 @@ export default async function Play({ params, searchParams }: Props) {
     query = new URLSearchParams();
   for (const [key, value] of Object.entries(raw))
     if (typeof value === "string") query.set(key, value);
+  const collection = query.get("collection");
+  const edition = collection ? publicEdition(collection) : null;
+  if (collection && (!edition || game !== "odd")) notFound();
+  if (edition) {
+    query.set("mode", "practice");
+    query.set("seed", edition.seed);
+    query.set("version", "1");
+  }
   const session = sessionFor(game, query),
     info = games.find((g) => g.id === game);
   if (!supportsVersion(game, session.rulesVersion))
@@ -47,6 +56,15 @@ export default async function Play({ params, searchParams }: Props) {
           {info?.category} <span>·</span> {info?.time}
         </p>
       </div>
+      {edition && (
+        <aside className="edition-banner">
+          <strong>{edition.title}</strong>
+          <p>{edition.description}</p>
+          <span className="small">
+            {edition.source === "nvidia" ? "AI-assisted" : "Curated"} · Human reviewed
+          </span>
+        </aside>
+      )}
       <GameHost session={session} />
     </section>
   );

@@ -20,7 +20,9 @@
     "content:draft": "node --env-file-if-exists=.env.local --import tsx scripts/draft-content.ts",
     "db:backup": "node --env-file-if-exists=.env.local --import tsx scripts/backup.ts",
     "db:verify": "node --import tsx scripts/verify-backup.ts",
-    "db:cleanup": "node --env-file-if-exists=.env.local --import tsx scripts/cleanup.ts"
+    "db:cleanup": "node --env-file-if-exists=.env.local --import tsx scripts/cleanup.ts",
+    "content:editorial": "node --env-file-if-exists=.env.local --import tsx scripts/editorial.ts",
+    "content:verify-play": "node --env-file-if-exists=.env.local --import tsx scripts/verify-live-play.ts"
   },
   "dependencies": {
     "@langchain/core": "1.3.4",
