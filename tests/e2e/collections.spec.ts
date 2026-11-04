@@ -67,7 +67,7 @@ test("mushroom identity is responsive, keyboard reachable and visually stable", 
   ).toEqual([]);
 });
 
-test("approved generated garden is playable and keyboard accessible", async ({ page }) => {
+test("approved generated garden is playable and keyboard accessible", async ({ page, context }) => {
   await page.goto(`/collections/${edition.id}/trail`);
   expect(
     (await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze()).violations,
@@ -76,8 +76,42 @@ test("approved generated garden is playable and keyboard accessible", async ({ p
   if (!garden) throw new Error("Missing garden");
   const route = shortestRoute(garden.walls, garden.seeds);
   if (!route) throw new Error("Missing route");
-  for (const cell of route.slice(1))
+  await page.getByRole("button", { name: new RegExp(`^Cell ${route[1] + 1}(,|$)`) }).click();
+  await page.reload();
+  await expect(page.getByRole("status")).toContainText("1 moves");
+  const other = await context.newPage();
+  await other.goto(`/collections/${edition.id}/trail`);
+  await expect(
+    other.getByRole("heading", { name: "This game is open in another tab." }),
+  ).toBeVisible();
+  await other.close();
+  await context.setOffline(true);
+  await page.getByRole("button", { name: new RegExp(`^Cell ${route[2] + 1}(,|$)`) }).click();
+  await expect(page.getByRole("status")).toContainText("2 moves");
+  await context.setOffline(false);
+  await page.evaluate(() => window.dispatchEvent(new Event("online")));
+  await expect
+    .poll(async () =>
+      page.evaluate(() =>
+        Object.keys(localStorage)
+          .filter((k) => k.startsWith("fengi:save:trail:v2:"))
+          .map((k) => JSON.parse(localStorage.getItem(k) || "{}"))
+          .every((r) => r.pending === false),
+      ),
+    )
+    .toBe(true);
+  await page.reload();
+  await expect(page.getByRole("status")).toContainText("2 moves");
+  await page.evaluate(() => {
+    for (const key of Object.keys(localStorage))
+      if (key.startsWith("fengi:save:trail:v2:")) localStorage.removeItem(key);
+  });
+  await page.reload();
+  await expect(page.getByRole("status")).toContainText("2 moves");
+  for (const cell of route.slice(3))
     await page.getByRole("button", { name: new RegExp(`^Cell ${cell + 1}(,|$)`) }).click();
+  await expect(page.getByRole("status")).toContainText("Garden complete!");
+  await page.reload();
   await expect(page.getByRole("status")).toContainText("Garden complete!");
   await page.getByRole("button", { name: "Restart garden" }).click();
   await expect(page.getByRole("status")).toContainText("0/3 seeds");

@@ -177,3 +177,14 @@ export function publicEdition(id: string) {
     store?.db.close();
   }
 }
+
+// Retained reviewed layouts remain available for existing versioned saves after revocation.
+export function retainedGarden(id: string) {
+  const store = new EditorialStore(editorialPath());
+  try {
+    const e = store.get(id);
+    return e?.garden && ["published", "revoked"].includes(e.state) ? e : null;
+  } finally {
+    store.db.close();
+  }
+}

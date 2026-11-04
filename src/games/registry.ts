@@ -79,7 +79,10 @@ export type GameRelease = { id: GameId; version: number; releases: readonly Rele
 export const gameReleases: readonly GameRelease[] = games.map((game) => ({
   id: game.id,
   version: game.version,
-  releases: [{ version: 1, from: "0000-01-01" }],
+  releases: [
+    { version: 1, from: "0000-01-01" },
+    ...(game.id === "trail" ? [{ version: 2, from: "9999-12-31" }] : []),
+  ],
 }));
 export function supportsVersion(game: GameId, version: number) {
   return (

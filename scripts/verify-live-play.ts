@@ -99,11 +99,17 @@ try {
     await page.goto(`${origin}/collections/${edition.id}/trail`);
     const route = shortestRoute(edition.garden.walls, edition.garden.seeds);
     if (!route) throw new Error("Unsolvable garden");
-    for (const cell of route.slice(1))
+    await page.getByRole("button", { name: new RegExp(`^Cell ${route[1] + 1}(,|$)`) }).click();
+    await page.reload();
+    await page.getByRole("status").filter({ hasText: "1 moves" }).waitFor();
+    for (const cell of route.slice(2))
       await page.getByRole("button", { name: new RegExp(`^Cell ${cell + 1}(,|$)`) }).click();
+    await page.getByRole("status").filter({ hasText: "Garden complete!" }).waitFor();
+    await page.reload();
     await page.getByRole("status").filter({ hasText: "Garden complete!" }).waitFor();
     console.log(
       JSON.stringify({
+        restoredAfterReload: true,
         scenario: index ? "mobile-garden" : "desktop-garden",
         source: "nvidia",
         validated: true,

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GameHost } from "../../../components/game-host";
 import { games, isGameId, sessionFor, supportsVersion } from "../../../games/registry";
-import { publicEdition } from "../../../server/editorial";
+import { publicEdition, retainedGarden } from "../../../server/editorial";
 export const dynamic = "force-dynamic";
 type Props = {
   params: Promise<{ game: string }>;
@@ -29,6 +29,11 @@ export default async function Play({ params, searchParams }: Props) {
   }
   const session = sessionFor(game, query),
     info = games.find((g) => g.id === game);
+  const gardenEdition =
+    game === "trail" && session.rulesVersion === 2 && session.mode === "practice"
+      ? retainedGarden(session.seed)
+      : null;
+  if (game === "trail" && session.rulesVersion === 2 && !gardenEdition?.garden) notFound();
   if (!supportsVersion(game, session.rulesVersion))
     return (
       <section>
@@ -65,7 +70,7 @@ export default async function Play({ params, searchParams }: Props) {
           </span>
         </aside>
       )}
-      <GameHost session={session} />
+      <GameHost session={session} garden={gardenEdition?.garden} />
     </section>
   );
 }

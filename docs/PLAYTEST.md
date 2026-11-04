@@ -29,3 +29,6 @@ Improvements delivered here: a distinctive gaming-mushroom identity with light/d
 ## Production gates
 
 Physical iOS/Android and desktop browser coverage, manual VoiceOver/NVDA sessions, usability sessions with independent players, sustained concurrent load, provider quota/error SLOs, production licensing, authenticated editorial roles, independent security review, real-host storage guarantees, off-host backups and restoration drills remain open. See HUGGINGFACE.md and EDITORIAL.md for hosting and operator limits.
+
+
+Generated gardens additionally exercise partial interruption/reload, completion/reload, offline moves followed by reconnect/retry, server restoration after removing the browser record, and same-session two-tab locking. Actual NVIDIA-generated layouts are played, interrupted and resumed in desktop/mobile verification. Existing cross-device revision/recovery tests cover the shared persistence transport; these remain automated checks, not durability guarantees for unverified hosting storage.

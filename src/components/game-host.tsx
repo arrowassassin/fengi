@@ -1,9 +1,11 @@
 "use client";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import type { GardenLayout } from "../games/garden-state";
 import type { Session } from "../games/registry";
 import { readRecord, removeRecord } from "../lib/persistence";
 import { downloadRecords } from "../lib/progress-client";
+import { ReviewedGarden } from "./reviewed-garden";
 
 const loading = () => <p className="loading">Getting your game ready…</p>;
 const Signal = dynamic(() => import("../games/signal/v1/view"), { loading });
@@ -11,10 +13,10 @@ const Orbit = dynamic(() => import("../games/orbit/v1/view"), { loading });
 const Odd = dynamic(() => import("../games/odd/v1/view"), { loading });
 const Trail = dynamic(() => import("../games/trail/v1/view"), { loading });
 const Pairs = dynamic(() => import("../games/pairs/v1/view"), { loading });
-export function GameHost({ session }: { session: Session }) {
-  return <SessionHost key={session.id} session={session} />;
+export function GameHost({ session, garden }: { session: Session; garden?: GardenLayout }) {
+  return <SessionHost key={session.id} session={session} garden={garden} />;
 }
-function SessionHost({ session }: { session: Session }) {
+function SessionHost({ session, garden }: { session: Session; garden?: GardenLayout }) {
   const [lease, setLease] = useState<"waiting" | "owned" | "busy">("waiting");
   const [conflict, setConflict] = useState(false);
   const [downloadError, setDownloadError] = useState("");
@@ -104,6 +106,8 @@ function SessionHost({ session }: { session: Session }) {
         </button>
       </section>
     );
+  if (session.game === "trail" && session.rulesVersion === 2 && garden)
+    return <ReviewedGarden garden={garden} session={session} />;
   const versions: Record<number, typeof Signal> = {
     1: { signal: Signal, orbit: Orbit, odd: Odd, trail: Trail, pairs: Pairs }[session.game],
   };

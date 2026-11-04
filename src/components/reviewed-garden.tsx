@@ -1,14 +1,37 @@
 "use client";
-import { useState } from "react";
+import { describeGarden, gardenState } from "../games/garden-state";
+import type { Session } from "../games/registry";
 import { neighbors, shortestRoute } from "../games/trail/engine";
-export function ReviewedGarden({ garden }: { garden: { walls: number[]; seeds: number[] } }) {
-  const [path, setPath] = useState([0]);
+import { useSavedGame } from "./use-saved-game";
+export function ReviewedGarden({
+  garden,
+  session,
+}: {
+  garden: { walls: number[]; seeds: number[] };
+  session: Session;
+}) {
+  const saved = useSavedGame(
+    session,
+    { version: 1 as const, path: [0] },
+    (value) => {
+      try {
+        return gardenState(garden, value);
+      } catch {
+        return null;
+      }
+    },
+    (state) => describeGarden(garden, state),
+  );
+  const path = saved.state.path;
+  const setPath = (path: number[]) => saved.setState({ version: 1, path });
+  if (!saved.ready) return <p>Loading saved garden…</p>;
   const current = path[path.length - 1],
     collected = garden.seeds.filter((c) => path.includes(c)).length;
   const complete = current === 35 && collected === 3;
   const optimum = (shortestRoute(garden.walls, garden.seeds)?.length || 1) - 1;
   return (
     <section>
+      {saved.warning && <p role="alert">{saved.warning}</p>}
       <p>
         Collect all three seeds, then reach cell 36. Choose an adjacent square; retracing is
         allowed.
@@ -18,6 +41,9 @@ export function ReviewedGarden({ garden }: { garden: { walls: number[]; seeds: n
           ? `Garden complete! ${path.length - 1} moves; shortest route ${optimum}.`
           : `${collected}/3 seeds · ${path.length - 1} moves`}
       </p>
+      {path.length >= 2000 && (
+        <p role="alert">Move limit reached. Restart this garden to play again.</p>
+      )}
       <div
         style={{
           display: "grid",
@@ -31,7 +57,12 @@ export function ReviewedGarden({ garden }: { garden: { walls: number[]; seeds: n
             key={cell}
             type="button"
             aria-label={`Cell ${cell + 1}${garden.walls.includes(cell) ? ", wall" : ""}${garden.seeds.includes(cell) ? ", seed" : ""}${current === cell ? ", current" : ""}${cell === 35 ? ", exit" : ""}`}
-            disabled={complete || garden.walls.includes(cell) || !neighbors(current).includes(cell)}
+            disabled={
+              path.length >= 2000 ||
+              complete ||
+              garden.walls.includes(cell) ||
+              !neighbors(current).includes(cell)
+            }
             onClick={() => setPath([...path, cell])}
             style={{
               minHeight: 44,
@@ -55,8 +86,7 @@ export function ReviewedGarden({ garden }: { garden: { walls: number[]; seeds: n
         Restart garden
       </button>
       <p className="small">
-        Reviewed AI route challenge · local session only; reloading resets this garden. No ranked
-        score or server save.
+        Reviewed AI route challenge · progress saves and resumes. No ranked score.
       </p>
     </section>
   );
