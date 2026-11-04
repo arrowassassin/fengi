@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GameHost } from "../../../components/game-host";
 import { games, isGameId, sessionFor, supportsVersion } from "../../../games/registry";
-import { publicEdition, retainedGarden } from "../../../server/editorial";
+import { publicEdition, retainedGarden, retainedPack } from "../../../server/editorial";
 export const dynamic = "force-dynamic";
 type Props = {
   params: Promise<{ game: string }>;
@@ -21,14 +21,31 @@ export default async function Play({ params, searchParams }: Props) {
     if (typeof value === "string") query.set(key, value);
   const collection = query.get("collection");
   const edition = collection ? publicEdition(collection) : null;
-  if (collection && (!edition || game !== "odd")) notFound();
+  if (
+    collection &&
+    (!edition ||
+      (game !== "odd" && !(edition?.pack && ["signal", "pairs", "orbit"].includes(game))))
+  )
+    notFound();
   if (edition) {
     query.set("mode", "practice");
-    query.set("seed", edition.seed);
-    query.set("version", "1");
+    query.set("seed", game === "odd" ? edition.seed : edition.id);
+    query.set("version", game === "odd" ? "1" : "2");
   }
   const session = sessionFor(game, query),
     info = games.find((g) => g.id === game);
+  const packEdition =
+    session.rulesVersion === 2 &&
+    ["signal", "pairs", "orbit"].includes(game) &&
+    session.mode === "practice"
+      ? retainedPack(session.seed)
+      : null;
+  if (
+    session.rulesVersion === 2 &&
+    ["signal", "pairs", "orbit"].includes(game) &&
+    !packEdition?.pack
+  )
+    notFound();
   const gardenEdition =
     game === "trail" && session.rulesVersion === 2 && session.mode === "practice"
       ? retainedGarden(session.seed)
@@ -70,7 +87,7 @@ export default async function Play({ params, searchParams }: Props) {
           </span>
         </aside>
       )}
-      <GameHost session={session} garden={gardenEdition?.garden} />
+      <GameHost session={session} garden={gardenEdition?.garden} pack={packEdition?.pack} />
     </section>
   );
 }

@@ -2,6 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { chmodSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import Database from "better-sqlite3";
+import { generatedPuzzle } from "../games/generated-content";
 import { dailyPrompts } from "../games/odd/engine";
 import { type DraftResult, validateDraft } from "./content-draft";
 
@@ -10,6 +11,7 @@ export type Edition = {
   title: string;
   description: string;
   categoryIds: string[];
+  pack?: DraftResult["pack"];
   garden?: DraftResult["garden"];
   seed: string;
   source: "nvidia" | "deterministic";
@@ -59,10 +61,25 @@ export class EditorialStore {
       title: result.title,
       description: result.description,
       categoryIds: result.categories.map((c) => c.id),
+      ...(result.pack ? { pack: result.pack } : {}),
       ...(result.garden ? { garden: result.garden } : {}),
     });
     return this.db
       .transaction(() => {
+        if (validated.pack)
+          for (const row of this.db.prepare("SELECT body FROM editions").all() as {
+            body: string;
+          }[]) {
+            const prior = JSON.parse(row.body).pack;
+            if (
+              prior &&
+              (JSON.stringify(generatedPuzzle(prior.signal)) ===
+                JSON.stringify(generatedPuzzle(validated.pack.signal)) ||
+                JSON.stringify(prior.pairs) === JSON.stringify(validated.pack.pairs) ||
+                JSON.stringify(prior.orbit) === JSON.stringify(validated.pack.orbit))
+            )
+              throw new Error("Duplicate game candidate");
+          }
         if (validated.garden) {
           for (const row of this.db.prepare("SELECT body FROM editions").all() as {
             body: string;
@@ -76,6 +93,7 @@ export class EditorialStore {
           title: validated.title,
           description: validated.description,
           categoryIds: validated.categoryIds,
+          ...(validated.pack ? { pack: validated.pack } : {}),
           ...(validated.garden ? { garden: validated.garden } : {}),
           seed: seedForCategories(validated.categoryIds),
           source: result.source,
@@ -108,6 +126,7 @@ export class EditorialStore {
       title: data.title,
       description: data.description,
       categoryIds: data.categoryIds,
+      ...(data.pack ? { pack: data.pack } : {}),
       ...(data.garden ? { garden: data.garden } : {}),
     });
     if (
@@ -190,6 +209,16 @@ export function retainedGarden(id: string) {
   try {
     const e = store.get(id);
     return e?.garden && ["published", "revoked"].includes(e.state) ? e : null;
+  } finally {
+    store.db.close();
+  }
+}
+
+export function retainedPack(id: string) {
+  const store = new EditorialStore(editorialPath());
+  try {
+    const e = store.get(id);
+    return e?.pack && ["published", "revoked"].includes(e.state) ? e : null;
   } finally {
     store.db.close();
   }

@@ -102,3 +102,10 @@ This repository contains the new Fengi app only. The obsolete Alchemy Arena app,
 ## Reviewed AI collections and Spaces
 
 See [Editorial operations](docs/EDITORIAL.md) for generation, rights review, approval, publication and revocation. See [Hugging Face hosting](docs/HUGGINGFACE.md) for Docker configuration and explicit persistence limits. No deployment is automatic.
+
+
+### Reviewed AI practice packs
+
+The private `content:editorial -- generate-pack` command requests game-specific NVIDIA candidates for all five games: Signal Grid patterns/clues, Pair Bloom deck layouts, Orbit Tap targets/gate phases/speed, Trail Trace walls/seeds, and Odd Answer prose/category selection. Strict validation and trusted solvers/rules precede operator review and publication. New practice editions save and resume through the existing progress system. Odd Answer still uses eight curated answer banks; AI does not create unlimited verified answers. Generated sessions are unranked. See [EDITORIAL.md](docs/EDITORIAL.md) for exact controls, clue repair, rights approval, review workflow and limitations.
+
+`NVIDIA_REQUEST_TIMEOUT_MS` optionally sets a bounded authoring request timeout (1,000–180,000ms; default60,000ms), with an overall abort30,000ms later. The model/token budget is unchanged. The model's observed latency can be substantial; fallback is explicit and never labeled successful AI.

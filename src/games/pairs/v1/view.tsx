@@ -1,15 +1,27 @@
 "use client";
 import { useMemo, useRef, useState } from "react";
 import { Result, SaveNotice } from "../../../components/game-shared";
+import type { GeneratedPack } from "../../generated-content";
+import { pairDefinition } from "../../generated-definitions";
 import type { Session } from "../../registry";
 import { pairGame } from "../../releases/definitions-v1";
 import { PhaserSurface } from "../../runtime/phaser-surface";
 import { useGameSession } from "../../runtime/use-game-session";
 import { createDeck, isPair, symbolNames, symbols } from "./engine";
 
-export default function Pairs({ session }: { session: Session }) {
-  const deck = useMemo(() => createDeck(session.seed), [session.seed]);
-  const { state, dispatch, ready, warning } = useGameSession(pairGame, session);
+export default function Pairs({
+  session,
+  content,
+}: {
+  session: Session;
+  content?: GeneratedPack["pairs"];
+}) {
+  const definition = useMemo(() => (content ? pairDefinition(content) : pairGame), [content]);
+  const deck = useMemo(
+    () => (content ? content.deck : createDeck(session.seed)),
+    [session.seed, content],
+  );
+  const { state, dispatch, ready, warning } = useGameSession(definition, session);
   const [flipped, setFlipped] = useState<number[]>([]),
     [message, setMessage] = useState("Pick two cards. Find what belongs together.");
   const revealRemaining = useRef(0);

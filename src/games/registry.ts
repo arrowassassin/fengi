@@ -81,7 +81,9 @@ export const gameReleases: readonly GameRelease[] = games.map((game) => ({
   version: game.version,
   releases: [
     { version: 1, from: "0000-01-01" },
-    ...(game.id === "trail" ? [{ version: 2, from: "9999-12-31" }] : []),
+    ...(["trail", "signal", "pairs", "orbit"].includes(game.id)
+      ? [{ version: 2, from: "9999-12-31" }]
+      : []),
   ],
 }));
 export function supportsVersion(game: GameId, version: number) {

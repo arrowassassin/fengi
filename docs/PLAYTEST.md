@@ -32,3 +32,8 @@ Physical iOS/Android and desktop browser coverage, manual VoiceOver/NVDA session
 
 
 Generated gardens additionally exercise partial interruption/reload, completion/reload, offline moves followed by reconnect/retry, server restoration after removing the browser record, and same-session two-tab locking. Actual NVIDIA-generated layouts are played, interrupted and resumed in desktop/mobile verification. Existing cross-device revision/recovery tests cover the shared persistence transport; these remain automated checks, not durability guarantees for unverified hosting storage.
+
+
+The all-game pack verification exercised a real NVIDIA pack in separate desktop/mobile profiles, completed each game, interrupted/resumed the new practice sessions and reloaded terminal results. Signal and memory verification uses known generated data to solve; this is deterministic integration verification, not an independent player's discovery process. Orbit reaches a real terminal state, which may be a loss. One accepted pack took88.949s; other request attempts hit the90-second deadline. No availability SLO follows from this sample.
+
+Evaluator impressions from the accepted candidate: Signal's repaired clue set leaves relatively few editable cells and may suit onboarding more than repeat expert play. The model's Pair Bloom deck is playable and distributed; completion with known positions does not establish memory difficulty. Orbit's first reversal can quickly lose a life, so the word “gentle” in model prose must be reviewed rather than trusted. The route garden is solvable but uses a simpler semantic-button presentation. Odd Answer novelty remains bounded by its eight reviewed categories. These are concrete candidate observations, not independent human ratings.

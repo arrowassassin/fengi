@@ -1,15 +1,27 @@
 "use client";
 import { useMemo, useState } from "react";
 import { Result, SaveNotice } from "../../../components/game-shared";
+import { type GeneratedPack, generatedPuzzle } from "../../generated-content";
+import { signalDefinition } from "../../generated-definitions";
 import type { Session } from "../../registry";
 import { signalGame } from "../../releases/definitions-v1";
 import { PhaserSurface } from "../../runtime/phaser-surface";
 import { useGameSession } from "../../runtime/use-game-session";
 import { type Cell, createPuzzle, cycle, isSolved, totals } from "./engine";
 
-export default function Signal({ session }: { session: Session }) {
-  const puzzle = useMemo(() => createPuzzle(session.seed), [session.seed]);
-  const { state, dispatch, ready, warning } = useGameSession(signalGame, session);
+export default function Signal({
+  session,
+  content,
+}: {
+  session: Session;
+  content?: GeneratedPack["signal"];
+}) {
+  const definition = useMemo(() => (content ? signalDefinition(content) : signalGame), [content]);
+  const puzzle = useMemo(
+    () => (content ? generatedPuzzle(content) : createPuzzle(session.seed)),
+    [session.seed, content],
+  );
+  const { state, dispatch, ready, warning } = useGameSession(definition, session);
   const [message, setMessage] = useState("Start with a row that already has all its circles.");
   if (!ready) return <p className="loading">Preparing your grid…</p>;
   const solved = isSolved(state.cells, puzzle),

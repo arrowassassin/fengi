@@ -2,6 +2,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import type { GardenLayout } from "../games/garden-state";
+import type { GeneratedPack } from "../games/generated-content";
 import type { Session } from "../games/registry";
 import { readRecord, removeRecord } from "../lib/persistence";
 import { downloadRecords } from "../lib/progress-client";
@@ -13,10 +14,26 @@ const Orbit = dynamic(() => import("../games/orbit/v1/view"), { loading });
 const Odd = dynamic(() => import("../games/odd/v1/view"), { loading });
 const Trail = dynamic(() => import("../games/trail/v1/view"), { loading });
 const Pairs = dynamic(() => import("../games/pairs/v1/view"), { loading });
-export function GameHost({ session, garden }: { session: Session; garden?: GardenLayout }) {
-  return <SessionHost key={session.id} session={session} garden={garden} />;
+export function GameHost({
+  session,
+  garden,
+  pack,
+}: {
+  session: Session;
+  garden?: GardenLayout;
+  pack?: GeneratedPack;
+}) {
+  return <SessionHost key={session.id} session={session} garden={garden} pack={pack} />;
 }
-function SessionHost({ session, garden }: { session: Session; garden?: GardenLayout }) {
+function SessionHost({
+  session,
+  garden,
+  pack,
+}: {
+  session: Session;
+  garden?: GardenLayout;
+  pack?: GeneratedPack;
+}) {
   const [lease, setLease] = useState<"waiting" | "owned" | "busy">("waiting");
   const [conflict, setConflict] = useState(false);
   const [downloadError, setDownloadError] = useState("");
@@ -108,8 +125,20 @@ function SessionHost({ session, garden }: { session: Session; garden?: GardenLay
     );
   if (session.game === "trail" && session.rulesVersion === 2 && garden)
     return <ReviewedGarden garden={garden} session={session} />;
-  const versions: Record<number, typeof Signal> = {
-    1: { signal: Signal, orbit: Orbit, odd: Odd, trail: Trail, pairs: Pairs }[session.game],
+  if (session.rulesVersion === 2 && pack) {
+    if (session.game === "signal") return <Signal session={session} content={pack.signal} />;
+    if (session.game === "pairs") return <Pairs session={session} content={pack.pairs} />;
+    if (session.game === "orbit") return <Orbit session={session} content={pack.orbit} />;
+  }
+  const versions: Record<number, React.ComponentType<{ session: Session }>> = {
+    1: ({ session }) =>
+      ({
+        signal: <Signal session={session} />,
+        orbit: <Orbit session={session} />,
+        odd: <Odd session={session} />,
+        trail: <Trail session={session} />,
+        pairs: <Pairs session={session} />,
+      })[session.game],
   };
   const Component = versions[session.rulesVersion];
   if (!Component) return <p>This rule version is unavailable. Your save is unchanged.</p>;

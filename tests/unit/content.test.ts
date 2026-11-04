@@ -226,3 +226,36 @@ describe("private content pipeline", () => {
     }
   });
 });
+
+it("applies bounded timeout overrides and validates generated pack structure", async () => {
+  const { fixturePack } = await import("../fixtures/generated-pack");
+  const env = {
+    NVIDIA_API_KEY: "test-only",
+    NVIDIA_MODEL: "configured-model",
+    NVIDIA_REQUEST_TIMEOUT_MS: "120000",
+  };
+  const body = {
+    title: "Reviewed game pack",
+    description: "Five small playful challenges.",
+    categoryIds: ["planets", "chess", "si"],
+    pack: fixturePack,
+    garden: { walls: [7, 8, 9, 10], seeds: [6, 18, 28] },
+  };
+  provider.invoke.mockResolvedValueOnce({ content: JSON.stringify(body) });
+  expect((await draftContent("s", env, undefined, true, true)).source).toBe("nvidia");
+  expect(provider.options).toHaveBeenLastCalledWith(
+    expect.objectContaining({ timeout: 120000, maxTokens: 4096 }),
+  );
+  expect((await draftContent("s", { ...env, NVIDIA_REQUEST_TIMEOUT_MS: "999999" })).source).toBe(
+    "deterministic",
+  );
+  provider.invoke.mockResolvedValueOnce({
+    content: JSON.stringify({
+      ...body,
+      pack: { ...fixturePack, pairs: { deck: Array(16).fill(0) } },
+    }),
+  });
+  const rejected = await draftContent("s", env, undefined, true, true);
+  expect(rejected.source).toBe("deterministic");
+  expect(rejected.diagnostics?.stage).toBe("schema-validation");
+});

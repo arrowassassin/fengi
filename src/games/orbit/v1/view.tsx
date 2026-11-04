@@ -1,23 +1,36 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Result, SaveNotice } from "../../../components/game-shared";
+import type { GeneratedPack } from "../../generated-content";
+import { generatedGate, generatedTarget, orbitDefinition } from "../../generated-definitions";
 import type { Session } from "../../registry";
 import { orbitGame } from "../../releases/definitions-v1";
 import { PhaserSurface } from "../../runtime/phaser-surface";
 import { useGameSession } from "../../runtime/use-game-session";
 import {
   DURATION,
-  hazardActive,
+  hazardActive as defaultHazardActive,
+  target as defaultTarget,
   hazards,
   initialOrbit,
   type OrbitState,
   orbitScore,
   STEP,
-  target,
 } from "./engine";
 
-export default function Orbit({ session }: { session: Session }) {
-  const { state, commit: setState, ready, warning, saveNow } = useGameSession(orbitGame, session);
+export default function Orbit({
+  session,
+  content,
+}: {
+  session: Session;
+  content?: GeneratedPack["orbit"];
+}) {
+  const definition = useMemo(() => (content ? orbitDefinition(content) : orbitGame), [content]);
+  const target = (seed: string, index: number) =>
+    content ? generatedTarget(content, index) : defaultTarget(seed, index);
+  const hazardActive = (tick: number, index: number) =>
+    content ? generatedGate(content, tick, index) : defaultHazardActive(tick, index);
+  const { state, commit: setState, ready, warning, saveNow } = useGameSession(definition, session);
   const simulation = useRef<OrbitState>(initialOrbit()),
     initialized = useRef(false),
     [frame, setFrame] = useState(initialOrbit),
@@ -35,7 +48,7 @@ export default function Orbit({ session }: { session: Session }) {
     if (!running || !ready) return;
     accumulator.current += Math.min(deltaMs / 1000, 0.1);
     while (accumulator.current >= STEP && !simulation.current.done) {
-      simulation.current = orbitGame.reduce(session, simulation.current, { type: "step" });
+      simulation.current = definition.reduce(session, simulation.current, { type: "step" });
       accumulator.current -= STEP;
     }
     setFrame(simulation.current);
@@ -178,7 +191,7 @@ export default function Orbit({ session }: { session: Session }) {
                 className="button primary"
                 disabled={!running}
                 onClick={() => {
-                  simulation.current = orbitGame.reduce(session, simulation.current, {
+                  simulation.current = definition.reduce(session, simulation.current, {
                     type: "reverse",
                   });
                   setFrame(simulation.current);

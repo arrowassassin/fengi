@@ -1,7 +1,10 @@
 import { resolve } from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { generatedPuzzle } from "../../src/games/generated-content";
 import { dailyPrompts } from "../../src/games/odd/engine";
+import { createDeck } from "../../src/games/pairs/v1/engine";
+import { createPuzzle } from "../../src/games/signal/v1/engine";
 import { createGarden, shortestRoute } from "../../src/games/trail/engine";
 import { draftContent } from "../../src/server/content-draft";
 import { type Edition, EditorialStore } from "../../src/server/editorial";
@@ -13,6 +16,20 @@ test.beforeAll(async () => {
   const result = await draftContent("browser-fixture", {});
   const fixture = createGarden(`fixture-${Date.now()}-${Math.random()}`);
   result.garden = { walls: fixture.walls, seeds: fixture.seeds };
+  const contentSeed = `fixture-${Date.now()}-${Math.random()}`,
+    logic = createPuzzle(contentSeed);
+  result.pack = {
+    signal: {
+      solution: logic.solution as (0 | 1)[],
+      clues: logic.givens.flatMap((v, i) => (v === -1 ? [] : [i])),
+    },
+    pairs: { deck: createDeck(contentSeed) },
+    orbit: {
+      targets: [0.5, 1.8, 3.6, 5.1],
+      phases: [Math.floor(Math.random() * 50), 70, 140],
+      speed: 1.5,
+    },
+  };
   const created = store.create(result, "", "Original deterministic test fixture; no inference");
   if (!created) throw new Error("Missing fixture");
   edition = created;
@@ -116,3 +133,52 @@ test("approved generated garden is playable and keyboard accessible", async ({ p
   await page.getByRole("button", { name: "Restart garden" }).click();
   await expect(page.getByRole("status")).toContainText("0/3 seeds");
 });
+
+for (const game of ["signal", "pairs", "orbit"] as const)
+  test(`reviewed generated ${game} completes and restores`, async ({ page }) => {
+    test.setTimeout(75000);
+    const p = edition.pack;
+    if (!p) throw new Error("Missing pack");
+    await page.goto(`/play/${game}?collection=${edition.id}`);
+    await expect(page.locator('[data-engine="phaser"] canvas')).toHaveCount(1);
+    if (game === "signal") {
+      const puzzle = generatedPuzzle(p.signal);
+      let resumed = false;
+      for (let i = 0; i < 25; i++)
+        if (puzzle.givens[i] === -1) {
+          await page.locator(`[data-cell="${i}"]`).click();
+          if (puzzle.solution[i] === 0) await page.locator(`[data-cell="${i}"]`).click();
+          if (!resumed) {
+            await page.reload();
+            await expect(page.locator(`[data-cell="${i}"]`)).toHaveAttribute(
+              "data-state",
+              String(puzzle.solution[i]),
+            );
+            resumed = true;
+          }
+        }
+    }
+    if (game === "pairs")
+      for (let symbol = 0; symbol < 8; symbol++) {
+        for (const i of p.pairs.deck.flatMap((v, i) => (v === symbol ? [i] : [])))
+          await page.locator(`[data-card="${i}"]`).click();
+        if (symbol < 7) await page.waitForTimeout(950);
+        if (symbol === 1) {
+          await page.reload();
+          await expect(page.locator(".pair-card.paired")).toHaveCount(4);
+        }
+      }
+    if (game === "orbit") {
+      await page.getByRole("button", { name: "Start run", exact: true }).click();
+      await page.getByRole("button", { name: "Reverse direction" }).click();
+      await page.waitForTimeout(1100);
+      await page.getByRole("button", { name: "Pause", exact: true }).click();
+      await page.reload();
+      await page.getByRole("button", { name: "Resume", exact: true }).click();
+    }
+    await expect(page.getByRole("heading", { name: "Time well spent." })).toBeVisible({
+      timeout: 60000,
+    });
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "Time well spent." })).toBeVisible();
+  });

@@ -1836,3 +1836,10 @@ fieldset.trail-board {
     padding: 26px;
   }
 }
+
+.collection-games {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-block: 24px;
+}

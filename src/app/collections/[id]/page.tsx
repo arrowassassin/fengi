@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { categories } from "../../../games/odd/content";
 import { publicEdition } from "../../../server/editorial";
 export const dynamic = "force-dynamic";
-export const metadata = { title: "An Odd Answer collection" };
+export const metadata = { title: "A reviewed Fengi collection" };
 export default async function Collection({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params,
     e = publicEdition(id);
@@ -23,14 +23,23 @@ export default async function Collection({ params }: { params: Promise<{ id: str
           <li key={category}>{categories.find((c) => c.id === category)?.prompt}</li>
         ))}
       </ul>
-      <Link className="button primary" href={`/play/odd?collection=${e.id}`}>
-        Play this collection <span aria-hidden="true">↗</span>
-      </Link>
-      {e.garden && (
-        <Link className="button primary" href={`/collections/${e.id}/trail`}>
-          Play generated garden
+      <nav className="collection-games" aria-label="Play reviewed games">
+        <Link className="button primary" href={`/play/odd?collection=${e.id}`}>
+          Play this collection <span aria-hidden="true">↗</span>
         </Link>
-      )}
+        {e.pack &&
+          ["signal", "pairs", "orbit"].map((game) => (
+            <Link key={game} className="button primary" href={`/play/${game}?collection=${e.id}`}>
+              Play{" "}
+              {game === "signal" ? "Signal Grid" : game === "pairs" ? "Pair Bloom" : "Orbit Tap"}
+            </Link>
+          ))}
+        {e.garden && (
+          <Link className="button primary" href={`/collections/${e.id}/trail`}>
+            Play generated garden
+          </Link>
+        )}
+      </nav>
       <p className="small muted">
         Original answers and scoring. Your progress saves as a practice game.
       </p>

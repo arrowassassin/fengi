@@ -7,6 +7,7 @@ import { expect, it } from "vitest";
 import { verifyBundle } from "../../src/server/backup";
 import { EditorialStore } from "../../src/server/editorial";
 import { ProgressStore } from "../../src/server/store";
+import { fixturePack } from "../fixtures/generated-pack";
 
 it("requires both snapshots and rejects editorial corruption and unsupported schemas", () => {
   const dir = mkdtempSync(join(tmpdir(), "fengi-backup-test-"));
@@ -75,6 +76,7 @@ it("verifies populated garden pairs after backup/restore and rejects a missing r
   try {
     const { draftContent } = await import("../../src/server/content-draft");
     const draft = await draftContent("fixture", {});
+    draft.pack = fixturePack;
     draft.garden = { walls: [7, 8, 9, 10], seeds: [6, 18, 28] };
     const e = editorial.create(draft, "", "test rights");
     if (!e) throw new Error("fixture");
@@ -92,6 +94,17 @@ it("verifies populated garden pairs after backup/restore and rejects a missing r
         1,
         "test",
         JSON.stringify({ id, state: { version: 1, path: [0, 6] } }),
+        Date.now(),
+      );
+    const pairId = `pairs:v2:practice:${e.id}:standard`;
+    progress.db
+      .prepare("INSERT INTO saves(profile,id,revision,mutation,body,updated) VALUES(?,?,?,?,?,?)")
+      .run(
+        "test-profile",
+        pairId,
+        1,
+        "pair",
+        JSON.stringify({ id: pairId, state: { matched: [], turns: 0 } }),
         Date.now(),
       );
     const loader = resolve("node_modules/tsx/dist/loader.mjs");
