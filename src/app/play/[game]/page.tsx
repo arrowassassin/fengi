@@ -1,0 +1,93 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { GameHost } from "../../../components/game-host";
+import { games, isGameId, sessionFor, supportsVersion } from "../../../games/registry";
+import { publicEdition, retainedGarden, retainedPack } from "../../../server/editorial";
+export const dynamic = "force-dynamic";
+type Props = {
+  params: Promise<{ game: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+export async function generateMetadata({ params }: Props) {
+  const { game } = await params;
+  return { title: games.find((g) => g.id === game)?.name ?? "Game not found" };
+}
+export default async function Play({ params, searchParams }: Props) {
+  const { game } = await params;
+  if (!isGameId(game)) notFound();
+  const raw = await searchParams,
+    query = new URLSearchParams();
+  for (const [key, value] of Object.entries(raw))
+    if (typeof value === "string") query.set(key, value);
+  const collection = query.get("collection");
+  const edition = collection ? publicEdition(collection) : null;
+  if (
+    collection &&
+    (!edition ||
+      (game !== "odd" && !(edition?.pack && ["signal", "pairs", "orbit"].includes(game))))
+  )
+    notFound();
+  if (edition) {
+    query.set("mode", "practice");
+    query.set("seed", game === "odd" ? edition.seed : edition.id);
+    query.set("version", game === "odd" ? "1" : "2");
+  }
+  const session = sessionFor(game, query),
+    info = games.find((g) => g.id === game);
+  const packEdition =
+    session.rulesVersion === 2 &&
+    ["signal", "pairs", "orbit"].includes(game) &&
+    session.mode === "practice"
+      ? retainedPack(session.seed)
+      : null;
+  if (
+    session.rulesVersion === 2 &&
+    ["signal", "pairs", "orbit"].includes(game) &&
+    !packEdition?.pack
+  )
+    notFound();
+  const gardenEdition =
+    game === "trail" && session.rulesVersion === 2 && session.mode === "practice"
+      ? retainedGarden(session.seed)
+      : null;
+  if (game === "trail" && session.rulesVersion === 2 && !gardenEdition?.garden) notFound();
+  if (!supportsVersion(game, session.rulesVersion))
+    return (
+      <section>
+        <h1>This edition is unavailable.</h1>
+        <p>
+          Your saved progress has not been changed. This rule version cannot run on this server.
+        </p>
+        <Link href="/progress">Back to your progress</Link>
+      </section>
+    );
+  return (
+    <section className={`game-page tone-${info?.color}`}>
+      <div className="play-header">
+        <Link className="back-link" href="/">
+          ← All games
+        </Link>
+        <span className="pill">
+          {session.mode === "daily" ? "DAILY" : "PRACTICE"} / {session.label}
+          {session.calm ? " · CALM" : ""}
+        </span>
+      </div>
+      <div className="play-title">
+        <h1>{info?.name}</h1>
+        <p>
+          {info?.category} <span>·</span> {info?.time}
+        </p>
+      </div>
+      {edition && (
+        <aside className="edition-banner">
+          <strong>{edition.title}</strong>
+          <p>{edition.description}</p>
+          <span className="small">
+            {edition.source === "nvidia" ? "AI-assisted" : "Curated"} · Human reviewed
+          </span>
+        </aside>
+      )}
+      <GameHost session={session} garden={gardenEdition?.garden} pack={packEdition?.pack} />
+    </section>
+  );
+}

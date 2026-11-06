@@ -1,0 +1,11 @@
+.git
+node_modules
+.next
+.env*
+.data
+backups
+content-drafts
+test-results
+playwright-report
+coverage
+*.sqlite*
