@@ -52,10 +52,13 @@ export function ReviewedGarden({
       <fieldset
         className="reviewed-garden-board"
         aria-label="Generated garden board"
+        tabIndex={-1}
         onKeyDown={(event) => {
           const delta = { ArrowUp: -6, ArrowDown: 6, ArrowLeft: -1, ArrowRight: 1 }[event.key];
           if (delta !== undefined) {
             event.preventDefault();
+            // Keep arrows on a stable target when a move disables the former cell.
+            event.currentTarget.focus();
             const to = current + delta;
             if (
               !complete &&
@@ -84,7 +87,10 @@ export function ReviewedGarden({
               garden.walls.includes(cell) ||
               !neighbors(current).includes(cell)
             }
-            onClick={() => setPath([...path, cell])}
+            onClick={(event) => {
+              event.currentTarget.parentElement?.focus();
+              setPath([...path, cell]);
+            }}
             style={{
               minHeight: 44,
               border: "1px solid var(--ink)",

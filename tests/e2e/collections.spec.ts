@@ -229,3 +229,33 @@ test("generated Orbit calm moves slower, saves separately and resumes paused", a
     await expect(page.getByRole("button", { name: "Resume", exact: true })).toBeVisible();
   }
 });
+
+test("generated garden supports consecutive arrow moves without losing board focus", async ({
+  page,
+}) => {
+  await page.goto(`/collections/${edition.id}/trail`);
+  const garden = edition.garden;
+  if (!garden) throw new Error("Missing garden");
+  const route = shortestRoute(garden.walls, garden.seeds);
+  if (!route || route.length < 5) throw new Error("Missing route");
+  await page.keyboard.press("Tab");
+  await page.getByRole("button", { name: new RegExp(`^Cell ${route[1] + 1}(,|$)`) }).focus();
+  for (let i = 1; i < 5; i++) {
+    const delta = route[i] - route[i - 1];
+    const key =
+      delta === 1
+        ? "ArrowRight"
+        : delta === -1
+          ? "ArrowLeft"
+          : delta === 6
+            ? "ArrowDown"
+            : "ArrowUp";
+    await page.keyboard.press(key);
+    await expect(page.getByRole("status")).toContainText(`${i} moves`);
+    await expect(page.getByRole("group", { name: "Generated garden board" })).toBeFocused();
+  }
+  await page.getByRole("button", { name: "Undo step" }).click();
+  await expect(page.getByRole("status")).toContainText("3 moves");
+  await page.reload();
+  await expect(page.getByRole("status")).toContainText("3 moves");
+});

@@ -726,6 +726,15 @@ select {
   outline: 2px solid var(--moss-ink);
   outline-offset: -4px;
 }
+.garden-cell[data-legal="true"]:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+  box-shadow: inset 0 0 0 2px var(--moss-ink);
+}
+.reviewed-garden-board:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 4px;
+}
 .word-panel {
   border-radius: 22px;
   border: 1px solid var(--line);

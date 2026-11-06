@@ -122,3 +122,23 @@ test("daily shelf distinguishes a completed edition from a resumable game", asyn
   await expect(card).toContainText("Completed");
   await expect(page.locator(".resume-strip")).toHaveCount(0);
 });
+
+test("Trail legal moves retain a distinct keyboard focus ring in both themes", async ({ page }) => {
+  await page.goto("/play/trail?mode=practice&seed=ux-focus");
+  const legal = page.locator('.garden-cell[data-legal="true"]').first();
+  for (const dark of [false, true]) {
+    if (dark) await page.getByRole("button", { name: "Use dark theme" }).click();
+    await page.keyboard.press("Tab");
+    await legal.focus();
+    await expect(legal).toBeFocused();
+    expect(await legal.evaluate((el) => el.matches(":focus-visible"))).toBe(true);
+    await expect(legal).toHaveCSS("outline-width", "3px");
+    await expect(legal).toHaveCSS("outline-offset", "3px");
+    const focusColor = await legal.evaluate((el) => getComputedStyle(el).outlineColor);
+    await page.keyboard.press("Tab");
+    await expect(legal).not.toBeFocused();
+    await expect(legal).toHaveCSS("outline-width", "2px");
+    await expect(legal).toHaveCSS("outline-offset", "-4px");
+    expect(await legal.evaluate((el) => getComputedStyle(el).outlineColor)).not.toBe(focusColor);
+  }
+});
