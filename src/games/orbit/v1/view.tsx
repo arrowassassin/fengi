@@ -33,12 +33,15 @@ export default function Orbit({
   const { state, commit: setState, ready, warning, saveNow } = useGameSession(definition, session);
   const simulation = useRef<OrbitState>(initialOrbit()),
     initialized = useRef(false),
+    reverseButton = useRef<HTMLButtonElement>(null),
     [frame, setFrame] = useState(initialOrbit),
-    [running, setRunning] = useState(false);
+    [running, setRunning] = useState(false),
+    [hasStarted, setHasStarted] = useState(false);
   useEffect(() => {
     if (ready && !initialized.current) {
       simulation.current = state;
       setFrame(state);
+      setHasStarted(state.tick > 0);
       initialized.current = true;
     }
   }, [ready, state]);
@@ -78,7 +81,12 @@ export default function Orbit({
       window.removeEventListener("pagehide", save);
     };
   }, [ready, saveNow]);
-  if (!ready) return <p className="loading">Setting your orbit…</p>;
+  if (!ready)
+    return (
+      <p className="loading" role="status">
+        Setting your orbit…
+      </p>
+    );
   const point = (angle: number, radius = 118) => ({
       x: 160 + Math.cos(angle) * radius,
       y: 160 + Math.sin(angle) * radius,
@@ -102,32 +110,10 @@ export default function Orbit({
         </Result>
       ) : (
         <div className="play-layout">
-          <div className="game-intro">
-            <span className="eyebrow">One button. A whole new rhythm.</span>
-            <h2>Find your flow.</h2>
-            <p>
-              Collect gold sparks. Reverse direction to avoid the three gates while they’re closed.
-              Gates pulse open and shut.
-            </p>
-            <details className="rules">
-              <summary>Controls and scoring</summary>
-              <p>
-                Press Reverse direction, or focus that button and use Space/Enter. Each spark earns
-                10 points. Three collisions end the round; otherwise play for 45 active seconds.
-                Leaving the tab pauses automatically. Calm practice moves more slowly and has
-                separate results.
-              </p>
-            </details>
-            <p className="stat-line">
-              {orbitScore(frame)} pts <span>·</span> {frame.lives} lives <span>·</span>{" "}
-              {Math.ceil(DURATION - frame.tick * STEP)}s
-            </p>
-            <p className="small muted">
-              {session.calm ? "Calm practice · slower movement" : "Standard pace"} · Pausing has no
-              penalty
-            </p>
-          </div>
           <div className="board-area">
+            <p className="board-instruction">
+              Collect gold sparks. Reverse to dodge closed × gates.
+            </p>
             <PhaserSurface
               game="orbit"
               onFrame={step}
@@ -142,6 +128,7 @@ export default function Orbit({
                   })),
                   score: orbitScore(frame),
                   running,
+                  phase: hasStarted ? "paused" : "ready",
                   recovering: frame.cooldown > 0,
                 },
               }}
@@ -150,7 +137,7 @@ export default function Orbit({
                 <svg
                   viewBox="0 0 320 320"
                   role="img"
-                  aria-label={`Orbit arena: ${frame.sparks} sparks, ${frame.lives} lives, ${running ? "running" : "paused"}`}
+                  aria-label={`Orbit arena: ${frame.sparks} sparks, ${frame.lives} lives, ${running ? "running" : hasStarted ? "paused" : "ready"}`}
                 >
                   <circle className="orbit-track" cx="160" cy="160" r="118" fill="none" />
                   {hazards.map((angle, i) => {
@@ -180,15 +167,16 @@ export default function Orbit({
                     {orbitScore(frame)}
                   </text>
                   <text x="160" y="178" textAnchor="middle" className="orbit-caption">
-                    {running ? "FIND YOUR RHYTHM" : frame.tick ? "PAUSED" : "READY WHEN YOU ARE"}
+                    {running ? "FIND YOUR RHYTHM" : hasStarted ? "PAUSED" : "READY WHEN YOU ARE"}
                   </text>
                 </svg>
               </div>
             </PhaserSurface>
-            <div className="actions centered">
+            <div className="actions centered orbit-controls">
               <button
                 type="button"
                 className="button primary"
+                ref={reverseButton}
                 disabled={!running}
                 onClick={() => {
                   simulation.current = definition.reduce(session, simulation.current, {
@@ -205,13 +193,50 @@ export default function Orbit({
                 onClick={() => {
                   if (running) setState({ ...simulation.current });
                   setRunning((v) => !v);
+                  if (!running) setHasStarted(true);
+                  if (!running) requestAnimationFrame(() => reverseButton.current?.focus());
                 }}
               >
-                {running ? "Pause" : frame.tick ? "Resume" : "Start run"}
+                {running ? "Pause" : hasStarted ? "Resume" : "Start run"}
               </button>
             </div>
+            <section className="orbit-live-info" aria-label="Orbit feedback">
+              <span role="status">
+                Direction: {frame.direction === 1 ? "clockwise ↻" : "counterclockwise ↺"}
+              </span>
+              {hazards.map((_, i) => (
+                <span key={`gate-status-${i}`}>
+                  Gate {i + 1}: {hazardActive(frame.tick, i) ? "× closed" : "○ open"}
+                </span>
+              ))}
+            </section>
             <p className="small muted centered">
               Solid × gates hurt. Faint gates are safe to cross.
+            </p>
+          </div>
+          <div className="game-intro">
+            <span className="eyebrow">One button. A whole new rhythm.</span>
+            <h2>Find your flow.</h2>
+            <p>
+              Collect gold sparks. Reverse direction to avoid the three gates while they’re closed.
+              Gates pulse open and shut.
+            </p>
+            <details className="rules">
+              <summary>Controls and scoring</summary>
+              <p>
+                Press Reverse direction, or focus that button and use Space/Enter. Each spark earns
+                10 points. Three collisions end the round; otherwise play for 45 active seconds.
+                Leaving the tab pauses automatically. Calm practice moves more slowly and has
+                separate results.
+              </p>
+            </details>
+            <p className="stat-line">
+              {orbitScore(frame)} pts <span>·</span> {frame.lives} lives <span>·</span>{" "}
+              {Math.ceil(DURATION - frame.tick * STEP)}s
+            </p>
+            <p className="small muted">
+              {session.calm ? "Calm practice · slower movement" : "Standard pace"} · Pausing has no
+              penalty
             </p>
           </div>
         </div>

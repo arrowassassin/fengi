@@ -62,22 +62,38 @@ test("published collection reaches its exact playable categories, saves and rest
   await page.goto("/collections/not-published");
   await expect(page.getByRole("heading", { name: "A little off the path." })).toBeVisible();
 });
-test("mushroom identity is responsive, keyboard reachable and visually stable", async ({
+test("play club identity is responsive, keyboard reachable and visually stable", async ({
   page,
 }) => {
   await page.goto("/");
   await page.keyboard.press("Tab");
   await expect(page.getByRole("link", { name: "Skip to content" })).toBeFocused();
-  await expect(page.locator(".collection-promo")).toHaveScreenshot("mushroom-collection.png", {
+  await page.mouse.move(0, 0);
+  await expect(page.locator(".club-welcome")).toHaveScreenshot("play-club-welcome.png", {
     animations: "disabled",
     // Permit minor platform font rasterization differences, not layout changes.
     maxDiffPixelRatio: 0.001,
   });
-  await page.getByRole("button", { name: "Use dark theme" }).click();
-  await expect(page.locator(".collection-promo")).toHaveScreenshot("mushroom-collection-dark.png", {
+  await page.mouse.move(0, 0);
+  const shelfStyle = await page.addStyleTag({
+    content: ".header-inner nav { visibility: hidden; }",
+  });
+  await expect(page.locator(".lobby-grid")).toHaveScreenshot("play-club-shelf.png", {
     animations: "disabled",
     maxDiffPixelRatio: 0.001,
   });
+  await page.getByRole("button", { name: "Use dark theme" }).click();
+  await page.mouse.move(0, 0);
+  await expect(page.locator(".club-welcome")).toHaveScreenshot("play-club-welcome-dark.png", {
+    animations: "disabled",
+    maxDiffPixelRatio: 0.001,
+  });
+  await page.mouse.move(0, 0);
+  await expect(page.locator(".lobby-grid")).toHaveScreenshot("play-club-shelf-dark.png", {
+    animations: "disabled",
+    maxDiffPixelRatio: 0.001,
+  });
+  await shelfStyle.evaluate((el) => el.parentNode?.removeChild(el));
   expect(
     (await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze())
       .violations,

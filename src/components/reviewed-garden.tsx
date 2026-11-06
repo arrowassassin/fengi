@@ -24,17 +24,22 @@ export function ReviewedGarden({
   );
   const path = saved.state.path;
   const setPath = (path: number[]) => saved.setState({ version: 1, path });
-  if (!saved.ready) return <p>Loading saved garden…</p>;
+  if (!saved.ready)
+    return (
+      <p className="loading" role="status">
+        Loading saved garden…
+      </p>
+    );
   const current = path[path.length - 1],
     collected = garden.seeds.filter((c) => path.includes(c)).length;
   const complete = current === 35 && collected === 3;
   const optimum = (shortestRoute(garden.walls, garden.seeds)?.length || 1) - 1;
   return (
-    <section>
+    <section className="reviewed-garden">
       {saved.warning && <p role="alert">{saved.warning}</p>}
       <p>
-        Collect all three seeds, then reach cell 36. Choose an adjacent square; retracing is
-        allowed.
+        Collect all three seeds, then reach cell 36. Choose an adjacent square or use arrow keys;
+        retracing is allowed.
       </p>
       <p role="status">
         {complete
@@ -44,7 +49,23 @@ export function ReviewedGarden({
       {path.length >= 2000 && (
         <p role="alert">Move limit reached. Restart this garden to play again.</p>
       )}
-      <div
+      <fieldset
+        className="reviewed-garden-board"
+        aria-label="Generated garden board"
+        onKeyDown={(event) => {
+          const delta = { ArrowUp: -6, ArrowDown: 6, ArrowLeft: -1, ArrowRight: 1 }[event.key];
+          if (delta !== undefined) {
+            event.preventDefault();
+            const to = current + delta;
+            if (
+              !complete &&
+              path.length < 2000 &&
+              neighbors(current).includes(to) &&
+              !garden.walls.includes(to)
+            )
+              setPath([...path, to]);
+          }
+        }}
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(6,minmax(0,1fr))",
@@ -81,7 +102,15 @@ export function ReviewedGarden({
                     : cell + 1}
           </button>
         ))}
-      </div>
+      </fieldset>
+      <button
+        type="button"
+        className="button secondary"
+        disabled={path.length <= 1}
+        onClick={() => setPath(path.slice(0, -1))}
+      >
+        Undo step
+      </button>
       <button type="button" className="button secondary" onClick={() => setPath([0])}>
         Restart garden
       </button>

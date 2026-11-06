@@ -33,7 +33,7 @@
       }
     },
     {
-      "includes": ["src/app/globals.css"],
+      "includes": ["src/app/globals.css", "src/app/experience.css"],
       "linter": {
         "rules": {
           "style": {

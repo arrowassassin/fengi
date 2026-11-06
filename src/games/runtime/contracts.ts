@@ -23,5 +23,6 @@ export type OrbitPicture = {
   score: number;
   running: boolean;
   recovering: boolean;
+  phase?: "ready" | "paused";
 };
 export type ScenePicture = { nodes: SceneNode[]; orbit?: OrbitPicture };

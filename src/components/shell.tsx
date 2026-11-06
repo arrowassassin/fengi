@@ -44,8 +44,18 @@ export function Header() {
             ["/collections", "Collections"],
             ["/progress", "Your progress"],
           ].map(([href, label]) => (
-            <Link key={href} href={href} aria-current={path === href ? "page" : undefined}>
-              {label}
+            <Link
+              key={href}
+              href={href}
+              aria-label={label}
+              aria-current={
+                path === href || (href !== "/" && path.startsWith(`${href}/`)) ? "page" : undefined
+              }
+            >
+              <span className="nav-icon" aria-hidden="true">
+                <NavigationIcon href={href} />
+              </span>
+              <span>{label === "Your progress" ? "Progress" : label}</span>
             </Link>
           ))}
         </nav>
@@ -55,7 +65,7 @@ export function Header() {
           onClick={toggle}
           aria-label={dark ? "Use light theme" : "Use dark theme"}
         >
-          {dark ? "☀" : "☾"}
+          <span aria-hidden="true">{dark ? "☀" : "☾"}</span>
         </button>
       </div>
     </header>
@@ -72,5 +82,47 @@ export function Footer() {
         <Link href="/about">About & privacy</Link>
       </div>
     </footer>
+  );
+}
+
+function NavigationIcon({ href }: { href: string }) {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {href === "/" ? (
+        <>
+          <rect x="3" y="3" width="7" height="7" rx="2" />
+          <rect x="14" y="3" width="7" height="7" rx="2" />
+          <rect x="3" y="14" width="7" height="7" rx="2" />
+          <rect x="14" y="14" width="7" height="7" rx="2" />
+        </>
+      ) : href === "/practice" ? (
+        <>
+          <path d="m12 3 9 9-9 9-9-9Z" />
+          <path d="M9 12h6m-3-3v6" />
+        </>
+      ) : href === "/archive" ? (
+        <>
+          <rect x="4" y="5" width="16" height="16" rx="2" />
+          <path d="M8 3v4m8-4v4M4 11h16M8 15h3m3 0h2" />
+        </>
+      ) : href === "/collections" ? (
+        <path d="m4 7 8-4 8 4-8 4Zm0 5 8 4 8-4M4 17l8 4 8-4" />
+      ) : (
+        <>
+          <path d="m4 17 5-5 4 3 7-9m-5 0h5v5" />
+          <path d="M4 4v17h17" />
+        </>
+      )}
+    </svg>
   );
 }

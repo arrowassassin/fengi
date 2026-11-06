@@ -4,11 +4,11 @@ export const metadata: Metadata = { title: "Practice" };
 export default function Page() {
   return (
     <>
-      <p className="eyebrow">Play at your own pace</p>
+      <p className="eyebrow">Practice · play at your own pace</p>
       <h1>
-        A little more
+        A fresh round.
         <br />
-        <em>room to think.</em>
+        <em>On your terms.</em>
       </h1>
       <p className="page-lead">Fresh seeds. Familiar rules. A round just for you.</p>
       <Practice />

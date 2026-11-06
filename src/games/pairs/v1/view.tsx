@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Result, SaveNotice } from "../../../components/game-shared";
 import type { GeneratedPack } from "../../generated-content";
 import { pairDefinition } from "../../generated-definitions";
@@ -25,7 +25,29 @@ export default function Pairs({
   const [flipped, setFlipped] = useState<number[]>([]),
     [message, setMessage] = useState("Pick two cards. Find what belongs together.");
   const revealRemaining = useRef(0);
-  if (!ready) return <p className="loading">Shuffling the flowers…</p>;
+  const [holdReveal, setHoldReveal] = useState(false);
+  useEffect(() => {
+    try {
+      setHoldReveal(localStorage.getItem("fengi:pair-reveal") === "hold");
+    } catch {
+      /* Optional preference. */
+    }
+  }, []);
+  function setRevealPreference(hold: boolean) {
+    setHoldReveal(hold);
+    try {
+      localStorage.setItem("fengi:pair-reveal", hold ? "hold" : "auto");
+    } catch {
+      /* Keep in-memory preference. */
+    }
+  }
+
+  if (!ready)
+    return (
+      <p className="loading" role="status">
+        Shuffling the flowers…
+      </p>
+    );
   function flip(index: number) {
     if (flipped.length === 2 || flipped.includes(index) || state.matched.includes(index)) return;
     const next = [...flipped, index];
@@ -66,22 +88,35 @@ export default function Pairs({
               your own pace.
             </p>
             <p className="stat-line">
-              {state.matched.length / 2}/8 pairs <span>·</span> {state.turns} turns
+              {state.matched.length / 2}/8 pairs <span>·</span> {state.turns}{" "}
+              {state.turns === 1 ? "turn" : "turns"}
             </p>
             <details className="rules">
               <summary>How to play</summary>
               <p>
-                Tap a card or use Tab and Enter. Mismatches stay visible for a moment. There’s no
-                timer. Reloading preserves matched pairs and turns; unfinished selections turn
-                face-down.
+                Tap a card or use Tab and Enter. By default, mismatches turn back after 0.9 seconds.
+                Use the reveal preference to keep them visible until you choose to continue. There’s
+                no game timer. Reloading preserves matched pairs and turns; unfinished selections
+                turn face-down.
               </p>
             </details>
+            <label className="reveal-setting">
+              <input
+                type="checkbox"
+                checked={holdReveal}
+                onChange={(e) => setRevealPreference(e.target.checked)}
+              />
+              Keep mismatches visible until I’m ready
+            </label>
           </div>
           <div className="board-area">
             <PhaserSurface
               game="pairs"
               onFrame={(delta) => {
-                if (flipped.length === 2) {
+                if (
+                  flipped.length === 2 &&
+                  !(holdReveal && !isPair(deck, flipped[0], flipped[1]))
+                ) {
                   revealRemaining.current -= delta;
                   if (revealRemaining.current <= 0) setFlipped([]);
                 }
@@ -122,6 +157,18 @@ export default function Pairs({
                 })}
               </div>
             </PhaserSurface>
+            {holdReveal && flipped.length === 2 && !isPair(deck, flipped[0], flipped[1]) && (
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => {
+                  setFlipped([]);
+                  setMessage("Cards hidden. Choose your next pair.");
+                }}
+              >
+                Hide cards and continue
+              </button>
+            )}
             <p className="feedback" role="status">
               {message}
             </p>

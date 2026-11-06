@@ -54,6 +54,7 @@ export function PhaserSurface({
       try {
         const imported = await import("phaser");
         const P = imported.default ?? imported;
+        await document.fonts.ready;
         if (disposed || !host.current || !root.current) return;
         class BoardScene extends P.Scene {
           nodes = new Map<
@@ -226,11 +227,18 @@ export function PhaserSurface({
                 .setPosition(cx, cy - 9 * scale)
                 .setFontSize(40 * scale);
               this.caption
-                ?.setText(orbit.running ? "FIND YOUR RHYTHM" : "READY WHEN YOU ARE")
+                ?.setText(
+                  orbit.running
+                    ? "FIND YOUR RHYTHM"
+                    : orbit.phase === "paused"
+                      ? "PAUSED"
+                      : "READY WHEN YOU ARE",
+                )
                 .setColor(css("--coral-ink"))
                 .setPosition(cx, cy + 22 * scale)
                 .setFontSize(10 * scale);
             }
+            if (orbit) element.dataset.engineCaption = this.caption?.text ?? "";
             element.dataset.engineFrame = String(Number(element.dataset.engineFrame ?? 0) + 1);
           }
           update(_time: number, delta: number) {

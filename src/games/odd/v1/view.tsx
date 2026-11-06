@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Result, SaveNotice } from "../../../components/game-shared";
 import type { Session } from "../../registry";
 import { oddGame } from "../../releases/definitions-v1";
@@ -10,9 +10,15 @@ import { dailyPrompts, judge } from "./engine";
 export default function Odd({ session }: { session: Session }) {
   const prompts = useMemo(() => dailyPrompts(session.seed), [session.seed]);
   const { state, dispatch, ready, warning } = useGameSession(oddGame, session);
+  const answerInput = useRef<HTMLInputElement>(null);
   const [answer, setAnswer] = useState(""),
     [error, setError] = useState("");
-  if (!ready) return <p className="loading">Opening your prompts…</p>;
+  if (!ready)
+    return (
+      <p className="loading" role="status">
+        Opening your prompts…
+      </p>
+    );
   const index = state.answers.length,
     current = prompts[index],
     score = state.answers.reduce(
@@ -26,11 +32,13 @@ export default function Odd({ session }: { session: Session }) {
       setError(
         "Not in this edition’s list. Try another answer, or skip. This is not a claim that your answer is factually wrong.",
       );
+      answerInput.current?.focus();
       return;
     }
     dispatch({ type: "answer", answer: result.word });
     setAnswer("");
     setError("");
+    requestAnimationFrame(() => answerInput.current?.focus());
   }
   return (
     <>
@@ -52,26 +60,6 @@ export default function Odd({ session }: { session: Session }) {
         </Result>
       ) : (
         <div className="word-layout">
-          <div className="game-intro">
-            <span className="eyebrow">Take the road less answered</span>
-            <h2>The unexpected fits.</h2>
-            <p>
-              Three prompts. One accepted answer per prompt. Find a less obvious fit—or a familiar
-              favorite.
-            </p>
-            <details className="rules">
-              <summary>How scoring works</summary>
-              <p>
-                Each answer has a fixed editorial tier of 10, 20, 30 or 40 points. These are design
-                choices, not measured player rarity. No speed bonus or AI judging. Exact names and
-                listed aliases count; spelling is not silently changed.
-              </p>
-            </details>
-            <p className="small muted">
-              Eight curated categories, shuffled for practice. More content is an editorial task,
-              not an infinite AI promise.
-            </p>
-          </div>
           <div className="word-panel">
             <PhaserSurface
               game="odd"
@@ -106,16 +94,26 @@ export default function Odd({ session }: { session: Session }) {
                   </li>
                 ))}
               </ol>
-              <h3 data-scene-id="odd-prompt">{current.prompt}</h3>
+              <h3 id="odd-prompt" data-scene-id="odd-prompt">
+                {current.prompt}
+              </h3>
             </PhaserSurface>
-            <p className="small muted">{current.note}</p>
+            <p className="small muted" id="odd-edition-note">
+              {current.note} Answers must be in this edition’s list.
+            </p>
             <form onSubmit={submit}>
               <label htmlFor="odd-answer">Your answer</label>
               <input
                 id="odd-answer"
+                ref={answerInput}
                 value={answer}
                 maxLength={80}
                 autoComplete="off"
+                enterKeyHint="done"
+                aria-invalid={!!error}
+                aria-describedby={
+                  error ? "odd-prompt odd-edition-note odd-error" : "odd-prompt odd-edition-note"
+                }
                 onChange={(e) => setAnswer(e.target.value)}
                 placeholder="Something comes to mind…"
                 required
@@ -131,6 +129,7 @@ export default function Odd({ session }: { session: Session }) {
                     dispatch({ type: "answer", answer: null });
                     setAnswer("");
                     setError("");
+                    requestAnimationFrame(() => answerInput.current?.focus());
                   }}
                 >
                   Skip prompt
@@ -138,7 +137,7 @@ export default function Odd({ session }: { session: Session }) {
               </div>
             </form>
             {error && (
-              <p className="notice" role="alert">
+              <p className="notice" role="alert" id="odd-error">
                 {error}
               </p>
             )}
@@ -147,6 +146,26 @@ export default function Odd({ session }: { session: Session }) {
                 Previous answer: {state.answers[index - 1] ?? "skipped"}. Your progress is saved.
               </p>
             )}
+          </div>
+          <div className="game-intro">
+            <span className="eyebrow">Take the road less answered</span>
+            <h2>The unexpected fits.</h2>
+            <p>
+              Three prompts. One accepted answer per prompt. Find a less obvious fit—or a familiar
+              favorite.
+            </p>
+            <details className="rules">
+              <summary>How scoring works</summary>
+              <p>
+                Each answer has a fixed editorial tier of 10, 20, 30 or 40 points. These are design
+                choices, not measured player rarity. No speed bonus or AI judging. Exact names and
+                listed aliases count; spelling is not silently changed.
+              </p>
+            </details>
+            <p className="small muted">
+              Eight curated categories, shuffled for practice. More content is an editorial task,
+              not an infinite AI promise.
+            </p>
           </div>
         </div>
       )}

@@ -23,7 +23,8 @@
     "db:cleanup": "node --env-file-if-exists=.env.local --import tsx scripts/cleanup.ts",
     "content:editorial": "node --env-file-if-exists=.env.local --import tsx scripts/editorial.ts",
     "content:verify-play": "node --env-file-if-exists=.env.local --import tsx scripts/verify-live-play.ts",
-    "db:restore": "node --import tsx scripts/restore.ts"
+    "db:restore": "node --import tsx scripts/restore.ts",
+    "ui:capture": "node --import tsx scripts/capture-ui.ts"
   },
   "dependencies": {
     "@langchain/core": "1.3.4",

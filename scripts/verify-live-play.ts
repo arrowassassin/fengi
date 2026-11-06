@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import { mkdir, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { chromium, devices } from "@playwright/test";
 import { generatedPuzzle } from "../src/games/generated-content";
 import { dailyPrompts } from "../src/games/odd/engine";
@@ -17,7 +17,7 @@ let server: ReturnType<typeof spawn> | undefined;
 let browser: Awaited<ReturnType<typeof chromium.launch>> | undefined;
 let stage = "generation";
 try {
-  const captureDir = "/workspace/fengi-live-ai-captures";
+  const captureDir = resolve(process.env.FENGI_CAPTURE_DIR || "/workspace/fengi-live-ai-captures");
   await mkdir(captureDir, { recursive: true });
   const editions = [];
   for (let attempt = 1; attempt <= 2; attempt++) {

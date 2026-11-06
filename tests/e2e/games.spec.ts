@@ -8,9 +8,9 @@ const seed = "browser-proof";
 test("home, all five games, navigation, themes and responsive layout", async ({ page }) => {
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Small games. Big little victories." }),
+    page.getByRole("heading", { name: "A small break. A good kind of challenge." }),
   ).toBeVisible();
-  await expect(page.locator(".game-card")).toHaveCount(4);
+  await expect(page.locator(".game-card")).toHaveCount(5);
   await page.getByRole("button", { name: "Use dark theme" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await page.getByRole("link", { name: "Practice", exact: true }).click();
@@ -162,5 +162,5 @@ test("Pair Bloom retains graphics through full-page capture and viewport resize"
   await expect(page.locator('[data-engine="phaser"] canvas')).toHaveCount(1);
   await expect(page.getByText("Graphics could not load.", { exact: false })).toHaveCount(0);
   await page.locator('[data-card="1"]').click();
-  await expect(page.locator(".stat-line")).toContainText("1 turns");
+  await expect(page.locator(".stat-line")).toContainText("1 turn");
 });

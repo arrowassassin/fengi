@@ -4,13 +4,10 @@ export default function Page() {
   return (
     <>
       <p className="eyebrow">A collection of little victories</p>
-      <h1>
-        Your time.
-        <br />
-        <em>Well spent.</em>
-      </h1>
+      <h1>Your progress.</h1>
       <p className="page-lead">
-        Recent rounds saved on this browser. No rankings. No pressure to keep a streak.
+        Resume a round, revisit a result or protect your saves with a recovery code. No rankings or
+        streak pressure.
       </p>
       <Progress />
     </>

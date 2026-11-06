@@ -22,3 +22,8 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+## Manrope
+
+Self-hosted Manrope variable Latin font from @fontsource-variable/manrope 5.3.0. License: SIL Open Font License 1.1. The original copyright and license text is retained in public/fonts/Manrope-OFL.txt. Source: https://www.npmjs.com/package/@fontsource-variable/manrope/v/5.3.0 .

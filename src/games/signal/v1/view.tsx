@@ -1,6 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import { Result, SaveNotice } from "../../../components/game-shared";
+import { SignalExample } from "../../../components/signal-example";
 import { type GeneratedPack, generatedPuzzle } from "../../generated-content";
 import { signalDefinition } from "../../generated-definitions";
 import type { Session } from "../../registry";
@@ -23,7 +24,12 @@ export default function Signal({
   );
   const { state, dispatch, ready, warning } = useGameSession(definition, session);
   const [message, setMessage] = useState("Start with a row that already has all its circles.");
-  if (!ready) return <p className="loading">Preparing your grid…</p>;
+  if (!ready)
+    return (
+      <p className="loading" role="status">
+        Preparing your grid…
+      </p>
+    );
   const solved = isSolved(state.cells, puzzle),
     counts = totals(state.cells);
   const marked = state.cells.filter((v, i) => v !== -1 && puzzle.givens[i] === -1).length,
@@ -67,6 +73,7 @@ export default function Signal({
                 <li>Match every row and column total.</li>
                 <li>Dotted tiles are fixed clues. No timer.</li>
               </ol>
+              <SignalExample />
             </details>
             <p className="small muted">
               {marked} of {open} open tiles marked
@@ -87,7 +94,7 @@ export default function Signal({
                   })),
                   ...puzzle.columns.map((n, i) => ({
                     id: `col-${i}`,
-                    text: String(n),
+                    text: `${n}${counts.columns[i] === n ? "✓" : counts.columns[i] > n ? "!" : ""}`,
                     color:
                       counts.columns[i] === n
                         ? "--blue"
@@ -98,7 +105,7 @@ export default function Signal({
                   })),
                   ...puzzle.rows.map((n, i) => ({
                     id: `row-${i}`,
-                    text: String(n),
+                    text: `${n}${counts.rows[i] === n ? "✓" : counts.rows[i] > n ? "!" : ""}`,
                     color:
                       counts.rows[i] === n ? "--blue" : counts.rows[i] > n ? "--danger" : "--muted",
                     shape: "text" as const,
@@ -114,9 +121,12 @@ export default function Signal({
                     key={`col-${c}`}
                     data-scene-id={`col-${c}`}
                     className={`clue ${counts.columns[c] === n ? "matched" : ""} ${counts.columns[c] > n ? "over" : ""}`}
-                    aria-label={`Column ${c + 1}: ${counts.columns[c]} of ${n} circles`}
+                    aria-label={`Column ${c + 1}: ${counts.columns[c]} of ${n} circles${counts.columns[c] === n ? ", circle count matched" : counts.columns[c] > n ? ", too many circles" : ""}`}
                   >
                     {n}
+                    <span aria-hidden="true" className="clue-mark">
+                      {counts.columns[c] === n ? "✓" : counts.columns[c] > n ? "!" : ""}
+                    </span>
                   </span>
                 ))}
                 {puzzle.rows.map((n, r) => (
@@ -125,9 +135,12 @@ export default function Signal({
                       role="img"
                       data-scene-id={`row-${r}`}
                       className={`clue ${counts.rows[r] === n ? "matched" : ""} ${counts.rows[r] > n ? "over" : ""}`}
-                      aria-label={`Row ${r + 1}: ${counts.rows[r]} of ${n} circles`}
+                      aria-label={`Row ${r + 1}: ${counts.rows[r]} of ${n} circles${counts.rows[r] === n ? ", circle count matched" : counts.rows[r] > n ? ", too many circles" : ""}`}
                     >
                       {n}
+                      <span aria-hidden="true" className="clue-mark">
+                        {counts.rows[r] === n ? "✓" : counts.rows[r] > n ? "!" : ""}
+                      </span>
                     </span>
                     {state.cells.slice(r * 5, r * 5 + 5).map((v, c) => {
                       const i = r * 5 + c;
@@ -151,6 +164,7 @@ export default function Signal({
                 ))}
               </fieldset>
             </PhaserSurface>
+            <p className="clue-legend">✓ circle count matched · ! too many circles</p>
             <div className="actions centered">
               <button
                 type="button"

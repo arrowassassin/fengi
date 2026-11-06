@@ -10,11 +10,7 @@ export default function Archive() {
   return (
     <>
       <p className="eyebrow">Good games don’t expire</p>
-      <h1>
-        A week of
-        <br />
-        <em>little discoveries.</em>
-      </h1>
+      <h1>The daily archive.</h1>
       <p className="page-lead">
         Missed a day? Take it at your own pace. Editions use UTC and keep their original rules.
       </p>

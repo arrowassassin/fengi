@@ -11,7 +11,12 @@ export default function Trail({ session }: { session: Session }) {
   const garden = useMemo(() => createGarden(session.seed), [session.seed]);
   const { state, dispatch, ready, warning } = useGameSession(trailGame, session);
   const [message, setMessage] = useState("Gather all three seeds before reaching the exit.");
-  if (!ready) return <p className="loading">Growing your garden…</p>;
+  if (!ready)
+    return (
+      <p className="loading" role="status">
+        Growing your garden…
+      </p>
+    );
   const current = state.path.at(-1) ?? 0,
     mask = pathMask(state.path, garden.seeds),
     complete = current === 35 && mask === 7;
@@ -27,6 +32,8 @@ export default function Trail({ session }: { session: Session }) {
           ? "The exit is here, but some seeds are still in the garden."
           : "Retracing is allowed. Look for a route that gathers all three.",
       );
+    } else {
+      setMessage("Choose a neighboring square. Hedges block the way.");
     }
   }
   return (
@@ -65,6 +72,14 @@ export default function Trail({ session }: { session: Session }) {
               {state.path.length - 1} moves <span>·</span>{" "}
               {[0, 1, 2].filter((i) => mask & (1 << i)).length}/3 seeds
             </p>
+            <ul className="seed-checklist" aria-label="Seeds to collect">
+              {garden.seeds.map((_, i) => (
+                <li key={`seed-${i}`}>
+                  {mask & (1 << i) ? "✓" : "○"} Seed {i + 1}
+                  {mask & (1 << i) ? " collected" : " to find"}
+                </li>
+              ))}
+            </ul>
           </div>
           <div className="board-area">
             <PhaserSurface
@@ -85,14 +100,18 @@ export default function Trail({ session }: { session: Session }) {
                             ? "✿"
                             : i === 0
                               ? "○"
-                              : "",
+                              : neighbors(current).includes(i)
+                                ? "·"
+                                : "",
                     fill: wall
                       ? "--moss-ink"
                       : i === current
                         ? "--ink"
                         : state.path.includes(i)
                           ? "--moss-path"
-                          : "--panel",
+                          : neighbors(current).includes(i)
+                            ? "--moss"
+                            : "--panel",
                     color: wall ? "--moss" : i === current ? "--paper" : "--moss-ink",
                   };
                 }),
@@ -120,11 +139,12 @@ export default function Trail({ session }: { session: Session }) {
                       type="button"
                       key={`garden-${i}`}
                       data-garden-cell={i}
+                      data-legal={!wall && neighbors(current).includes(i) ? "true" : undefined}
                       data-scene-id={`trail-${i}`}
                       className={`garden-cell ${wall ? "hedge" : ""} ${i === current ? "player" : ""} ${state.path.includes(i) ? "visited" : ""}`}
                       disabled={wall}
                       onClick={() => move(i)}
-                      aria-label={`Row ${Math.floor(i / 6) + 1}, column ${(i % 6) + 1}${wall ? ", hedge" : i === current ? ", you are here" : i === 35 ? ", exit" : seedIndex >= 0 ? (collected ? ", seed collected" : ", seed") : ""}`}
+                      aria-label={`Row ${Math.floor(i / 6) + 1}, column ${(i % 6) + 1}${!wall && neighbors(current).includes(i) ? ", available move" : ""}${wall ? ", hedge" : i === current ? ", you are here" : i === 35 ? ", exit" : seedIndex >= 0 ? (collected ? ", seed collected" : ", seed") : ""}`}
                     >
                       {wall
                         ? "▥"

@@ -9,8 +9,8 @@ export default function Collections() {
       <p className="eyebrow">A fresh perspective</p>
       <h1>The play collection.</h1>
       <p className="collection-intro">
-        Three familiar subjects. An unexpected combination. Explore reviewed Odd Answer collections
-        at your own pace.
+        A new perspective on your favorite games. Play reviewed collections with verified rules,
+        including AI-assisted practice layouts.
       </p>
       {editions.length ? (
         <div className="edition-grid">
@@ -31,12 +31,10 @@ export default function Collections() {
         </div>
       ) : (
         <div className="empty-collection">
-          <h2>Good things take a little care.</h2>
-          <p>
-            No collections have been published yet. Our original games are ready whenever you are.
-          </p>
-          <Link className="button primary" href="/play/odd">
-            Play today’s Odd Answer
+          <h2>No collections yet.</h2>
+          <p>Reviewed packs will appear here. Today’s five games are ready whenever you are.</p>
+          <Link className="button primary" href="/">
+            Explore today’s games
           </Link>
         </div>
       )}

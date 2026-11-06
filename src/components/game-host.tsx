@@ -8,7 +8,11 @@ import { readRecord, removeRecord } from "../lib/persistence";
 import { downloadRecords } from "../lib/progress-client";
 import { ReviewedGarden } from "./reviewed-garden";
 
-const loading = () => <p className="loading">Getting your game ready…</p>;
+const loading = () => (
+  <p className="loading" role="status">
+    Getting your game ready…
+  </p>
+);
 const Signal = dynamic(() => import("../games/signal/v1/view"), { loading });
 const Orbit = dynamic(() => import("../games/orbit/v1/view"), { loading });
 const Odd = dynamic(() => import("../games/odd/v1/view"), { loading });
@@ -112,7 +116,12 @@ function SessionHost({
         {downloadError && <p>{downloadError}</p>}
       </section>
     );
-  if (lease === "waiting") return <p className="loading">Opening your game…</p>;
+  if (lease === "waiting")
+    return (
+      <p className="loading" role="status">
+        Opening your game…
+      </p>
+    );
   if (lease === "busy")
     return (
       <section>

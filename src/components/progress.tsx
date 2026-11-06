@@ -55,7 +55,12 @@ export function Progress() {
       window.removeEventListener("focus", focus);
     };
   }, []);
-  if (!ready) return <p className="loading">Opening your collection…</p>;
+  if (!ready)
+    return (
+      <p className="loading" role="status">
+        Opening your collection…
+      </p>
+    );
   return (
     <>
       {error && (

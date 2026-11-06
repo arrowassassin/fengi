@@ -1,14 +1,24 @@
 import type { Metadata } from "next";
 import { Footer, Header } from "../components/shell";
 import "./globals.css";
+import "./experience.css";
 export const metadata: Metadata = {
-  title: { default: "Fengi — Small games. Big little victories.", template: "%s · Fengi" },
+  title: { default: "Fengi — The everyday play club", template: "%s · Fengi" },
   description:
     "Five little browser games for a moment well spent. Daily logic, arcade, wordplay, strategy and memory. No account needed.",
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link
+          rel="preload"
+          href="/fonts/manrope-latin.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body>
         <a className="skip-link" href="#main">
           Skip to content

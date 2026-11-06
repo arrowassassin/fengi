@@ -1,109 +1,91 @@
 import Link from "next/link";
-import { GameArt } from "../components/game-art";
-import { games, utcDate } from "../games/registry";
+import { GameShelf } from "../components/game-shelf";
+import { utcDate } from "../games/registry";
 export const dynamic = "force-dynamic";
 export default function Home() {
   const date = utcDate();
   return (
     <>
-      <div className="home-heading">
-        <div>
+      <section className="club-welcome" aria-labelledby="welcome-title">
+        <div className="welcome-copy">
           <p className="eyebrow">
-            A little room for play <span className="tiny-flower">✳</span>
+            <span className="live-dot" aria-hidden="true" /> THE EVERYDAY PLAY CLUB
           </p>
-          <h1>
-            Small games.
+          <h1 id="welcome-title">
+            A small break.
             <br />
-            <em>Big little victories.</em>
+            <span>A good kind of challenge.</span>
           </h1>
-        </div>
-        <p className="home-aside">
-          A few quiet minutes.
-          <br />A beautifully good challenge.
-          <br />
-          <span className="edition">EDITION / {date}</span>
-        </p>
-      </div>
-      <section className="featured">
-        <div className="feature-copy">
-          <span className="pill">TODAY’S FEATURE · LOGIC</span>
-          <h2>Signal Grid</h2>
           <p>
-            A little logic. A lovely click.
-            <br />
-            Find the pattern hiding in plain sight.
+            Five games for your curious side. Find your favorite, make a little progress, and leave
+            feeling good.
           </p>
-          <div className="game-meta">
-            <span>3–5 minutes</span>
-            <span>One unique solution</span>
-          </div>
-          <Link className="button primary" href={`/play/signal?date=${date}`}>
-            Play today <span aria-hidden="true">↗︎</span>
+          <Link className="button primary welcome-cta" href={`/play/signal?date=${date}`}>
+            Play today’s Signal Grid <span aria-hidden="true">→</span>
           </Link>
-          <span className="small muted">No account. No clock. Just you.</span>
+          <div className="welcome-details">
+            <span>No account needed</span>
+            <span>Play in your browser</span>
+          </div>
         </div>
-        <div className="feature-art">
-          <GameArt game="signal" large />
-          <span className="art-note">Everything clicks.</span>
-          <span className="feature-spark" aria-hidden="true">
-            ✳
-          </span>
+        <div className="welcome-character" aria-hidden="true">
+          <span className="character-orbit orbit-one" />
+          <span className="character-orbit orbit-two" />
+          <div className="mascot-display" />
+          <span className="character-caption">less scroll. more play.</span>
+          <span className="character-star">✳</span>
         </div>
       </section>
-      <div className="section-heading">
-        <h2>A different kind of delight</h2>
-        <span className="small muted">Five ways to find your flow</span>
+      <div className="edition-date">
+        <time dateTime={date}>
+          {new Date(`${date}T12:00:00Z`).toLocaleDateString("en-US", {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+            timeZone: "UTC",
+          })}
+        </time>
+        <span>Made for a moment to yourself</span>
       </div>
-      <div className="game-grid">
-        {games.slice(1).map((game) => (
-          <Link
-            className={`game-card tone-${game.color}`}
-            href={`/play/${game.id}?date=${date}`}
-            key={game.id}
-          >
-            <div>
-              <span className="eyebrow">
-                {game.category} · {game.time}
-              </span>
-              <h3>
-                {game.name} <span aria-hidden="true">↗︎</span>
-              </h3>
-              <p>{game.line}</p>
-            </div>
-            <GameArt game={game.id} />
-          </Link>
-        ))}
-      </div>
+      <GameShelf date={date} />
       <section className="collection-promo">
-        <div className="mascot-display" aria-hidden="true" />
-        <div>
-          <p className="eyebrow">A curious little club</p>
-          <h2>
-            Good company.
+        <div className="collection-stamp" aria-hidden="true">
+          <span>
+            FRESH
             <br />
-            Odd answers.
+            PERSPECTIVES
+          </span>
+          <span>✳</span>
+        </div>
+        <div>
+          <p className="eyebrow">More ways to play</p>
+          <h2>
+            A different day.
+            <br />A different little discovery.
           </h2>
           <p>
-            Explore our reviewed wordplay collections. Familiar subjects, unexpected combinations,
-            and absolutely no rush.
+            Explore reviewed game collections, including AI-assisted layouts checked against our
+            game rules.
           </p>
-          <Link className="button secondary" href="/collections">
-            Meet the collections
-            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M4 12 12 4M4 4h8v8" stroke="currentColor" strokeWidth="1.5" />
-            </svg>
+          <Link className="button primary" href="/collections">
+            Meet the collections <span aria-hidden="true">→</span>
           </Link>
         </div>
       </section>
       <section className="practice-strip">
         <div>
-          <span className="eyebrow">Not done exploring?</span>
-          <h2>There’s room for one more.</h2>
-          <p>Fresh layouts, your own pace. Practice whenever you like.</p>
+          <p className="eyebrow">Just one more?</p>
+          <h2>Good games don’t need a deadline.</h2>
+          <p>Try a fresh practice round or revisit an edition you missed.</p>
         </div>
-        <Link className="button secondary" href="/practice">
-          Explore practice <span aria-hidden="true">→</span>
-        </Link>
+        <div className="actions">
+          <Link className="button secondary" href="/practice">
+            Explore practice →
+          </Link>
+          <Link className="button text" href="/archive">
+            Visit the archive
+          </Link>
+        </div>
       </section>
     </>
   );
