@@ -2,6 +2,22 @@ import Link from "next/link";
 import { GameShelf } from "../components/game-shelf";
 import { utcDate } from "../games/registry";
 export const dynamic = "force-dynamic";
+function Spark() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 32 32"
+      width="1em"
+      height="1em"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+    >
+      <path d="M16 3v26M3 16h26M7 7l18 18M7 25L25 7" />
+    </svg>
+  );
+}
 export default function Home() {
   const date = utcDate();
   return (
@@ -33,7 +49,9 @@ export default function Home() {
           <span className="character-orbit orbit-two" />
           <div className="mascot-display" />
           <span className="character-caption">less scroll. more play.</span>
-          <span className="character-star">✳</span>
+          <span className="character-star">
+            <Spark />
+          </span>
         </div>
       </section>
       <div className="edition-date">
@@ -55,7 +73,9 @@ export default function Home() {
             <br />
             PERSPECTIVES
           </span>
-          <span>✳</span>
+          <span>
+            <Spark />
+          </span>
         </div>
         <div>
           <p className="eyebrow">More ways to play</p>
